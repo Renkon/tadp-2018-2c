@@ -81,4 +81,36 @@ describe 'matcher tests' do
         expect(list(array_pattern4).call([1,2,3,4])).to be true
       end
     end
+
+    describe 'duck-test' do
+      #before do
+      #  pepita = Object.new
+      #  pepita.define_singleton_method(:volar){}
+      #  pepita.define_singleton_method(:comer){}
+      #end
+      class Pepita
+        def volar
+        end
+        def comer
+        end
+      end
+
+      let(:pepita) { Pepita.new }
+
+      it 'pepita entiende volar' do
+        expect(duck(:volar).call(pepita)).to be true
+      end
+
+      it 'pepita entiende volar y comer' do
+        expect(duck(:volar, :comer).call(pepita)).to be true
+      end
+
+      it 'pepita no entiende salto_ninja' do
+        expect(duck(:salto_ninja).call(pepita)).to be false
+      end
+
+      it 'pepita entiende volar pero no entiende salto_ninja, debe dar false' do
+        expect(duck(:volar, :salto_ninja).call(pepita)).to be false
+      end
+    end
   end

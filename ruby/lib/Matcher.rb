@@ -37,3 +37,8 @@ def are_equivalents(expected, gotten)
 
   result
 end
+
+def duck(first, *others)
+  lambda {|gotten| (gotten.respond_to? first) && others.all? {|method_name| gotten.respond_to? method_name} }
+  # hay una forma mas linda de hacer esto de los parametros variables ?
+end
