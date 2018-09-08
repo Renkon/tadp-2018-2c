@@ -1,3 +1,5 @@
+
+
 describe 'Part 1 - Matchers' do
   describe 'Variable matcher' do
     it 'variable matcher should be true' do
@@ -74,6 +76,10 @@ describe 'Part 1 - Matchers' do
 
     it 'list matcher should be mixed with variables with wrong order and should return false' do
       expect(list([1, 3, :a, 4]).call(an_array)).to be false
+    end
+
+    it 'list matcher should work even when sending pattern with more than N elements' do
+      expect(list([1, 2, 3, 4, 5], true).call(an_array)).to be true
     end
   end
 
