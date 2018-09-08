@@ -1,20 +1,21 @@
-# Executed when our mixin is imported
+require_relative 'combinable_proc'
+
 # We must add 'call' method to Symbol class instances.
 Symbol.define_method(:call) { | identifier | true }
 
 # Matcher that validates if a value is equal to another one.
 def val(value)
-  Proc.new { | another_value | value == another_value }
+  CombinableProc.new { | another_value | value == another_value }
 end
 
 # Matcher that validates if a value is of a certain type.
 def type(klazz)
-  Proc.new { | object | object.is_a?(klazz) }
+  CombinableProc.new { | object | object.is_a?(klazz) }
 end
 
 # Matcher that validates if a list has got the same first elements as # another list. You can also specify how many elements should be analyzed.
 def list(pattern_list, match_size = true)
-  Proc.new do
+  CombinableProc.new do
   |original_list|
     original_list.is_a?(Enumerable) && pattern_list.is_a?(Enumerable) &&
         list_matcher_result(
@@ -37,7 +38,7 @@ end
 
 # Matcher that returns if an element understands certain messages.
 def duck(*methods_to_check)
-  Proc.new do
+  CombinableProc.new do
   | object |
     methods_to_check.to_set().subset?(object.methods().to_set())
   end
