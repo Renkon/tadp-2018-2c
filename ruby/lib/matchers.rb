@@ -9,15 +9,18 @@ end
 
 # Matcher that validates if a value is of a certain type.
 def type(klazz)
-  Proc.new { | object | object.class.ancestors.include?(klazz) }
+  Proc.new { | object | object.is_a?(klazz) }
 end
 
 # Matcher that validates if a list has got the same first elements as # another list. You can also specify how many elements should be analyzed.
 def list(pattern_list, match_size = true)
   Proc.new do
   |original_list|
-    original_list_modified = (match_size ? original_list : original_list.take(pattern_list.length))
-    list_matcher_result(pattern_list, original_list_modified).all? { | result | result }
+    original_list.is_a?(Enumerable) && pattern_list.is_a?(Enumerable) &&
+        list_matcher_result(
+            pattern_list,
+            (match_size ? original_list : original_list.take(pattern_list.length)))
+            .all? { | result | result } && pattern_list.length <= original_list.length
   end
 end
 

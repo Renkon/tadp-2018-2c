@@ -78,8 +78,8 @@ describe 'Part 1 - Matchers' do
       expect(list([1, 3, :a, 4]).call(an_array)).to be false
     end
 
-    it 'list matcher should work even when sending pattern with more than N elements' do
-      expect(list([1, 2, 3, 4, 5], true).call(an_array)).to be true
+    it 'list matcher should work but return false when sending pattern with more than N elements' do
+      expect(list([1, 2, 3, 4, 5], true).call(an_array)).to be false
     end
   end
 
