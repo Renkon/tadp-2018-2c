@@ -27,13 +27,10 @@ end
 
 # Used only by list to bind/match lists
 def list_matcher_result(pattern_list, original_list)
-  match_results = []
-  original_list.zip(pattern_list).each do | original_value, pattern_value |
-    match_results.append(original_value == pattern_value ||
-                             (!pattern_value.nil? &&
-                                 pattern_value.respond_to?(:call) && pattern_value.call(original_value)))
+  original_list.zip(pattern_list).map do | original_value, pattern_value |
+    original_value == pattern_value ||
+        (!pattern_value.nil? && pattern_value.respond_to?(:call) && pattern_value.call(original_value))
   end
-  match_results
 end
 
 # Matcher that returns if an element understands certain messages.
