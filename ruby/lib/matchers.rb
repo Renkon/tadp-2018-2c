@@ -1,4 +1,4 @@
-require_relative 'combinable_proc'
+require_relative 'combinable'
 
 # We must add 'call' method to Symbol class instances.
 Symbol.define_method(:call) { | identifier | true }
