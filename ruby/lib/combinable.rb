@@ -1,11 +1,11 @@
 module Combinable
-  # Given 1 to n CombinableProcs it combines them as a single CombinableProc with and condition.
+  # Returns a CombinableProc which consists of all the combinable procs sent joined by &.
   def and(*combinable_procs)
     validate_varargs(combinable_procs)
     combinate_procs(combinable_procs, :&, true)
   end
 
-  # Given 1 to n CombinableProcs it combines them as a single CombinableProc with or condition.
+  # Returns a CombinableProc which consists of all the combinable procs sent joined by |.
   def or(*combinable_procs)
     validate_varargs(combinable_procs)
     combinate_procs(combinable_procs, :|, false)
@@ -13,7 +13,9 @@ module Combinable
 
   # Negates current CombinableProc condition.
   def not()
-
+    CombinableProc.new do |value|
+      !self.call(value)
+    end
   end
 
   # Returns a CombinableProc with a recursive operation (like &&, &&, ||, |, +, etc)
@@ -44,5 +46,13 @@ end
 
 
 class CombinableProc < Proc
+  include Combinable
+
+  def call(arg)
+    super(arg)
+  end
+end
+
+class Symbol
   include Combinable
 end
