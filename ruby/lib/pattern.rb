@@ -1,4 +1,3 @@
-require_relative "combinable"
 require_relative "matchers"
 
 # This method is used to define which matchers should be analyzed to execute a chunk of code
