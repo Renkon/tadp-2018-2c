@@ -13,23 +13,23 @@ module Combinable
 
   # Negates current CombinableProc condition.
   def not()
-    CombinableProc.new do |value|
-      !self.call(value)
-    end
+    lambda do | value, bind_to = nil |
+      !self.call(value, bind_to)
+    end.extend(Combinable)
   end
 
   # Returns a CombinableProc with a recursive operation (like &&, &&, ||, |, +, etc)
   private
   def combinate_procs(procs, operation, neutral_value)
-    CombinableProc.new do |value|
-      recursive_operation(operation, procs.unshift(self), value, neutral_value)
-    end
+    lambda do | value, bind_to = nil |
+      recursive_operation(operation, procs.unshift(self), value, bind_to, neutral_value)
+    end.extend(Combinable)
   end
 
   private
-  def recursive_operation(operation, procs, value, neutral_value)
+  def recursive_operation(operation, procs, value, bind_to, neutral_value)
     procs.reduce(neutral_value) do |full_cond, new_cond|
-      full_cond.send(operation, new_cond.call(value))
+      full_cond.send(operation, new_cond.call(value, bind_to))
     end
   end
 
@@ -40,16 +40,6 @@ module Combinable
 
     raise ArgumentError.new "Invalid number of arguments used for #{caller_method}(). At least one required." if elems.length < 1
     raise ArgumentError.new "Invalid elements sent to #{caller_method}. Only Combinable elements allowed." unless elems.all? { | elem | elem.is_a?(Combinable) }
-  end
-end
-
-
-
-class CombinableProc < Proc
-  include Combinable
-
-  def call(arg)
-    super(arg)
   end
 end
 
