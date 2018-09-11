@@ -36,7 +36,7 @@ module Combinable
   private
   def validate_varargs(elems)
     # In order to write down a friendly error, we get caller method's name and inform the user if sending no args.
-    caller_method = "Combinable." + caller[0][/`.*'/][1..-2] + "()"
+    caller_method = "Combinable." + caller[0][/`.*'/][1..-2]
 
     raise ArgumentError.new "Invalid number of arguments used for #{caller_method}(). At least one required." if elems.length < 1
     raise ArgumentError.new "Invalid elements sent to #{caller_method}. Only Combinable elements allowed." unless elems.all? { | elem | elem.is_a?(Combinable) }
