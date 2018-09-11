@@ -190,3 +190,79 @@ describe 'Part 2 - Combinators' do
     end
   end
 end
+
+describe 'Part 3 - Patterns' do
+  it 'using 1 as input for type integer should bind and display a message' do
+    expect(matches?(1) { with(type(Integer), :a_number) { "entré! soy #{a_number}" } }).to eq "entré! soy 1"
+  end
+
+  it 'using pepe as input for type string it should be bound and its length should be 4' do
+    expect(matches?('pepe') { with(type(String), :a_string) { a_string.length } }).to be 4
+  end
+
+  it 'using [1,2], getting bounded values and summing them should be 3' do
+    expect(matches?([1, 2]) { with(list([:a, :b])) { a + b } }).to be 3
+  end
+
+  it 'using [1,2,Object.new] checking and binding the sum should be 3' do
+    # if this is complex for you... we have some bad news xD
+    expect(matches?([1, 2, Object.new]) do
+      with(list([duck(:+).and(type(Fixnum), :x),
+           :y.or(val(4)),
+           duck(:+).not])) do
+        x + y
+      end
+    end).to be 3
+  end
+end
+
+describe 'Part 4 - Matchers' do
+  it 'given a list with 3 elems it should go inside first with statement' do
+    expect(matches?([1, 2, 3]) do
+      with(list([:a, val(2), duck(:+)])) { a + 2 }
+      with(list([1, 2, 3])) { 'acá no llego' }
+      otherwise { 'acá no llego' }
+    end).to be 3
+  end
+
+  it 'given an object and after defining a method, it should find it in second with' do
+    test_obj = Object.new
+    test_obj.send(:define_singleton_method, :hola) { 'hola' }
+    expect(matches?(test_obj) do
+      with(duck(:hola)) { 'chau!' }
+      with(type(Object)) { 'acá no llego' }
+    end).to eq "chau!"
+  end
+
+  it 'given a number that does not fit any criteria it should go on otherwise' do
+    expect(matches?(2) do
+      with(type(String)) { a + 2 }
+      with(list([1, 2, 3])) { 'acá no llego' }
+      otherwise { 'acá si llego' }
+    end).to eq "acá si llego"
+  end
+
+  it 'after otherwise it should not execute code' do
+    expect(matches?(1) do
+      otherwise { "good" }
+      "bad"
+    end).to eq "good"
+  end
+
+  it 'after a match it should not execute anymore' do
+    expect(matches?(1) do
+      with(val(1)) { "first" }
+      with(type(Integer)) { "second" }
+      otherwise { "last" }
+      "none"
+    end).to eq "first"
+  end
+
+  it 'if no match it can continue executing' do
+    expect(matches?(1) do
+      with(val(2)) { "bad" }
+      with(type(String)) { "worse" }
+      "good"
+    end).to eq "good"
+  end
+end
