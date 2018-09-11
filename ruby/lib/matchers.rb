@@ -3,6 +3,10 @@ require_relative 'combinable'
 # We must add 'call' method to Symbol class instances.
 class Symbol
   def call(value, bind_to = nil)
+    if bind_to
+      bind_to.instance_variable_set("@" + to_s, value)
+      bind_to.class.send(:attr_accessor, to_s)
+    end
     true
   end
 end
