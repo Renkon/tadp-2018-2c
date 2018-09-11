@@ -33,7 +33,7 @@ def type(expected)
 end
 
 def list(expected, with_size = true) # supuestamente esto lo hace opcional
-  lambda {|gotten| gotten.is_a?(Array) && (with_size ? gotten.size == expected.size : true) && are_equivalents(expected, gotten)}.extend(ConcatenableOperations)
+  lambda {|gotten| expected.is_a?(Enumerable) && gotten.is_a?(Enumerable) && (with_size ? gotten.size == expected.size : true) && are_equivalents(expected, gotten)}.extend(ConcatenableOperations)
   # TODO: Lo que no me gusta de esto es que el metodo are_equivalents sigue siendo visible, si lo defino como self.are_equivalents ya no es visible, pero no puedo correrlo desde la lambda
 end
 
