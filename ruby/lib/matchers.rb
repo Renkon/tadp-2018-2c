@@ -4,8 +4,7 @@ require_relative 'combinable'
 class Symbol
   def call(value, bind_to = nil)
     if bind_to
-      bind_to.instance_variable_set("@" + to_s, value)
-      bind_to.class.send(:attr_accessor, to_s)
+      bind_to.add_property(to_s, value)
     end
     true
   end
