@@ -1,11 +1,9 @@
-describe 'Part 1 - Matchers' do
-  describe 'Variable matcher' do
-    it 'variable matcher should be true' do
-      expect(:something.call('some value')).to be true
-    end
-  end
+# Esto puede ser util
+# https://en.wikibooks.org/wiki/Ruby_Programming/Unit_testing
 
-  describe 'Value matcher' do
+describe 'Part 1 - Matchers' do
+
+  describe 'Val matcher' do
     it 'value matcher should be true if equal value and type' do
       expect(val(5).call(5)).to be true
     end
@@ -17,23 +15,96 @@ describe 'Part 1 - Matchers' do
     it 'value matcher should be false if different value' do
       expect(val(5).call(4)).to be false
     end
+
+    it 'value matcher should be false if different value but same type' do
+      expect(val("otro valor").call("otro")).to be false
+    end
+
+    it 'value matcher should be false if different value and type' do
+      expect(val(5).call([5])).to be false
+    end
   end
 
-  describe 'Type matcher' do
-    it 'type matcher should be true if element is an instance of the class' do
-      expect(type(Integer).call(5)).to be true
+  describe 'type matcher' do
+    it '2 no es de tipo symbol' do
+      expect(type(Symbol).call(2)).to be false
     end
 
-    it 'type matcher should be false if element is not an instance of the class' do
-      expect(type(Symbol).call('Trust me, I\'m a symbol..')).to be false
+    it ':a es de tipo symbol' do
+      expect(type(Symbol).call(:a)).to be true
     end
 
-    it 'type matcher should be true if element is an instance of the class' do
-      expect(type(Symbol).call(:a_real_symbol)).to be true
+    it 'comparable es de tipo modulo' do
+      expect(type(Module).call(Comparable)).to be true
+    end
+
+    it 'si declaro una clase de tipo ganzo, su instancia deber ser de ese tipo' do
+      class Ganzo
+        def initialize
+        end
+      end
+      ganzo = Ganzo.new
+      expect(type(Ganzo).call(ganzo)).to be true
+    end
+
+    it 'si declaro una lambda debe de ser tipo Proc' do
+      lambda_new = lambda {return "123"}
+      expect(type(Proc).call(lambda_new)).to be true
+    end
+
+    it 'si declaro una lambda no debe de ser tipo Fixnum' do
+      lambda_new = lambda {return "123"}
+      expect(type(Fixnum).call(lambda_new)).to be false
     end
   end
 
   describe 'List matcher' do
+    let(:array_pattern1) {[1, 2, 3, 4]}
+    let(:array_pattern2) {[1, 2, 3]}
+    let(:array_pattern3) {[:a, :b, :c, :d]}
+    let(:array_pattern4) {[:a, 2, :b, :c]}
+    let(:array_pattern5) {[type(Fixnum), :a, val(3)]}
+
+    it 'al pasarle algo que no es una lista deberia dar false' do
+      expect(list([],false).call(Module)).to be false
+    end
+    it 'al pasarle un array de cuatro siendo que espera ese mismo y tiene en cuenta el tamanio,
+          deberia devolver true' do
+      expect(list(array_pattern1, true).call([1, 2, 3, 4])).to be true # es un objeto distinto a proposito
+    end
+
+    it 'al pasarle un array de cuatro siendo que espera ese mismo y NO tiene en cuenta el tamanio,
+          deberia devolver true' do
+      expect(list(array_pattern1, false).call([1, 2, 3, 4])).to be true # es un objeto distinto a proposito
+    end
+
+    it 'al pasarle lo que espera pero al reves deberia ser false, sin importar el tamanio,
+          porque sino no anda bien la busqueda de los primeros N elementos' do
+      expect(list(array_pattern1, true).call([4,3,2,1])).to be false
+    end
+
+    it 'al pasarle un array con todos symbols deberia dar true' do
+      expect(list(array_pattern3, true).call([1,2,3,4])).to be true
+    end
+
+    it 'al pasarle un array con symbols y numeros deberia dar true, cuando se evalua con un array con los elementos en el orden esperado' do
+      expect(list(array_pattern4, true).call([1,2,3,4])).to be true
+    end
+
+    it 'al pasarle un array con symbols y numeros (o solo symbols) teniendo en cuenta el tamanio y evaluarlo
+         con un array mas chico deberia dar false' do
+      expect(list(array_pattern4, true).call([1,2,3])).to be false
+    end
+
+    it 'si no se especifica match size no deberia romper y deberia considerarlo true, y este test deberia dar true' do
+      expect(list(array_pattern4).call([1,2,3,4])).to be true
+    end
+
+    it 'al pasarle una lista con matchers deberia andar' do
+      # expect(list(array_pattern5).call([1,2,3])).to be true
+      # conversar este caso
+    end
+
     let(:an_array) { [1, 2, 3, 4] }
 
     it 'list matcher should be true if same list is send to match and match size matter' do
@@ -107,6 +178,28 @@ describe 'Part 1 - Matchers' do
     }
     let(:a_dragon) { Dragon.new }
 
+    let(:some_array) { Array.new }
+
+    it 'un array entiende each' do
+      expect(duck(:each).call(some_array)).to be true
+    end
+
+    it 'un array entiende each, all?' do
+      expect(duck(:each, :all?).call(some_array)).to be true
+    end
+
+    it 'un array entiende each, all? y any?' do
+      expect(duck(:each, :all?, :any?).call(some_array)).to be true
+    end
+
+    it 'un array no entiende salto_ninja' do
+      expect(duck(:salto_ninja).call(some_array)).to be false
+    end
+
+    it 'un array entiende any? y all? pero no entiende salto_ninja, debe dar false' do
+      expect(duck(:any?, :all?, :salto_ninja).call(some_array)).to be false
+    end
+
     it 'duck matcher should find the two methods available for psyduck' do
       expect(duck(:cuack, :fly).call(psyduck)).to be true
     end
@@ -123,70 +216,5 @@ describe 'Part 1 - Matchers' do
       expect(duck(:to_s).call(Object.new)).to be true
     end
   end
-end
 
-describe 'Part 2 - Combinators' do
-  describe 'and combinator' do
-    it '1 should be both an integer and comparable' do
-      expect(type(Integer).and(type(Comparable)).call(1)).to be true
-    end
-
-    it 'A simple array should not be comparable' do
-      expect(type(Comparable).and(type(Array)).call([])).to be false
-    end
-
-    it '1 should be an integer with value 1 that understands plus and minus' do
-      expect(type(Integer).and(val(1), duck(:+, :-)).call(1)).to be true
-    end
-
-    it 'and should explode if no args sent' do
-      expect { :anything.and() }.to raise_error(ArgumentError)
-    end
-  end
-
-  describe 'or combinator' do
-    it '1 should be value 1 or a string' do
-      expect(val(1).or(type(String)).call(1)).to be true
-    end
-
-    it 'A symbol should be bound to 1 or value should be 10' do
-      expect(:a_symbol.or(val(10)).call(1)).to be true
-    end
-
-    it '5 should not be a String or be 7 or understand kamehameha' do
-      expect(type(String).or(val(7), duck(:kamehameha)).call(5)).to be false
-    end
-
-    it 'or should explode if no args sent' do
-      expect { duck(:something).or() }.to raise_error(ArgumentError)
-    end
-  end
-
-  describe 'not combinator' do
-    it '5 should not be 5 if negated' do
-      expect(val(5).not.call(5)).to be false
-    end
-
-    it ':symbol should be a symbol if negated twice' do
-      expect(type(Symbol).not.not.call(:symbol)).to be true
-    end
-
-    it 'not should fail if args sent' do
-      expect { val(3).not(1) }.to raise_error(ArgumentError)
-    end
-  end
-
-  describe 'complex combinators' do
-    it 'Chau shouldnt be a symbol or Hola or integer and bound to a symbol' do
-      expect(type(Symbol).not.or(val("Hola"), type(Integer).and(:a_symbol)).call("Chau")).to be true
-    end
-
-    it '3 should understand * and be Integer and Comparable but should not be 5 and should be bound to :asd or used with list' do
-      expect(duck(:*).and(type(Integer), type(Comparable), val(5).not, :asd.or(list([3]))).call(3)).to be true
-    end
-
-    it 'List should match pattern and be of type Enumerable and not understand :potato negated' do
-      expect(list([:xin_zhao, :malphite, :kindred], false).and(type(Enumerable), duck(:potato).not).not.call([100, 101, 102, 103, 104, 105])).to be false
-    end
-  end
 end
