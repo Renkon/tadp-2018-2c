@@ -1,8 +1,8 @@
 
 module ConcatenableOperations
   def and(first_matcher, *other_matchers)
-    PrimitiveMatcher.evaluates { |gotten| self.call(gotten) && first_matcher.call(gotten) && other_matchers.all? {|matcher| matcher.call(gotten)}}
-    #ComplexMatcher.evaluates_and(self, second_matcher, other_matchers)
+    #PrimitiveMatcher.evaluates { |gotten| self.call(gotten) && first_matcher.call(gotten) && other_matchers.all? {|matcher| matcher.call(gotten)}}
+    ComplexMatcher.evaluates_and(self, first_matcher, other_matchers)
   end
 
   def or(first_matcher, *other_matchers)
@@ -12,7 +12,7 @@ module ConcatenableOperations
 
   def not
     PrimitiveMatcher.evaluates {|gotten| !self.call(gotten)}
-    #ComplexMatcher.evaluates.not(self)
+    #ComplexMatcher.evaluates_not(self)
   end
 end
 
@@ -50,6 +50,10 @@ module SymbolDictionary
   end
 end
 
+module ComplexSymbolDictionary
+  attr_accessor :symbol_dictionary
+end
+
 #Defino el metodo call en los symbols
 class Symbol
   def call(a)
@@ -80,11 +84,45 @@ module PrimitiveMatcher
   end
 end
 
-#module ComplexMatcher
-#  def evaluates_and(first_matcher, *matchers)
+module ComplexMatcher
+  def self.evaluates_and(first, second, *others)
+    matchers = ([first, second].zip(others)).flatten
+    evaluator = Proc.new {}
+    #evaluator.instance_eval do
+     # self.instance_variable_set(:@symbol_dictionary, Hash.new)
+      #def symbol_dictionary
+       # symbol_dictionary
+      #end
 
-#  end
-#end
+      #matchers
+      #def matchers
+      #  if matchers.nil?
+      #    Array.new
+      #  end
+      #  matchers
+      #end
+
+    #evaluator.instance_variable_set(:@symbol_dictionary, Hash.new)
+    #evaluator.define_singleton_method(:symbol_dictionary) do
+    #  self.instance_variable_get(:@symbol_dictionary)
+    #end
+
+    evaluator.extend(ComplexSymbolDictionary)
+
+    evaluator.define_singleton_method(:call) do |gotten|
+      p 'estoy en el call'
+      final_result = true
+      evaluator.matchers.each do |matcher|
+        result = matcher.call(gotten)
+        evaluator.symbol_dictionary.merge(matcher.symbol_dictionary)
+        final_result = result unless result
+      end
+      puts 'Ahi va el diccionario del and: ' + evaluator.symbol_dictionary.inspect
+      puts 'El resultado final del and : ' + final_result
+      return final_result
+    end
+  end
+end
 
 def val(expected)
   PrimitiveMatcher.evaluates {|gotten| gotten == expected}

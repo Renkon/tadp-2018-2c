@@ -131,6 +131,9 @@ describe 'combinations tests' do
 
   describe 'and-test' do
     it 'deberia poder combinar dos matchers sencillos con and y deberia devolver true al evaluarlos' do
+      #evaluator = type(Integer).and(val(3))
+      #evaluator.call(3)
+      #p 'Contenido del diccionario: ' + evaluator.symbol_dictionary
       expect(type(Integer).and(val(3)).call(3)).to be true
     end
 
