@@ -25,6 +25,7 @@ describe 'matcher primitives tests' do
 
     describe 'val-test' do
       it 'val(5).call(2) debe dar falso' do
+        val(3).obtain_expected
         expect(val(5).call(2)).to be false
       end
 
@@ -63,6 +64,7 @@ describe 'matcher primitives tests' do
       end
       it 'al pasarle un array de cuatro siendo que espera ese mismo y tiene en cuenta el tamanio,
           deberia devolver true' do
+        p list(array_pattern1).obtain_expected
         expect(list(array_pattern1, true).call([1, 2, 3, 4])).to be true # es un objeto distinto a proposito
       end
 
