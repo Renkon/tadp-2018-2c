@@ -1,15 +1,25 @@
 module ConcatenableOperations
   def and(first_matcher, *other_matchers)
-    lambda { |gotten| self.call(gotten) && first_matcher.call(gotten) && other_matchers.all? {|matcher| matcher.call(gotten)}}
+    all_matchers = [self, first_matcher, other_matchers].flatten
+    lambda {|gotten, symbol_dictionary = Hash.new| evaluate_matchers(all_matchers, gotten, symbol_dictionary).all?}
+    #self.call(gotten, symbol_dictionary) & first_matcher.call(gotten, symbol_dictionary) & other_matchers.all? {|matcher| matcher.call(gotten, symbol_dictionary)}}
   end
 
   def or(first_matcher, *other_matchers)
-    lambda {|gotten| self.call(gotten) || first_matcher.call(gotten) || other_matchers.any? {|matcher| matcher.call(gotten)}}
+    all_matchers = [self, first_matcher, other_matchers].flatten
+    lambda {|gotten, symbol_dictionary = Hash.new| evaluate_matchers(all_matchers, gotten, symbol_dictionary).any?}
+    # self.call(gotten, symbol_dictionary) || first_matcher.call(gotten, symbol_dictionary) || other_matchers.any? {|matcher| matcher.call(gotten)}
   end
 
   def not
-    lambda {|gotten| !self.call(gotten)}
+    lambda {|gotten, symbol_dictionary = Hash.new| !self.call(gotten, symbol_dictionary)}
   end
+
+  private
+  def evaluate_matchers(matchers, gotten, symbol_dictionary)
+    matchers.map {|matcher| matcher.call(gotten, symbol_dictionary)}
+  end
+
 end
 
 #Defino el metodo call en los symbols
@@ -71,12 +81,15 @@ def duck(first, *others)
     final_result = true
 
     all_names.each do |method_name|
-      symbol_dictionary[method_name.to_sym] = gotten
-      final_result = false unless gotten.respond_to? method_name
+      if gotten.respond_to? method_name
+        symbol_dictionary[method_name.to_sym] = method_name.to_s
+        next
+      end
+
+      final_result = false
     end
 
     final_result
  #   (gotten.respond_to? first) && others.all? {|method_name| gotten.respond_to? method_name}
   end.extend(ConcatenableOperations)
-  # TODO: hay una forma mas linda de hacer esto de los parametros variables ?
 end

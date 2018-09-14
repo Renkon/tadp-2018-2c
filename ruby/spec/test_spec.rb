@@ -193,11 +193,17 @@ describe 'combinations tests' do
   end
 end
 
-describe 'symbol_dictionary-test' do
+describe 'primitive-symbol_dictionary-test' do
   let(:symbol_dictionary) {Hash.new}
   let(:array_pattern1) {[1, 2, 3]}
   let(:array_pattern2) {[:a, :b, :c, :d]}
   let(:array_pattern3) {[:a, 2, :b, :c]}
+
+  it 'deberia retornar el diccionario original mas un nuevo elemento corriespondiente a (:a,2)' do
+    symbol_dictionary[:b] = 3
+    :a.call(2, symbol_dictionary)
+    expect(symbol_dictionary).to be_an_eql({:b=>3, :a=>2})
+  end
 
   it 'deberia obtener el diccionario que contiene :a=>2' do
     :a.call(2, symbol_dictionary)
@@ -224,6 +230,21 @@ describe 'symbol_dictionary-test' do
     expect(symbol_dictionary).to be_empty
   end
 
+  it 'deberia devolver el diccionario vacio porque la lista esta vacia' do
+    list(array_pattern2).call([], symbol_dictionary)
+    expect(symbol_dictionary).to be_empty
+  end
+
+  it 'deberia devolver el diccionario vacio porque no matchea' do #TODO esto es lo que queremos que pase ?
+    list(array_pattern3).call([1,3,:a], symbol_dictionary)
+    expect(symbol_dictionary).to be_empty
+  end
+
+  it 'deberia devolver el diccionario vacio porque un symbol no matchea' do
+    list(array_pattern2).call(:a, symbol_dictionary)
+    expect(symbol_dictionary).to be_empty
+  end
+
   it 'deberia devolver el diccionario con {:a=>1, :b=>2, :c=>3, :d=>4} al evaluarlo para list' do
     list(array_pattern2).call([1,2,3,4], symbol_dictionary)
     expect(symbol_dictionary).to be_an_eql({:a=>1, :b=>2, :c=>3, :d=>4})
@@ -232,5 +253,71 @@ describe 'symbol_dictionary-test' do
   it 'deberia devolver el diccionario con {:a=>1, :b=>3, :c=>4}' do
     list(array_pattern3).call([1,2,3,4], symbol_dictionary)
     expect(symbol_dictionary).to be_an_eql({:a=>1, :b=>3, :c=>4})
+  end
+
+  it 'deberia devolver el diccionario vacio porque un array no responde a :volar ni a :saltar' do
+    duck(:volar, :saltar).call(Array.new, symbol_dictionary)
+    expect(symbol_dictionary).to be_empty
+  end
+
+  it 'deberia devolver el diccionario con :each y su valor porque el array entiende ese mensaje' do
+    duck(:volar, :each).call(Array.new, symbol_dictionary)
+    expect(symbol_dictionary).to be_an_eql({:each=>"each"})
+  end
+
+  it 'deberia devolver el diccionario con ambos metodos porque array los entiende' do
+    duck(:each, :all?).call(Array.new, symbol_dictionary)
+    expect(symbol_dictionary.include?(:each) && symbol_dictionary.include?(:all?)).to be true
+  end
+end
+
+describe 'combinations-symbol_dictionary-test' do
+  let(:symbol_dictionary) {Hash.new}
+
+  it 'deberia quedar vacio porque da true pero no hay variables para ligar' do
+    val(2).and(type(Integer)).call(2, symbol_dictionary)
+    expect(symbol_dictionary).to be_empty
+  end
+
+  it 'si el primero da false en un and, pero el segundo da true, la variable del segundo deberia queda bindeada y el resultado final es falso' do
+    result = list([1,2]).and(duck(:+)).call(1, symbol_dictionary)
+    expect(symbol_dictionary).to be_an_eql({"+".to_sym=>"+"})
+    expect(result).to be false
+  end
+
+  it 'si el primero da true en un and pero el segundo da false, las variables del primero deberian quedar ligadas' do
+    list([:a,:b]).and(type(Integer)).call([1,2], symbol_dictionary)
+    expect(symbol_dictionary.include?(:a) && symbol_dictionary.include?(:b)).to be true
+  end
+
+  it 'si el primero en un or falla pero el segundo no, el resultado final es true, y la variable del segundo deberia queda bindeada' do # en el with se terminarian descartando al ver que son false
+    result = list([1,2]).or(duck(:+)).call(1, symbol_dictionary)
+    expect(symbol_dictionary).to be_an_eql({"+".to_sym=>"+"})
+    expect(result).to be true
+  end
+
+  it 'si el primero da true en un or pero el segundo da false, las variables del primero deberian quedar ligadas' do
+    list([:a,:b]).or(type(Integer)).call([1,2], symbol_dictionary)
+    expect(symbol_dictionary.include?(:a) && symbol_dictionary.include?(:b)).to be true
+  end
+
+  it 'con un symbol negado deberia bindear igual las variables' do
+    :a.not.call(1 ,symbol_dictionary)
+    expect(symbol_dictionary).to be_an_eql({:a=>1})
+  end
+
+  it 'no deberia haber variables ligadas luego de la negacion de un val sin symbols' do
+    val(2).not.call(2, symbol_dictionary)
+    expect(symbol_dictionary).to be_empty
+  end
+
+  it 'ante la negacion de un list con symbols deberian quedar bindeadas, siendo el resultado falso' do
+    list([:a, 2, :c]).not.call([1,2,3], symbol_dictionary)
+    expect(symbol_dictionary.include?(:a) && symbol_dictionary.include?(:c)).to be true
+  end
+
+  it 'ante la negacion de un duck igualmente deberian quedar bindeadas, siendo el resultado falso' do
+    duck(:each, :all?).not.call(Array.new, symbol_dictionary)
+    expect(symbol_dictionary.include?(:each) && symbol_dictionary.include?(:all?)).to be true
   end
 end
