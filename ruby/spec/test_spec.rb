@@ -214,6 +214,11 @@ describe 'symbol_dictionary-test' do
     expect(symbol_dictionary).to be_an_eql({:a=>1})
   end
 
+  it 'deberia devolver siempre el diccionario vacio para type porque si le pasas un symbol va a fallar porque no es un tipo, va a dar false' do
+    type(Integer).call(2, symbol_dictionary)
+    expect(symbol_dictionary).to be_empty
+  end
+
   it 'deberia devolver el diccionario vacio al evaluarlo para list' do
     list(array_pattern1).call([1,2,3], symbol_dictionary) # pense que iba a fallar porque el segundo parametro opcional creo que es un booleano
     expect(symbol_dictionary).to be_empty

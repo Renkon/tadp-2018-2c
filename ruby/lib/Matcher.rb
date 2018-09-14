@@ -65,6 +65,18 @@ def list_pattern_evaluation(expected, gotten, symbol_dictionary = Hash.new)
 end
 
 def duck(first, *others)
-  lambda {|gotten| (gotten.respond_to? first) && others.all? {|method_name| gotten.respond_to? method_name} }.extend(ConcatenableOperations)
+  all_names = Array.new([first, others]).flatten
+
+  lambda do |gotten, symbol_dictionary = Hash.new|
+    final_result = true
+
+    all_names.each do |method_name|
+      symbol_dictionary[method_name.to_sym] = gotten
+      final_result = false unless gotten.respond_to? method_name
+    end
+
+    final_result
+ #   (gotten.respond_to? first) && others.all? {|method_name| gotten.respond_to? method_name}
+  end.extend(ConcatenableOperations)
   # TODO: hay una forma mas linda de hacer esto de los parametros variables ?
 end
