@@ -321,3 +321,49 @@ describe 'combinations-symbol_dictionary-test' do
     expect(symbol_dictionary.include?(:each) && symbol_dictionary.include?(:all?)).to be true
   end
 end
+
+describe 'with-test' do
+  let(:context) do
+    context = Object.new
+    context.instance_eval {define_instance_variable(:done)}
+    context.instance_eval {define_instance_variable(:value)}
+    context.done= false
+    context
+  end
+
+  it 'se espera que no falle e imprima 3' do
+    context.value= [1, 2]
+    context.instance_eval {with(list([:a, :b])) {p (a + b).to_s}}
+  end
+
+end
+
+describe 'matches?-test' do
+
+  it 'debe mostrar 3' do
+    x = [1, 2, 3]
+    matches? x do
+      with(list([:a, val(2), duck(:+)])) {p (a + 2).to_s }
+      with(list([1, 2, 3])) { 'aca no llego' }
+      otherwise { 'aca no llego' }
+    end
+  end
+
+  it 'debe mostrar chau' do
+    x = Object.new
+    x.send(:define_singleton_method, :hola) { p 'hola' }
+    matches?(x) do
+      with(duck(:hola)) { p 'chau!' }
+      with(type(Object)) { p 'aca no llego' }
+    end
+  end
+
+  it 'debe llegar al otherwise' do
+    x = 2
+    matches?(x) do
+      with(type(String)) {p (a + 2).to_s }
+      with(list([1, 2, 3])) { p 'aca no llego' }
+      otherwise { p 'aca si llego' }
+    end
+  end
+end
