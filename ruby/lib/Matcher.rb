@@ -34,23 +34,34 @@ def val(expected)
 end
 
 def type(expected)
-  lambda {|gotten| gotten.is_a?(expected)}.extend(ConcatenableOperations) # kind_of te retorna true si es una subclase de expected
+  lambda do |gotten, symbol_dictionary = Hash.new|
+    gotten.is_a?(expected)
+  end.extend(ConcatenableOperations) # Aca no tengo que tocar nada con el diccionario porque no se puede recibir un symbol
 end
 
 def list(expected, with_size = true) # supuestamente esto lo hace opcional
-  lambda {|gotten| expected.is_a?(Enumerable) && gotten.is_a?(Enumerable) && (with_size ? gotten.size == expected.size : true) && are_equivalents(expected, gotten)}.extend(ConcatenableOperations)
+  lambda do |gotten, symbol_dictionary = Hash.new|
+    expected.is_a?(Enumerable) && gotten.is_a?(Enumerable) && (with_size ? gotten.size == expected.size : true) && list_pattern_evaluation(expected, gotten, symbol_dictionary)
+  end.extend(ConcatenableOperations)
   # TODO: Lo que no me gusta de esto es que el metodo are_equivalents sigue siendo visible, si lo defino como self.are_equivalents ya no es visible, pero no puedo correrlo desde la lambda
 end
 
 private
-def are_equivalents(expected, gotten)
-  false if expected.size > gotten.size
+def list_pattern_evaluation(expected, gotten, symbol_dictionary = Hash.new)
+  final_result = true
+  final_result = false if expected.size > gotten.size
 
   firsts = gotten.first(expected.size)
 
-  expected.each_with_index {|elem, index| elem.respond_to?(:call) ? (return false unless elem.call(firsts.at(index))) :  (return false unless firsts.at(index) == elem)}
-  # FIXME: esto de arriba no me gusta porque estoy diciendo "che, si esta cosa que me pasaste responde a call mandale mecha...", podria generar problemas?
-  true # FIXME: Hay una forma de no tener que devolver true asi ?
+  expected.each_with_index do |elem, index|
+    if elem.respond_to?(:call)
+      final_result = false unless elem.call(firsts.at(index), symbol_dictionary)
+    else
+      final_result = false unless firsts.at(index) == elem
+    end
+  end
+
+  final_result
 end
 
 def duck(first, *others)

@@ -9,7 +9,7 @@ describe 'matcher primitives tests' do
     end
 
     it 'esto no deberia ser visible!!!!!' do # FIXME: Problema... ensucia la interfaz de main y el metodo are_equivalents es accesible de todos lados.
-      expect {are_equivalents([1,2,3], [1,2,3,4])}.to raise_error NoMethodError
+      expect {list_pattern_evaluation([1, 2, 3], [1, 2, 3, 4])}.to raise_error NoMethodError
     end
 
     it 'una lambda cualquiera no deberia tener el metodo and' do
@@ -18,21 +18,12 @@ describe 'matcher primitives tests' do
   end
 
   describe 'symbol-test' do
-    let(:symbol_dictionary) {Hash.new}
-
     it ':a.call("b") debe andar y devolver true' do
       expect(:a.call("b")).to be true
-    end
-
-    it 'deberia obtener el diccionario que contiene :a=>2' do
-      :a.call(2, symbol_dictionary)
-      expect(symbol_dictionary).to be_an_eql({:a=>2})
     end
   end
 
   describe 'val-test' do
-    let(:symbol_dictionary) {Hash.new}
-
     it 'val(5).call(2) debe dar falso' do
       expect(val(5).call(2)).to be false
     end
@@ -43,16 +34,6 @@ describe 'matcher primitives tests' do
 
     it 'val(5).call(char 5) deberia dar falso' do
       expect(val(5).call('5')).to be false
-    end
-
-    it 'deberia obtener el diccionario vacio' do
-      val(3).call(3, symbol_dictionary)
-      expect(symbol_dictionary).to be_empty
-    end
-
-    it 'deberia obtener el diccionario que contiene :a=>2' do
-      val(:a).call(1, symbol_dictionary)
-      expect(symbol_dictionary).to be_an_eql({:a=>1})
     end
   end
 
@@ -209,5 +190,42 @@ describe 'combinations tests' do
     it 'bueno, deberia decir que si, es el caso que plantea el enunciado' do
       expect(list([duck(:+).and(type(Fixnum), :x), :y.or(val(4)), duck(:+).not]).call([1, 2, Object.new])).to be true
     end
+  end
+end
+
+describe 'symbol_dictionary-test' do
+  let(:symbol_dictionary) {Hash.new}
+  let(:array_pattern1) {[1, 2, 3]}
+  let(:array_pattern2) {[:a, :b, :c, :d]}
+  let(:array_pattern3) {[:a, 2, :b, :c]}
+
+  it 'deberia obtener el diccionario que contiene :a=>2' do
+    :a.call(2, symbol_dictionary)
+    expect(symbol_dictionary).to be_an_eql({:a=>2})
+  end
+
+  it 'deberia obtener el diccionario vacio' do
+    val(3).call(3, symbol_dictionary)
+    expect(symbol_dictionary).to be_empty
+  end
+
+  it 'deberia obtener el diccionario que contiene :a=>2' do
+    val(:a).call(1, symbol_dictionary)
+    expect(symbol_dictionary).to be_an_eql({:a=>1})
+  end
+
+  it 'deberia devolver el diccionario vacio al evaluarlo para list' do
+    list(array_pattern1).call([1,2,3], symbol_dictionary) # pense que iba a fallar porque el segundo parametro opcional creo que es un booleano
+    expect(symbol_dictionary).to be_empty
+  end
+
+  it 'deberia devolver el diccionario con {:a=>1, :b=>2, :c=>3, :d=>4} al evaluarlo para list' do
+    list(array_pattern2).call([1,2,3,4], symbol_dictionary)
+    expect(symbol_dictionary).to be_an_eql({:a=>1, :b=>2, :c=>3, :d=>4})
+  end
+
+  it 'deberia devolver el diccionario con {:a=>1, :b=>3, :c=>4}' do
+    list(array_pattern3).call([1,2,3,4], symbol_dictionary)
+    expect(symbol_dictionary).to be_an_eql({:a=>1, :b=>3, :c=>4})
   end
 end
