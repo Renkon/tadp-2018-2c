@@ -1,22 +1,4 @@
-require_relative "matchers"
-
-# We define matches? variable which expects an object and a block
-class Object
-  def matches?(object, &block)
-    context = MatchingContext.new object
-    eval_output = nil
-    catch :evalSuccess do
-      eval_output = context.instance_eval(&block)
-    end
-    # If __ret is not set (because no with or otherwise matches)
-    # We will default to the value of the evaluation of the block
-    context.__ret__ || eval_output
-  end
-end
-
-# Error class to stop execution
-class EndOfEvaluation < RuntimeError
-end
+require_relative "xmatcher"
 
 # Extra class useful for our environment
 class MatchingContext

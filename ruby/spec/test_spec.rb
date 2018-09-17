@@ -1,3 +1,5 @@
+include XMatcher
+
 describe 'Part 1 - Matchers' do
   describe 'Variable matcher' do
     it 'variable matcher should be true' do
