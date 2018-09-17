@@ -4,11 +4,13 @@ require_relative "matchers"
 class Object
   def matches?(object, &block)
     context = MatchingContext.new object
-    begin
-      context.instance_eval(&block)
-    rescue EndOfEvaluation
-      context.__ret__
+    eval_output = nil
+    catch :evalSuccess do
+      eval_output = context.instance_eval(&block)
     end
+    # If __ret is not set (because no with or otherwise matches)
+    # We will default to the value of the evaluation of the block
+    context.__ret__ || eval_output
   end
 end
 
@@ -31,14 +33,14 @@ class MatchingContext
     disposable_context = DisposableContext.new
     if matcher_proc.call(__object__, disposable_context)
       self.__ret__ = disposable_context.instance_eval(&block)
-      raise EndOfEvaluation
+      throw :evalSuccess
     end
   end
 
   def otherwise(&block)
     disposable_context = DisposableContext.new
     self.__ret__ = disposable_context.instance_eval(&block)
-    raise EndOfEvaluation
+    throw :evalSuccess
   end
 end
 
