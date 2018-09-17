@@ -1,20 +1,5 @@
 require_relative "matchers"
 
-# This method is used to define which matchers should be analyzed to execute a chunk of code
-def with(initial_matcher, *matchers, &block)
-  matcher_proc = matchers.length > 0 ? initial_matcher.and(*matchers) : initial_matcher
-  if matcher_proc.call(__object__, self)
-    self.__ret__ = instance_eval(&block)
-    raise EndOfEvaluation
-  end
-  clear_context
-end
-
-def otherwise(&block)
-    self.__ret__ = instance_eval(&block)
-    raise EndOfEvaluation
-end
-
 # We define matches? variable which expects an object and a block
 class Object
   def matches?(object, &block)
@@ -38,24 +23,28 @@ class MatchingContext
 
   def initialize(object)
     @__object__ = object
-    @__custom_properties = []
   end
 
+  # This method is used to define which matchers should be analyzed to execute a chunk of code
+  def with(initial_matcher, *matchers, &block)
+    matcher_proc = matchers.length > 0 ? initial_matcher.and(*matchers) : initial_matcher
+    disposable_context = DisposableContext.new
+    if matcher_proc.call(__object__, disposable_context)
+      self.__ret__ = disposable_context.instance_eval(&block)
+      raise EndOfEvaluation
+    end
+  end
+
+  def otherwise(&block)
+    diposable_context = DisposableContext.new
+    self.__ret__ = diposable_context.instance_eval(&block)
+    raise EndOfEvaluation
+  end
+end
+
+class DisposableContext
   def add_property(str, value)
     instance_variable_set("@" + str, value)
     self.singleton_class.send(:attr_accessor, str)
-    @__custom_properties.append(str)
-  end
-
-  def remove_property(str)
-    instance_variable_set("@" + str, nil)
-    self.singleton_class.send(:remove_method, str.to_sym)
-    self.singleton_class.send(:remove_method, (str + "=").to_sym)
-  end
-
-  def clear_context
-    @__custom_properties.each { | var | remove_property(var) }
-    @__custom_properties = []
-    nil
   end
 end

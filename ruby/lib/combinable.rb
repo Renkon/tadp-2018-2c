@@ -26,14 +26,12 @@ module Combinable
     end.extend(Combinable)
   end
 
-  private
   def recursive_operation(operation, procs, value, bind_to, neutral_value)
     procs.reduce(neutral_value) do |full_cond, new_cond|
       full_cond.send(operation, new_cond.call(value, bind_to))
     end
   end
 
-  private
   def validate_varargs(elems)
     # In order to write down a friendly error, we get caller method's name and inform the user if sending no args.
     caller_method = "Combinable." + caller[0][/`.*'/][1..-2]
