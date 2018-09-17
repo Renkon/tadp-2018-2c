@@ -36,8 +36,8 @@ class MatchingContext
   end
 
   def otherwise(&block)
-    diposable_context = DisposableContext.new
-    self.__ret__ = diposable_context.instance_eval(&block)
+    disposable_context = DisposableContext.new
+    self.__ret__ = disposable_context.instance_eval(&block)
     raise EndOfEvaluation
   end
 end
