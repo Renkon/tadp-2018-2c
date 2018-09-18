@@ -22,12 +22,10 @@ module XMatcher
   # We define matches? variable which expects an object and a block
   def matches?(object, &block)
     context = MatchingContext.new object
-    eval_output = nil
-    catch :evalSuccess do
-      eval_output = context.instance_eval(&block)
-    end
-    # If __ret is not set (because no with or otherwise matches)
-    # We will default to the value of the evaluation of the block
-    context.__ret__ || eval_output
+
+    return_proc = Proc.new { | value | return value }
+    context.return_proc = return_proc
+
+    context.instance_exec(&block)
   end
 end
