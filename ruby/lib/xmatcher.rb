@@ -21,11 +21,8 @@ module XMatcher
 
   # We define matches? variable which expects an object and a block
   def matches?(object, &block)
-    context = MatchingContext.new object
-
     return_proc = Proc.new { | value | return value }
-    context.return_proc = return_proc
-
+    context = MatchingContext.new(object, return_proc)
     context.instance_exec(&block)
   end
 end
