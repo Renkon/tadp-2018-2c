@@ -1,20 +1,6 @@
 require_relative 'Combinador.rb'
 
-class Symbol
-
-  include Combinador
-
-  def call(value, bind_to = nil)
-    if bind_to
-      bind_to.add_property(to_s, value)
-    end
-    true
-  end
-
-end
-
-#Decido momentaneamente extender object, porque de este modo me estoy asegurando que en toodo contexto pueda acceder a los metodos de macheo
-class Object
+module Matchers
 
   def val(a_value)
     lambda { | another_value | a_value == another_value }.extend(Combinador)
@@ -50,8 +36,7 @@ class Object
   end
 
   def duck(*mesagges)
-    lambda do
-    | object |
+    lambda do | object |
       mesagges.to_set().subset?(object.methods().to_set())
     end.extend(Combinador)
   end

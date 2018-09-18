@@ -218,3 +218,53 @@ describe 'Part 1 - Matchers' do
   end
 
 end
+
+describe 'Part 2 - Combinadores' do
+  let(:empy_array) { Array.new }
+  let(:an_array) {[1,2,3]}
+
+  it '5 matchea duck con la suma, es de tipo numero y su valor es de 5' do
+    expect(duck(:+).and(type(Fixnum), val(5)).call(5)).to be true
+  end
+
+  it '5 matchea duck con la suma, es de tipo numero  pero su valor no es de 8' do
+    expect(duck(:+).and(type(Fixnum), val(8)).call(5)).to be false
+  end
+
+    it 'deberia poder combinar dos matchers sencillos con or y deberia dar true' do
+      expect(type(Array).or(type(Comparable)).call(3)).to be true
+    end
+
+    it 'deberia poder combinar varios matchers y deberia dar true' do
+      expect(type(Integer).or(list([1, :a], false), val(1)).call(an_array)).to be true
+    end
+
+    it 'deberia poder combinar dos matchers sencillos y dar false' do
+      expect(type(Integer).or(val(2)).call(an_array)).to be false
+    end
+
+    it 'deberia poder combinar varios matchers y dar false' do
+      expect(val(2).or(list([1,2]), type(Class)).call(Object.new)).to be false
+    end
+
+    it 'cualquier symbol negado deberia devolver false' do
+    expect(:a.not.call("g")).to be false
+    end
+
+    it 'al preguntar si un numero es entero deberia decir que no' do
+      expect(type(Integer).not.call(2)).to be false
+    end
+
+    it 'al preguntar si el patron de lista coincide debe decir que no' do
+      expect(list([1, :a], false).not.call(an_array)).to be false
+    end
+
+    it 'al preguntar si una clase es de tipo string debe decir que si' do
+      expect(type(String).not.call(Module)).to be true
+    end
+
+    it 'al preguntar si un array entiende all? debe decir que no' do
+      expect(duck(:all?).not.call(an_array)).to be false
+    end
+
+end
