@@ -1,4 +1,4 @@
-require_relative "xmatcher"
+require_relative "disposable_context"
 
 # Extra class useful for our environment
 class MatchingContext
@@ -22,12 +22,5 @@ class MatchingContext
   def otherwise(&block)
     disposable_context = DisposableContext.new
     @__return_proc__.call disposable_context.instance_eval(&block)
-  end
-end
-
-class DisposableContext
-  def add_property(str, value)
-    instance_variable_set("@" + str, value)
-    self.singleton_class.send(:attr_accessor, str)
   end
 end
