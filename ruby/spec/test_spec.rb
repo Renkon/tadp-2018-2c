@@ -318,47 +318,63 @@ describe 'combinations-symbol_dictionary-test' do
 end
 
 describe 'with-test' do
-  let(:context) do
-    context = Object.new
-    context.instance_eval {define_instance_variable(:done)}
-    context.instance_eval {define_instance_variable(:value)}
-    context.done= false
-    context
+  let(:evaluation_context) do
+    evaluation_context = EvaluationContext.new(nil)
+    evaluation_context
   end
 
-  it 'se espera que no falle e imprima 3' do
-    context.value= [1, 2]
-    context.instance_eval {with(list([:a, :b])) {p (a + b).to_s}}
+  it 'se espera que no falle y el resultado de la evaluacion sea el numero 3' do
+    evaluation_context.value= [1, 2]
+    evaluation_result = evaluation_context.instance_eval {with(list([:a, :b])) {a + b}}
+    expect(evaluation_result).to be 3
   end
 
+  it 'se espera que no falle y el resultado de la evaluacion sea el numero 3' do
+    evaluation_context.value = [1,2,Object.new]
+    evaluation_result = evaluation_context.instance_eval {with(list([duck(:+).and(type(Fixnum), :x),
+                                                          :y.or(val(4)), duck(:+).not])) { x + y }}
+    expect(evaluation_result).to be_eql(3)
+  end
 end
 
 describe 'matches?-test' do
-
-  it 'debe mostrar 3' do
+  it 'no debe ejecutar lo que este despues del otherwise' do
     x = [1, 2, 3]
-    matches? x do
-      with(list([:a, val(2), duck(:+)])) {p (a + 2).to_s }
+    evaluation_result = matches? x do
+      with(list([1, 2, 3])) { 'aca no llego' }
+      otherwise { 'aca no llego' }
+      self.evaluation_result = 'no deberia estar aca'
+    end
+    expect(evaluation_result).not_to be_an_eql('no deberia estar aca')
+  end
+
+  it 'el resultado de la evaluacion debe ser el numero 3' do
+    x = [1, 2, 3]
+    evaluation_result = matches? x do
+      with(list([:a, val(2), duck(:+)])) { a + 2 }
       with(list([1, 2, 3])) { 'aca no llego' }
       otherwise { 'aca no llego' }
     end
+    expect(evaluation_result).to be 3
   end
 
-  it 'debe mostrar chau' do
+  it 'el resultado de la evaluacion debe ser el string chau' do
     x = Object.new
-    x.send(:define_singleton_method, :hola) { p 'hola' }
-    matches?(x) do
-      with(duck(:hola)) { p 'chau!' }
-      with(type(Object)) { p 'aca no llego' }
+    x.send(:define_singleton_method, :hola) { 'hola' }
+    evaluation_result = matches?(x) do
+      with(duck(:hola)) { 'chau!' }
+      with(type(Object)) { 'aca no llego' }
     end
+    expect(evaluation_result).to be_eql('chau!')
   end
 
-  it 'debe llegar al otherwise' do
+  it 'se espera que el resultado de la evaluacion sea el string aca si llego, del otherwise' do
     x = 2
-    matches?(x) do
-      with(type(String)) {p (a + 2).to_s }
-      with(list([1, 2, 3])) { p 'aca no llego' }
-      otherwise { p 'aca si llego' }
+    evaluation_result = matches?(x) do
+      with(type(String)) { a + 2 }
+      with(list([1, 2, 3])) { 'aca no llego' }
+      otherwise { 'aca si llego' }
     end
+    expect(evaluation_result).to be_eql('aca si llego')
   end
 end

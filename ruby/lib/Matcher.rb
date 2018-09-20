@@ -2,13 +2,11 @@ module ConcatenableOperations
   def and(first_matcher, *other_matchers)
     all_matchers = [self, first_matcher, other_matchers].flatten
     lambda {|gotten, symbol_dictionary = Hash.new| evaluate_matchers(all_matchers, gotten, symbol_dictionary).all?}
-    #self.call(gotten, symbol_dictionary) & first_matcher.call(gotten, symbol_dictionary) & other_matchers.all? {|matcher| matcher.call(gotten, symbol_dictionary)}}
   end
 
   def or(first_matcher, *other_matchers)
     all_matchers = [self, first_matcher, other_matchers].flatten
     lambda {|gotten, symbol_dictionary = Hash.new| evaluate_matchers(all_matchers, gotten, symbol_dictionary).any?}
-    # self.call(gotten, symbol_dictionary) || first_matcher.call(gotten, symbol_dictionary) || other_matchers.any? {|matcher| matcher.call(gotten)}
   end
 
   def not
@@ -30,7 +28,6 @@ class Symbol
   end
 
   include ConcatenableOperations
-  # TODO: ESTO NO ME GUSTA, pero si quiero lograr la interfaz :un_symbol.and(type(Class), etc...), medio como que por ahora no queda otra
 end
 
 #Defino los matchers primitivos
@@ -77,72 +74,52 @@ end
 def duck(first, *others)
   all_names = Array.new([first, others]).flatten
 
-  lambda do |gotten, symbol_dictionary = Hash.new| (gotten.respond_to? first) && others.all? {|method_name| gotten.respond_to? method_name}
-    #final_result = true
+  lambda do |gotten, symbol_dictionary = Hash.new| all_names.all? {|method_name| gotten.respond_to? method_name} end.extend(ConcatenableOperations)
+end
 
-    #all_names.each do |method_name|
-    #  if gotten.respond_to? method_name
-    #    symbol_dictionary[method_name.to_sym] = method_name.to_s
-    #    next
-    #  end
+# Definiciones para la parte de matchers
+class EvaluationContext
+  attr_accessor :value, :evaluation_result
+  attr_accessor :end_of_evaluation
 
-     # final_result = false
-    #end
-
-    #final_result
-    ## TODO PREGUNTARRRRRRRRRRRRRRRRRRRRR que onda....
-  end.extend(ConcatenableOperations)
+  def initialize(value_, end_block = lambda {|context| return context.evaluation_result})
+    self.value= value_
+    self.end_of_evaluation= end_block #el default sirve solo para que en los test de with no quiera hacer return dede el objeto rspec
+  end
 end
 
 def matches?(value, &action)
-  define_instance_variable(:value)
-  self.value= value
-  define_instance_variable(:done)
-  self.done= false
-  action.call
-end # TODO se espera que ademas retorne true o false ?
-
-def define_instance_variable(variable_name)
-  p 'variable_name tiene ' + variable_name.to_s
-  self.instance_variable_set("@" + variable_name.to_s, nil)
-  self.define_singleton_method(variable_name) {return variable_name}
-  self.define_singleton_method((variable_name.to_s + "=").to_sym) {|new_value| variable_name = new_value}
+  evaluation_context = EvaluationContext.new(value, proc {|context| return context.evaluation_result})
+  evaluation_context.instance_eval &action
 end
 
 def with(pattern, &action)
-  return if self.done
-
   raise 'El patron necesita un valor con el cual ser evaluado' if(self.value == nil) # no se si esto esta bien, o si hace falta
 
   symbol_dictionary = Hash.new
 
   result = pattern.call(self.value, symbol_dictionary)
 
-  self.done= result
+  if result
+    self.evaluation_result= context_from(symbol_dictionary).instance_eval(&action)
+    self.end_of_evaluation.call(self)
+  end
 
-  p 'result dio :' + result.to_s
-  p 'value tiene :' + self.value.to_s
-  p 'el diccionario de simbolos :'+ symbol_dictionary.inspect
-
-  context_from(symbol_dictionary).instance_eval(&action) if result
 end
 
 def context_from(symbol_dictionary)
   context = Object.new
   symbol_dictionary.each_pair do |key, value|
-    p 'key tiene : ' + key.to_s
     context.instance_eval do
-      p 'adentro del bloque, key tiene ' + key.to_s
-      define_instance_variable(key)
+      self.singleton_class.send(:attr_accessor, key)
     end
 
     context.send((key.to_s + "=").to_sym, value)
   end
-  p 'voy a retornar el contexto armadito, sus variables son : ' + context.instance_variables.to_s
   context
 end
 
 def otherwise(&action)
-  self.done= true
-  action.call
+  self.evaluation_result= action.call
+  self.end_of_evaluation.call(self)
 end
