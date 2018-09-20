@@ -151,6 +151,10 @@ describe 'combinations tests' do
       expect(type(Array).or(type(Comparable)).call(3)).to be true
     end
 
+    it 'deberia dar true porque se cumple con un symbol' do
+      expect(val(:a).or(type(Integer)).call(an_array)).to be true
+    end
+
     it 'deberia poder combinar varios matchers y deberia dar true' do
       expect(type(Integer).or(list([1, :a], false), val(1)).call(an_array)).to be true
     end
@@ -255,19 +259,9 @@ describe 'primitive-symbol_dictionary-test' do
     expect(symbol_dictionary).to be_an_eql({:a=>1, :b=>3, :c=>4})
   end
 
-  it 'deberia devolver el diccionario vacio porque un array no responde a :volar ni a :saltar' do
-    duck(:volar, :saltar).call(Array.new, symbol_dictionary)
-    expect(symbol_dictionary).to be_empty
-  end
-
-  it 'deberia devolver el diccionario con :each y su valor porque el array entiende ese mensaje' do
-    duck(:volar, :each).call(Array.new, symbol_dictionary)
-    expect(symbol_dictionary).to be_an_eql({:each=>"each"})
-  end
-
-  it 'deberia devolver el diccionario con ambos metodos porque array los entiende' do
+  it 'deberia devolver el diccionario vacio porque duck no bindea' do
     duck(:each, :all?).call(Array.new, symbol_dictionary)
-    expect(symbol_dictionary.include?(:each) && symbol_dictionary.include?(:all?)).to be true
+    expect(symbol_dictionary).to be_empty
   end
 end
 
@@ -280,8 +274,8 @@ describe 'combinations-symbol_dictionary-test' do
   end
 
   it 'si el primero da false en un and, pero el segundo da true, la variable del segundo deberia queda bindeada y el resultado final es falso' do
-    result = list([1,2]).and(duck(:+)).call(1, symbol_dictionary)
-    expect(symbol_dictionary).to be_an_eql({"+".to_sym=>"+"})
+    result = list([1,2]).and(val(:a)).call(1, symbol_dictionary)
+    expect(symbol_dictionary).to be_an_eql({:a=>1})
     expect(result).to be false
   end
 
@@ -291,8 +285,8 @@ describe 'combinations-symbol_dictionary-test' do
   end
 
   it 'si el primero en un or falla pero el segundo no, el resultado final es true, y la variable del segundo deberia queda bindeada' do # en el with se terminarian descartando al ver que son false
-    result = list([1,2]).or(duck(:+)).call(1, symbol_dictionary)
-    expect(symbol_dictionary).to be_an_eql({"+".to_sym=>"+"})
+    result = list([1,2]).or(val(:a)).call(1, symbol_dictionary)
+    expect(symbol_dictionary).to be_an_eql({:a=>1})
     expect(result).to be true
   end
 
@@ -316,9 +310,10 @@ describe 'combinations-symbol_dictionary-test' do
     expect(symbol_dictionary.include?(:a) && symbol_dictionary.include?(:c)).to be true
   end
 
-  it 'ante la negacion de un duck igualmente deberian quedar bindeadas, siendo el resultado falso' do
-    duck(:each, :all?).not.call(Array.new, symbol_dictionary)
-    expect(symbol_dictionary.include?(:each) && symbol_dictionary.include?(:all?)).to be true
+  it 'ante la negacion de un val con symbol igualmente deberian quedar bindeadas, siendo el resultado falso' do
+    obj = Object.new
+    val(:a).not.call(obj, symbol_dictionary)
+    expect(symbol_dictionary).to be_an_eql({:a=>obj})
   end
 end
 

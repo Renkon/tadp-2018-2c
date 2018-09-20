@@ -37,9 +37,10 @@ end
 def val(expected)
   lambda do |gotten, symbol_dictionary = Hash.new|
     if expected.is_a?(Symbol)
-      symbol_dictionary[expected] = gotten
+     expected.call(gotten, symbol_dictionary)
+    else
+      gotten == expected
     end
-    gotten == expected
   end.extend(ConcatenableOperations)
 end
 
