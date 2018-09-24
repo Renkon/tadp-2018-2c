@@ -1,9 +1,14 @@
 include XMatcher
 
 describe 'Part 1 - Matchers' do
+
   describe 'Variable matcher' do
     it 'variable matcher should be true' do
       expect(:something.call('some value')).to be true
+    end
+
+    it ':a.call("b") debe andar y devolver true' do
+      expect(:a.call("b")).to be true
     end
   end
 
@@ -33,10 +38,20 @@ describe 'Part 1 - Matchers' do
     it 'type matcher should be true if element is an instance of the class' do
       expect(type(Symbol).call(:a_real_symbol)).to be true
     end
+
+    it 'type a Object shold be true if element is an instance of the class' do
+      ganzo = Class
+      un_ganzo = ganzo.new
+      expect(type(ganzo).call(un_ganzo)).to be true
+    end
   end
 
   describe 'List matcher' do
     let(:an_array) { [1, 2, 3, 4] }
+
+    it 'a empty list should be false if same list is not a list' do
+      expect(list([],false).call(Module)).to be false
+    end
 
     it 'list matcher should be true if same list is send to match and match size matter' do
       expect(list([1, 2, 3, 4], true).call(an_array)).to be true
@@ -107,7 +122,9 @@ describe 'Part 1 - Matchers' do
       end
       this
     }
+
     let(:a_dragon) { Dragon.new }
+    let(:some_array) { Array.new }
 
     it 'duck matcher should find the two methods available for psyduck' do
       expect(duck(:cuack, :fly).call(psyduck)).to be true
@@ -124,10 +141,23 @@ describe 'Part 1 - Matchers' do
     it 'duck matcher should find to_s for an object' do
       expect(duck(:to_s).call(Object.new)).to be true
     end
+
+    it 'an array should find each, all? y any?' do
+      expect(duck(:each, :all?, :any?).call(some_array)).to be true
+    end
+
+    it 'un array should find each, all? y any? but not understand salto_ninja' do
+      expect(duck(:any?, :all?, :salto_ninja).call(some_array)).to be false
+    end
+
   end
+
 end
 
+
 describe 'Part 2 - Combinators' do
+  let(:an_array) {[1,2,3]}
+
   describe 'and combinator' do
     it '1 should be both an integer and comparable' do
       expect(type(Integer).and(type(Comparable)).call(1)).to be true
@@ -139,6 +169,11 @@ describe 'Part 2 - Combinators' do
 
     it '1 should be an integer with value 1 that understands plus and minus' do
       expect(type(Integer).and(val(1), duck(:+, :-)).call(1)).to be true
+    end
+
+    it 'deberia poder combinar dos matchers sencillos y deberia dar false' do
+      expect(list([:a, 1, 3]).and(type(Array)).call(an_array)).to be false
+      # este caso hizo darse cuenta a luqui que estaba resolviendo mal la comparacion en el patron de listas
     end
 
     it 'and should explode if no args sent' do
@@ -162,6 +197,11 @@ describe 'Part 2 - Combinators' do
     it 'or should explode if no args sent' do
       expect { duck(:something).or() }.to raise_error(ArgumentError)
     end
+
+    it 'deberia poder combinar varios matchers y dar false' do
+      expect(val(2).or(list([1,2]), type(Class), val([])).call(Object.new)).to be false
+    end
+
   end
 
   describe 'not combinator' do
@@ -176,6 +216,11 @@ describe 'Part 2 - Combinators' do
     it 'not should fail if args sent' do
       expect { val(3).not(1) }.to raise_error(ArgumentError)
     end
+
+    it 'deberia poder combinar varios matchers y deberia dar true' do
+      expect(type(Integer).or(list([1, :a], false), val(1), val("d")).call(an_array)).to be true
+    end
+
   end
 
   describe 'complex combinators' do
@@ -192,6 +237,7 @@ describe 'Part 2 - Combinators' do
     end
   end
 end
+
 
 describe 'Part 3 - Patterns' do
   it 'using 1 as input for type integer should bind and display a message' do
@@ -217,6 +263,7 @@ describe 'Part 3 - Patterns' do
     end).to be 3
   end
 end
+
 
 describe 'Part 4 - Matchers' do
   it 'given a list with 3 elems it should go inside first with statement' do
@@ -266,5 +313,24 @@ describe 'Part 4 - Matchers' do
       with(type(String)) { "worse" }
       "good"
     end).to eq "good"
+  end
+end
+
+
+describe 'syntax and usage test' do
+  it '1.call(2) no deberia funcionar, si esta bien armado el fw' do
+    expect {1.call(2)}.to raise_error NoMethodError
+  end
+
+  it 'type(Integer).call no deberia funcionar sin parametros' do
+    expect {type(Integer).call}.to raise_error ArgumentError
+  end
+
+  it 'esto no deberia ser visible!!!!!' do # FIXME: Problema... ensucia la interfaz de main y el metodo are_equivalents es accesible de todos lados.
+    expect {list_pattern_evaluation([1, 2, 3], [1, 2, 3, 4])}.to raise_error NoMethodError
+  end
+
+  it 'una lambda cualquiera no deberia tener el metodo and' do
+    expect { lambda {}.and(lambda {})}.to raise_error NoMethodError
   end
 end
