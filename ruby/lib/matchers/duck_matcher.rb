@@ -1,9 +1,7 @@
 module DuckMatcher
   # Matcher that returns if an element understands certain messages.
-  def duck(*methods_to_check)
-    lambda do
-    | object, bind_to = nil |
-      methods_to_check.to_set().subset?(object.methods().to_set())
-    end.extend(Combinable)
+  def duck(first, *others)
+    all_names = [first, others].flatten
+    lambda do | value, symbol_dictionary = Hash.new | all_names.all? { |method_name| value.respond_to? method_name } end.extend(Combinable)
   end
 end
