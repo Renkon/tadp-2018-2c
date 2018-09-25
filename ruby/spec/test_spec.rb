@@ -38,7 +38,7 @@ describe 'Part 1 - Matchers' do
     it 'type matcher should be true if element is an instance of the class' do
       some_class = Class
       some_instance = some_class.new
-      expect(type(some_instance).call(some_class)).to be true
+      expect(type(some_class).call(some_instance)).to be true
     end
   end
 
