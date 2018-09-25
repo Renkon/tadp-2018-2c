@@ -1,3 +1,4 @@
+require_relative 'matchers/matcher'
 require_relative 'matchers/value_matcher'
 require_relative 'matchers/type_matcher'
 require_relative 'matchers/list_matcher'

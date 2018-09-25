@@ -1,8 +1,8 @@
 module ListMatcher
   def list(pattern, fixed_size = true)
-    lambda do | value, symbol_dictionary = Hash.new |
+    Matcher.new do | value, symbol_dictionary |
       are_enumerables(pattern, value) && eval_list(pattern, value, symbol_dictionary) && valid_size(fixed_size, pattern, value)
-    end.extend(Combinable)
+    end
   end
 
   private
