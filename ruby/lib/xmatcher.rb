@@ -5,10 +5,8 @@ require_relative 'matchers/duck_matcher'
 
 # We must add 'call' method to Symbol class instances.
 class Symbol
-  def call(value, bind_to = nil)
-    if bind_to
-      bind_to.add_property(to_s, value)
-    end
+  def call(value, symbol_dictionary = Hash.new)
+    symbol_dictionary[self] = value
     true
   end
 end
