@@ -126,7 +126,7 @@ describe 'Part 1 - Matchers' do
       expect(duck(:cuack, :fly).call(psyduck)).to be true
     end
 
-    it 'duck matcher should not respond to the two methods availeble for dragons' do
+    it 'duck matcher should not respond to cuack but should respond to fly for dragons' do
       expect(duck(:cuack, :fly).call(a_dragon)).to be false
     end
 
@@ -142,7 +142,7 @@ describe 'Part 1 - Matchers' do
       expect(duck(:each, :all?, :any?).call(some_array)).to be true
     end
 
-    it 'duck matcher should respond to each, all? and any? but not respond to salto_ninja for an array' do
+    it 'duck matcher should respond to all? and any? but not respond to salto_ninja for an array' do
       expect(duck(:any?, :all?, :salto_ninja).call(some_array)).to be false
     end
 
@@ -193,11 +193,11 @@ describe 'Part 2 - Combinators' do
       expect { duck(:something).or() }.to raise_error(ArgumentError)
     end
 
-    it 'a new object should not match either value 2, empty list or list pattern' do
+    it 'a new object should not match either value 2, empty list, list pattern or type' do
       expect(val(2).or(list([1,2]), type(Class), val([])).call(Object.new)).to be false
     end
 
-    it 'array should match either integer or list without matching size' do
+    it 'array should match either integer, 1, d or list without matching size' do
       expect(type(Integer).or(list([1, :a], false), val(1), val("d")).call(an_array)).to be true
     end
 
