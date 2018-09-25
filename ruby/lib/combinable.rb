@@ -15,10 +15,10 @@ module Combinable
 
   def not()
     Matcher.new do
-      | value, symbol_dictionary = Hash.new | !self.call(value, symbol_dictionary)
+      | value, symbol_dictionary | !self.call(value, symbol_dictionary)
     end
   end
-  
+
   private
   def eval_matchers(matchers, value, symbol_dictionary)
     matchers.map { | matcher | matcher.call(value, symbol_dictionary) }
