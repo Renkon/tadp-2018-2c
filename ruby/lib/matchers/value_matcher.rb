@@ -1,5 +1,7 @@
 module ValueMatcher
   def val(expected_value)
-    lambda { | value, symbol_dictionary = Hash.new | expected_value == value }.extend(Combinable)
+    Matcher.new do
+    | value, symbol_dictionary | expected_value == value
+    end
   end
 end

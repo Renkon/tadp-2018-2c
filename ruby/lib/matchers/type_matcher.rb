@@ -1,5 +1,7 @@
 module TypeMatcher
   def type(expected_class)
-    lambda { | value, symbol_dictionary = Hash.new | value.is_a? expected_class }.extend(Combinable)
+    Matcher.new do
+      | value, symbol_dictionary | value.is_a? expected_class
+    end
   end
 end
