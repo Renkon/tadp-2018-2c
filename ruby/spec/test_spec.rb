@@ -309,22 +309,3 @@ describe 'Part 4 - Matchers' do
     end).to eq "good"
   end
 end
-
-
-describe 'syntax and usage test' do
-  it '1.call(2) no deberia funcionar, si esta bien armado el fw' do
-    expect {1.call(2)}.to raise_error NoMethodError
-  end
-
-  it 'type(Integer).call no deberia funcionar sin parametros' do
-    expect {type(Integer).call}.to raise_error ArgumentError
-  end
-
-  it 'esto no deberia ser visible!!!!!' do # FIXME: Problema... ensucia la interfaz de main y el metodo are_equivalents es accesible de todos lados.
-    expect {list_pattern_evaluation([1, 2, 3], [1, 2, 3, 4])}.to raise_error NoMethodError
-  end
-
-  it 'una lambda cualquiera no deberia tener el metodo and' do
-    expect { lambda {}.and(lambda {})}.to raise_error NoMethodError
-  end
-end
