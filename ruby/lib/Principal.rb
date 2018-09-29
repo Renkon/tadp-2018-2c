@@ -1,45 +1,26 @@
 require_relative '../lib/Macheador'
+require_relative '../lib/Patterns'
+require_relative 'Combinador'
+
 
 class Symbol
-
   include Combinador
 
-  def call(value, bind_to = nil)
-    if bind_to
-      bind_to.add_property(to_s, value)
-    end
+  def call(value, symbol_dictionary = Hash.new)
+    symbol_dictionary[self] = value
     true
   end
-
 end
 
-class Object
-  include Matchers
-end
+module XMatcher
+  include ValueMatcher
+  include TypeMatcher
+  include ListMatcher
+  include DuckMatcher
 
-class Pito
-
-  include Combinador
-
-  def initialize
+  def matches?(object, &block)
+    return_proc = Proc.new { | value | return value }
+    context = MatchingContext.new(object, return_proc)
+    context.instance_exec(&block)
   end
-
-  def unmetodo(lista)
-    puts lista.to_s
-
-    acum = 0
-    lista.each {|item| acum=item+acum}
-
-    puts (acum)
-    acum
-  end
-
-  def probando_lista_procs(listaProcs)
-    listaProcs.each {|proc| proc.call('Gaby')}
-  end
-
-  def otroM
-    metod
-  end
-
 end

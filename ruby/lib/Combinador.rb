@@ -1,38 +1,26 @@
 module Combinador
-
-  def and(*lista_matcher)
-    combinator = CombinadorConcreto.new
-    combinator.validator(lista_matcher)
-
-    lista_completa = [self]+lista_matcher
-    lambda { | valor | combinator.aplicar_matchers(lista_completa, valor).all? }
-  end
-
-  def or(*lista_matcher)
-    combinator = CombinadorConcreto.new
-    combinator.validator(lista_matcher)
-
-    lista_completa = [self]+lista_matcher
-    lambda { | valor | combinator.aplicar_matchers(lista_completa, valor).any? }
-  end
-
-  def not
-    lambda { |valor| !self.call(valor)}
-  end
-
-  class CombinadorConcreto
-    def initialize
+  def and(first_matcher, *other_matchers)
+    matchers = [self, first_matcher, other_matchers].flatten
+    Matcher.new do
+    | value, symbol_dictionary | eval_matchers(matchers, value, symbol_dictionary).all?
     end
-
-    def validator(lista_matchers)
-      raise ArgumentError, 'Argument cant be less than 1' if lista_matchers.size < 1
-      raise ArgumentError, 'Argument should be a proc' unless lista_matchers.all? {|matcher| matcher.is_a? Proc}
-    end
-
-    def aplicar_matchers(lista_matchers, valor)
-      lista_matchers.map {|marcher| marcher.call(valor)}
-    end
-
   end
 
+  def or(first_matcher, *other_matchers)
+    matchers = [self, first_matcher, other_matchers].flatten
+    Matcher.new do
+    | value, symbol_dictionary | eval_matchers(matchers, value, symbol_dictionary).any?
+    end
+  end
+
+  def not()
+    Matcher.new do
+    | value, symbol_dictionary | !self.call(value, symbol_dictionary)
+    end
+  end
+
+  private
+  def eval_matchers(matchers, value, symbol_dictionary)
+    matchers.map { | matcher | matcher.call(value, symbol_dictionary) }
+  end
 end
