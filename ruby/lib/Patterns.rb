@@ -18,16 +18,14 @@ class MatchingContext
 
   private
   def context_exec(symbol_dictionary = Hash.new, &block)
-    disposable_context = DisposableContext.from symbol_dictionary
+    disposable_context = DisposableContext.new symbol_dictionary
     @return_proc.call disposable_context.instance_eval(&block)
   end
 end
 
 class DisposableContext
-  def self.from(symbol_dictionary = Hash.new)
-    disposable_context = DisposableContext.new
-    symbol_dictionary.each_pair { | sym, value | disposable_context.add_property(sym.to_s, value) }
-    disposable_context
+  def initialize(symbol_dictionary = Hash.new)
+    symbol_dictionary.each_pair { | sym, value | self.add_property(sym.to_s, value) }
   end
 
   def add_property(str, value)

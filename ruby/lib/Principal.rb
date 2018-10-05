@@ -21,6 +21,7 @@ module XMatcher
   def matches?(object, &block)
     return_proc = Proc.new { | value | return value }
     context = MatchingContext.new(object, return_proc)
-    context.instance_exec(&block)
+    context.instance_eval(&block)
   end
+
 end
