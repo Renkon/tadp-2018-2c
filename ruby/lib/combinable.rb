@@ -25,6 +25,18 @@ module Combinable
   end
 end
 
-class Symbol
+module CombinableIf
   include Combinable
+
+  def if(&block)
+    Matcher.new do
+      | value, symbol_dictionary |
+        self.call(value, symbol_dictionary)
+        value.instance_eval(&block)
+    end
+  end
+end
+
+class Symbol
+  include CombinableIf
 end

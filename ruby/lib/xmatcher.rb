@@ -21,5 +21,5 @@ module XMatcher
     return_proc = Proc.new { | value | return value }
     context = MatchingContext.new(object, return_proc)
     context.instance_exec(&block)
-  end
+  end 
 end
