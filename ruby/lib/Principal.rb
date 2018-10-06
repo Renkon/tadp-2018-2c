@@ -7,8 +7,14 @@ class Symbol
   include Combinador
 
   def call(value, symbol_dictionary = Hash.new)
-    symbol_dictionary[self] = value
-    true
+    if(symbol_dictionary[self] == nil)
+      puts 'entro al if true'
+      symbol_dictionary[self] = value
+      return true
+    end
+  else
+    puts 'entro al else false'
+    return false
   end
 end
 

@@ -311,3 +311,21 @@ describe 'Part 4 - Matchers' do
     end).to eq "good"
   end
 end
+
+
+describe 'Part 5' do
+
+  it 'anda una lsita comun' do
+    expect(matches?([1, 2, 3]) do
+      with(list([:a, :b, :c])) { a + b }
+      otherwise { 'acá si llego' }
+    end).to be 3
+  end
+
+  it 'si repite nomrbse no anda' do
+    expect(matches?([1, 2, 3]) do
+      with(list([:a, :b, :a])) { a + b }
+      otherwise { 'acá si llego' }
+    end).to eq 'acá si llego'
+  end
+end
