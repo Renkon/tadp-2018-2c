@@ -9,6 +9,13 @@ class Symbol
     symbol_dictionary[self] = value
     true
   end
+
+  def if(&block)
+    Matcher.new do |value, symbol_dictionary|
+      symbol_dictionary[self] = value
+      value.instance_eval(&block)
+    end
+  end
 end
 
 module XMatcher

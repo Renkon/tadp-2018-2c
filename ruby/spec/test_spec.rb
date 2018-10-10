@@ -309,3 +309,44 @@ describe 'Part 4 - Matchers' do
     end).to eq "good"
   end
 end
+
+describe 'Part 5 - If combinator' do
+  it 'if should not match invalid value' do
+    expect(:a_string.if do length < 10 end.call("this is not a string")).to be false
+  end
+
+  it 'if should match valid value' do
+    expect(:a_string.if do length < 10 end.call("wololo")).to be true
+  end
+
+  it 'if should match valid condition' do
+    expect(:a_number.if do even? end.call(42)).to be true
+  end
+
+  it 'if should not match invalid condition' do
+    expect(:a_number.if do even? end.call(23)).to be false
+  end
+
+  it 'should bind values and evaluate mixed if combinators' do
+    expect(matches?([1, 2, 3]) do
+      with(list([:uno.if do odd? end, :dos, :tres])) { uno + dos + tres }
+      otherwise { 1 }
+    end).to be 6
+  end
+
+  it 'previously implemented logic should still be working' do
+    expect(matches?(10) do
+      with(:a_number.if do odd? end) { a_number }
+      with(:a_number.if do even? end) { a_number * 2 }
+      with(:a_number.if do nil? end) { a_number / 2 }
+    end).to be 20
+  end
+
+  it 'should throw NoMethodError if it does not respond to it' do
+    expect { :a_number.if do length? end.call(23) }.to raise_error(NoMethodError)
+  end
+
+  it 'should throw NoMethodError if it does not respond to it' do
+    expect { :a_number.if do length? end.call(Set.new) }.to raise_error(NoMethodError)
+  end
+end
