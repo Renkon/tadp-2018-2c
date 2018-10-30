@@ -11,4 +11,15 @@ class ProjectSpec extends FreeSpec with Matchers {
     }
   }
 
+  "DragonBall" - {
+
+    "Un test de un guerrero" - {
+      "Creo una nueva instania de guerrero" in {
+        val goku = new Guerrero("Kakaroto", items = List(SemillaErmitanio), 10000)
+        goku.name shouldBe "Kakaroto"
+      }
+    }
+  }
+
+
 }
