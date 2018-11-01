@@ -1,12 +1,20 @@
 package dragonBall
 
-abstract class Guerrero(val nombre: String, val energia: Int, val energiaMaxima : Int){
-    require(nombre.nonEmpty)
+abstract class Guerrero(val nombre: String,
+                        val energia: Int,
+                        val energiaMaxima : Int,
+                        val items : List[Item] = List()){
+  require(nombre.nonEmpty)
   require(energia >= 0)
   require(energia <= energiaMaxima)
 
   def aumentarEnergia(incremento : Int) : Guerrero
   def disminuirEnergia(decremento : Int) : Guerrero
+
+  def usarItemSobreMi(item : ActuaSobreAtacante) : Guerrero = {
+    if(items.contains(item))
+      item.aplicarSobre(this)
+  }
 }
 
 case class Humano(override val nombre: String,

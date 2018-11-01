@@ -5,7 +5,7 @@ sealed trait Movimiento{
 
   def evaluarPara(atacante: Guerrero, oponente: Option[Guerrero]/*, criterio: Criterio*/) : Int = {
     val resultados = this.apply(atacante)(oponente)
-    //criterio.evaluarPara(resultados_.1, resultados_.2)
+    //criterio.evaluarPara(resultados._1, resultados._2)
     1
   }
 }
@@ -23,9 +23,9 @@ object CargarKi extends Movimiento {
 object UsarItem extends Movimiento {
   override def apply(item : Item) (atacante : Guerrero) (oponente : Option[Guerrero]) : (Guerrero, Option[Guerrero]) = {
     (oponente, item) match {
-      case (None, Curativo()) => (atacante.usarItemSobreMi(item), oponente)
-      case (Some(_), Ofensivo()) => atacante.usarItemSobre(oponente.get, item)
-      case (None, Ofensivo()) => (atacante, oponente)
+      case (_, ActuaSobreAtacante()) => (atacante.usarItemSobreMi(item), oponente)
+      case (Some(_), ActuaSobreEnemigo()) => {val resultado = atacante.usarItemSobre(oponente.get, item); (resultado._1, Some[resultado._2])}
+      case (None, ActuaSobreEnemigo()) => (atacante, oponente)
     }
   }
 }
