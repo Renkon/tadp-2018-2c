@@ -1,13 +1,40 @@
 package dragonBall
 
-case class Guerrero(nombre: String, energia : Int, raza : Raza){
-  require(energia >= 0)
-  require(nombre.nonEmpty)
+sealed abstract class Raza(energiaMaxima: Int){
+  def aumentarEnergia(energiaActual : Int, incremento: Int): Int = {
+    require(incremento >= 0)
+    energiaMaxima.min(energiaActual + incremento)
+  }
 
-  def esUn(raza : Raza) : Boolean = this.raza == raza
+  def disminuirEnergia(energiaActual: Int, decremento: Int): Int = {
+    require(decremento >= 0)
+    0.max(energiaActual - decremento)
+  }
 }
 
-sealed trait Raza
+case class Humano(energiaMaxima : Int) extends Raza(energiaMaxima)
 
-case class Humano() extends Raza // TODO decidir si debe ser un well known object o una instancia para cada guerrero, va a depender del estado que deleguemos en la raza.
-case class Saiyajin(tieneCola : Boolean = true) extends Raza // TODO decidir si debe ser un well known object o una instancia para cada guerrero, va a depender del estado que deleguemos en la raza.
+case class Saiyajin(tieneCola : Boolean = true, nivelSS : Int = 1, energiaMaxima : Int) extends Raza (energiaMaxima) {
+  require((1 to 4).contains(nivelSS)) // TODO quizas se puede parametrizar el maximo nivelSS, pero no lo pide el enunciado
+
+  def cambiarDeFase(guerrero : Guerrero): Guerrero = {
+    guerrero.copy(raza = this.copy(nivelSS = nivelSS + 1))
+  } // problema : inconsistencia ... yo puedo hacer goku.raza.cambiarDeFase(vegeta)
+}
+
+case class Androide(energiaMaxima : Int) extends Raza (energiaMaxima) {
+  override def aumentarEnergia(energiaActual: Int, incremento: Int): Int = 0
+}
+
+case class Guerrero(nombre: String, raza : Raza, energia: Int){
+  require(nombre.nonEmpty)
+
+  def aumentarEnergia(incremento : Int) : Guerrero = {
+    copy(energia = raza.aumentarEnergia(energia, incremento))
+  }
+
+  def disminuirEnergia(decremento : Int) : Guerrero = {
+    copy(energia = raza.disminuirEnergia(energia, decremento) )
+  }
+
+}

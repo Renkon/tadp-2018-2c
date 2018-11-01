@@ -2,7 +2,7 @@ import org.scalatest.{FreeSpec, Matchers}
 import dragonBall._
 
 class ProjectSpec extends FreeSpec with Matchers {
-  val goku = new Guerrero(nombre ="goku", energia = 40, raza = Saiyajin())
+  val goku = new Guerrero(nombre ="goku", energia = 40, raza = Saiyajin(tieneCola = true, nivelSS = 1, energiaMaxima = 300))
 
   "dragonBallTests" - {
 
