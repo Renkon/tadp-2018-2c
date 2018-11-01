@@ -1,6 +1,7 @@
 module TypeMatcher
-  # Matcher that validates if a value is of a certain type.
-  def type(klazz)
-    lambda { | object, bind_to = nil | object.is_a?(klazz) }.extend(Combinable)
+  def type(expected_class)
+    Matcher.new do
+      | value, symbol_dictionary | value.is_a? expected_class
+    end
   end
 end

@@ -1,21 +1,26 @@
 module ListMatcher
-  # Matcher that validates if a list has got the same first elements as # another list. You can also specify how many elements should be analyzed.
-  def list(pattern_list, match_size = true)
-    lambda do
-    | original_list, bind_to = nil |
-      original_list.is_a?(Enumerable) && pattern_list.is_a?(Enumerable) &&
-          list_matcher_result(
-              pattern_list,
-              (match_size ? original_list : original_list.take(pattern_list.length)), bind_to)
-              .all? { | result | result } && pattern_list.length <= original_list.length
-    end.extend(Combinable)
+  def list(pattern, fixed_size = true)
+    Matcher.new do | value, symbol_dictionary |
+      are_enumerables(pattern, value) && eval_list(pattern, value, symbol_dictionary) && valid_size(fixed_size, pattern, value)
+    end
   end
 
   private
-  def list_matcher_result(pattern_list, original_list, bind_to)
-    original_list.zip(pattern_list).map do | original_value, pattern_value |
-      original_value == pattern_value ||
-          (!pattern_value.nil? && pattern_value.respond_to?(:call) && pattern_value.call(original_value, bind_to))
-    end
+  def are_enumerables(pattern, value)
+    pattern.is_a?(Enumerable) && value.is_a?(Enumerable)
+  end
+
+  def valid_size(fixed_size, pattern, value)
+    value.size == pattern.size || (!fixed_size && value.size >= pattern.size)
+  end
+
+  def eval_list(pattern_list, value_list, symbol_dictionary)
+    value_list.zip(pattern_list).map do | value, pattern |
+      pattern.nil? || apply_pattern_matcher(pattern, value, symbol_dictionary)
+    end.all?
+  end
+
+  def apply_pattern_matcher(pattern, value, symbol_dictionary)
+    pattern.respond_to?(:call) ? pattern.call(value, symbol_dictionary) : val(pattern).call(value)
   end
 end

@@ -1,6 +1,7 @@
 module ValueMatcher
-  # Matcher that validates if a value is equal to another one.
-  def val(value)
-    lambda { | another_value, bind_to = nil | value == another_value }.extend(Combinable)
+  def val(expected_value)
+    Matcher.new do
+    | value, symbol_dictionary | expected_value == value
+    end
   end
 end
