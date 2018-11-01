@@ -2,15 +2,22 @@ import org.scalatest.{FreeSpec, Matchers}
 import dragonBall._
 
 class ProjectSpec extends FreeSpec with Matchers {
-  val goku = new Guerrero(nombre ="goku", energia = 40, raza = Saiyajin(tieneCola = true, nivelSS = 1, energiaMaxima = 300))
-
   "dragonBallTests" - {
 
-    "guerrerosTest" - {
-      "cuando un guerrero saiyajin descansa su energia disminuye en 2" in {
+    "cargarKiTest" - {
+
+      val goku = new Saiyajin(nombre ="goku", energia = 40, tieneCola = true, nivelSS = 0, energiaMaxima = 300)
+      val androide17 = new Androide(nombre = "androide 17", energiaMaxima = 300)
+
+      "cuando un guerrero saiyajin con 40 de energia inicial y nivelSS = 1 carga ki entonces su eneria es la original mas 150" in {
         val energiaOriginal : Int = goku.energia
-        val gokuFajado = DejarseFajar(goku)
-        gokuFajado.energia shouldBe(energiaOriginal - 2)
+        val gokuConMasKi = CargarKi(goku)
+        gokuConMasKi.energia shouldBe(energiaOriginal + 150)
+      }
+
+      "cuando un androide intenta cargarKi su energia permanece igual" in {
+        val androideConMasKi = CargarKi(androide17)
+        androideConMasKi.energia shouldBe(androide17.energia)
       }
     }
   }

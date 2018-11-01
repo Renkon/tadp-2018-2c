@@ -1,40 +1,58 @@
 package dragonBall
 
-sealed abstract class Raza(energiaMaxima: Int){
-  def aumentarEnergia(energiaActual : Int, incremento: Int): Int = {
-    require(incremento >= 0)
-    energiaMaxima.min(energiaActual + incremento)
+abstract class Guerrero(val nombre: String, val energia: Int, val energiaMaxima : Int){
+    require(nombre.nonEmpty)
+  require(energia >= 0)
+  require(energia <= energiaMaxima)
+
+  def aumentarEnergia(incremento : Int) : Guerrero
+  def disminuirEnergia(decremento : Int) : Guerrero
+}
+
+case class Humano(override val nombre: String,
+                  override val energia: Int,
+                  override val energiaMaxima : Int) extends Guerrero(nombre, energia, energiaMaxima){
+
+  override def aumentarEnergia(incremento: Int): Guerrero = {
+    copy(energia = energia + incremento)
   }
 
-  def disminuirEnergia(energiaActual: Int, decremento: Int): Int = {
-    require(decremento >= 0)
-    0.max(energiaActual - decremento)
+  override def disminuirEnergia(decremento: Int): Guerrero = {
+    copy(energia = energia - decremento)
   }
 }
 
-case class Humano(energiaMaxima : Int) extends Raza(energiaMaxima)
+case class Saiyajin(tieneCola : Boolean = true,
+                    nivelSS : Int = 1,
+                    override val nombre : String,
+                    override val energia : Int,
+                    override val energiaMaxima : Int) extends Guerrero (nombre, energia, energiaMaxima) {
 
-case class Saiyajin(tieneCola : Boolean = true, nivelSS : Int = 1, energiaMaxima : Int) extends Raza (energiaMaxima) {
-  require((1 to 4).contains(nivelSS)) // TODO quizas se puede parametrizar el maximo nivelSS, pero no lo pide el enunciado
+  require((0 to 4).contains(nivelSS)) // TODO quizas se puede parametrizar el maximo nivelSS, pero no lo pide el enunciado
+
+  override def aumentarEnergia(incremento: Int): Guerrero = {
+    copy(energia = energia + incremento)
+  }
+
+  override def disminuirEnergia(decremento: Int): Guerrero = {
+    copy(energia = energia - decremento)
+  }
 
   def cambiarDeFase(guerrero : Guerrero): Guerrero = {
-    guerrero.copy(raza = this.copy(nivelSS = nivelSS + 1))
-  } // problema : inconsistencia ... yo puedo hacer goku.raza.cambiarDeFase(vegeta)
+    copy(nivelSS = nivelSS + 1)
+  }
 }
 
-case class Androide(energiaMaxima : Int) extends Raza (energiaMaxima) {
-  override def aumentarEnergia(energiaActual: Int, incremento: Int): Int = 0
-}
+case class Androide(override val nombre : String,
+                    override val energia : Int = 0,
+                    override val energiaMaxima : Int) extends Guerrero (nombre, energia, energiaMaxima) {
 
-case class Guerrero(nombre: String, raza : Raza, energia: Int){
-  require(nombre.nonEmpty)
-
-  def aumentarEnergia(incremento : Int) : Guerrero = {
-    copy(energia = raza.aumentarEnergia(energia, incremento))
+  override def aumentarEnergia(incremento: Int): Guerrero = {
+    copy(energia = 0)
   }
 
-  def disminuirEnergia(decremento : Int) : Guerrero = {
-    copy(energia = raza.disminuirEnergia(energia, decremento) )
+  override def disminuirEnergia(decremento: Int): Guerrero = {
+    copy(energia = 0)
   }
-
 }
+
