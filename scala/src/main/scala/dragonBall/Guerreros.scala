@@ -10,16 +10,13 @@ abstract class Guerrero(val nombre: String,
 
   def aumentarEnergia(incremento : Int) : Guerrero
   def disminuirEnergia(decremento : Int) : Guerrero
-
-  def usarItemSobreMi(item : ActuaSobreAtacante) : Guerrero = {
-    if(items.contains(item))
-      item.aplicarSobre(this)
-  }
+  def tieneItem(item : Item) : Boolean = items.contains(item)
 }
 
 case class Humano(override val nombre: String,
                   override val energia: Int,
-                  override val energiaMaxima : Int) extends Guerrero(nombre, energia, energiaMaxima){
+                  override val energiaMaxima : Int,
+                  override val items : List[Item] = List()) extends Guerrero(nombre, energia, energiaMaxima){
 
   override def aumentarEnergia(incremento: Int): Guerrero = {
     copy(energia = energia + incremento)
@@ -34,7 +31,8 @@ case class Saiyajin(tieneCola : Boolean = true,
                     nivelSS : Int = 1,
                     override val nombre : String,
                     override val energia : Int,
-                    override val energiaMaxima : Int) extends Guerrero (nombre, energia, energiaMaxima) {
+                    override val energiaMaxima : Int,
+                    override val items : List[Item] = List()) extends Guerrero (nombre, energia, energiaMaxima) {
 
   require((0 to 4).contains(nivelSS)) // TODO quizas se puede parametrizar el maximo nivelSS, pero no lo pide el enunciado
 
@@ -53,7 +51,8 @@ case class Saiyajin(tieneCola : Boolean = true,
 
 case class Androide(override val nombre : String,
                     override val energia : Int = 0,
-                    override val energiaMaxima : Int) extends Guerrero (nombre, energia, energiaMaxima) {
+                    override val energiaMaxima : Int,
+                    override val items : List[Item] = List()) extends Guerrero (nombre, energia, energiaMaxima) {
 
   override def aumentarEnergia(incremento: Int): Guerrero = {
     copy(energia = 0)
