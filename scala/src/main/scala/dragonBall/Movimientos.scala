@@ -12,7 +12,13 @@ sealed trait Movimiento{
     //criterio.evaluarPara(resultados._1, resultados._2)
     1
   }
-}
+} /* Todo esto esta planteado asi porque la idea para resolver el primer requerimiento es :
+  * >> en Guerrero
+  * def movimientoMasEfectivoContra(oponente)(unCriterio) {
+  * this.movimientos.fold(primerMovimiento)((semilla, otro) =>
+  *   if(semilla.evaluarPara(this, oponente, criterio) > otro.evaluarPara(this, oponente, criterio) semilla else otro))
+  * }
+  */
 
 /* FIXME hay alguna forma de hacer el pattern matching de las razas sin que te importen los argumentos, porque
 * si no cada vez que agregue un atributo tengo que agregarlo en el patron, y se va a llegan de guiones bajos
