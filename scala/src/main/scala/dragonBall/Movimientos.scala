@@ -28,18 +28,34 @@ sealed trait Movimiento{
  * o esta bien lo que hice con la monada?
 * */
 
+type Movimiento = Combatientes => Combatientes
+cargarKi :: Movimiento
+cargarKi combatientes = case combatientes of
+  ...
+  ...
+  ...
+
+usarItem :: Item -> Movimiento
+usarItem item combatientes = case (combatientes, item) of
+  ...
+
+semillaDelErmitanio :: Item
+
+usarItem semillaDelErmitanio :: Movimiento
+
+
 object CargarKi extends Movimiento {
   def apply(atacante : Guerrero) (oponente : Option[Guerrero]) : (Guerrero, Option[Guerrero]) = {
-    atacante match {
-      case Saiyajin(_, nivelSS,_, _, _, _,_) => (atacante.aumentarEnergia(150 * (nivelSS + 1)), oponente)
+    atacante.raza match {
+      case s@Saiyajin(nivelSS,_) => (atacante.aumentarEnergia(150 * (nivelSS + 1)), oponente)
       case Androide(_,_,_,_,_) => (atacante, oponente)
       case _ => (atacante.aumentarEnergia(100), oponente)
     }
   }
 }
 
-object UsarItem extends Movimiento {
-  def apply(item : Item) (atacante : Guerrero) (oponente : Option[Guerrero]) : (Guerrero, Option[Guerrero]) = {
+case class UsarItem(item:Item) extends Movimiento {
+  def apply(atacante : Guerrero) (oponente : Option[Guerrero]) : (Guerrero, Option[Guerrero]) = {
     (oponente, item) match {
       case (None, ActuaSobreOponente()) => (atacante, oponente)
       case (_, _) => if (atacante.tieneItem(item)) item.apply(atacante)(oponente) else (atacante, oponente)
