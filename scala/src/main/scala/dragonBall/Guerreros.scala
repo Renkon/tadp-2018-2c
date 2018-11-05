@@ -15,7 +15,11 @@ case class Guerrero(nombre : String, estado: Estado = Ok, energia: Int, raza : R
   def agregarItem(item: Item) : Guerrero = copy(items = item :: items)
 
   def usarItem(item: Item, oponente : Guerrero) :(Guerrero, Guerrero) = {
-    //if(puedeUsar(item)) // por lo del estado y eso
-      item.apply(this, oponente)
+    (item, estado) match {
+      case (SemillaDelHermitanio, _) => item.apply(this, oponente)
+      case (_, Inconsciente) => (this, oponente)
+      case(_,_) => item.apply(this, oponente)
+    }
   }
+
 }
