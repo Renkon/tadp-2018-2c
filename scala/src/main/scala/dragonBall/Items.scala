@@ -1,7 +1,7 @@
 package dragonBall
 
 sealed trait Item {
-  def apply(atacante: Guerrero)(oponente : Option[Guerrero]) : (Guerrero, Option[Guerrero])
+  def apply(atacante: Guerrero, oponente : Guerrero) : (Guerrero, Guerrero)
 }
 
 /*
@@ -9,45 +9,45 @@ sealed trait Item {
 * en movimientos, pero sin esta repeticion de firma que esta al dope?
 * */
 
-abstract case class ActuaSobreAtacante() extends Item {
-  def apply(atacante: Guerrero)(oponente : Option[Guerrero]) : (Guerrero, Option[Guerrero])
-}
+//object ArmaRoma extends Item
 
-abstract case class ActuaSobreOponente() extends Item {
-  def apply(atacante: Guerrero)(oponente : Option[Guerrero]) : (Guerrero, Option[Guerrero])
-}
-
-//object ArmaRoma extends ActuaSobreEnemigo
-
-object SemillaDelHermitanio extends ActuaSobreAtacante(){
-  def apply(atacante: Guerrero)(oponente : Option[Guerrero]) : (Guerrero, Option[Guerrero]) = {
-    (atacante.aumentarEnergia(atacante.energiaMaxima - atacante.energia), oponente)// FIXME Esto asi como esta en los androides no funicona
+object SemillaDelHermitanio extends Item {
+  def apply(atacante: Guerrero, oponente : Guerrero) : (Guerrero, Guerrero) = {
+    (atacante.aumentarEnergia(atacante.raza.energiaMaxima - atacante.energia), oponente)// FIXME Esto asi como esta en los androides no funicona
   }
 }
 
-object ArmaDeFuego extends ActuaSobreOponente() {
-  def apply(atacante: Guerrero) (oponente: Option[Guerrero]) : (Guerrero, Option[Guerrero]) = {
-    val municion = atacante.municiones()
-    (municion, oponente) match {
-      case (Some(_), None) => (atacante, oponente)
-      case (None,_) => (atacante, oponente)
-      case (Some(_), Some(_)) => municion.get.apply(atacante)(oponente)
+object ArmaDeFuego extends Item {
+  def apply(atacante: Guerrero, oponente: Guerrero) : (Guerrero, Guerrero) = {
+    val maybeMunicion = atacante.municion()
+    (maybeMunicion, oponente.raza, oponente.estado) match {
+      case (Some(municion), raza:Humano, _)=> municion.apply(atacante, oponente.disminuirEnergia(20))
+      case (Some(municion), raza:Namekusein, Inconsciente) =>  municion.apply(atacante, oponente.disminuirEnergia(10))
+      case (_, _, _) => (atacante, oponente)
     }
   }
 }
 
 case class Municion(var cantidadActual : Int) extends Item {
-  def usar() = {cantidadActual = 0.max(cantidadActual - 1)}
-  def cantidad() : Int = cantidadActual
+  require(cantidadActual >= 1)
 
-  def apply(atacante: Guerrero) (oponente: Option[Guerrero]) : (Guerrero, Option[Guerrero]) = {
-    val op = oponente.get
-    (op, op.estado) match {
-      case (Humano(_,_,_,_,_), _)=> {this.usar(); (atacante, Some(op.disminuirEnergia(20)))}
-      case (Namekusein(_, _, _ ,_ ,_), Inconsciente) =>  {this.usar(); (atacante, Some(op.disminuirEnergia(10)))}
-      case (_, _) => (atacante, oponente)
+  def apply(atacante: Guerrero, oponente: Guerrero) : (Guerrero, Guerrero) = {
+    val maybeMunicion = atacante.municion()
+    maybeMunicion match {
+      case Some(_) => (atacante.copy(items = itemsConMunicionModificada(atacante.items)), oponente)
+      case None => (atacante, oponente)
     }
   }
-} // aca si hay efecto a proposito, aunque si me la rebusco un poco podria hacerse inmutable, aunque no estoy seguro de que ganaria.
 
+  private def itemsConMunicionModificada(items : List[Item]) : List[Item] = {
+    val listaSinMuniciones = items.filter(item => !item.isInstanceOf[Municion])
+    if(cantidadActual == 1) listaSinMuniciones else Municion(cantidadActual -1) :: listaSinMuniciones
+  }
+}
 
+// Al final quedamos con juan que usar el item municion significa gastarla, no importa para que,
+// y usar el item arma de fuego significa que si tenes municion te gasta una Y aparte con ella produce el daño al enemigo
+
+// Dos opciones para modelar la municion:
+// Un objeto municion que cuando llega a cero lo dropeas de la lista de items, inmutable => MAS DIVERTIDO, voy con esta
+// Cada bala es una instancia de la clase municion, y la sacas de la lista de items del guerrero a medida que la usa => MAS FACIL

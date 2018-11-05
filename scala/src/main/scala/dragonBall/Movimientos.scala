@@ -1,7 +1,7 @@
 package  dragonBall
 
 sealed trait Movimiento{
-  def evaluarPara(atacante: Guerrero, oponente: Option[Guerrero]/*, criterio: Criterio*/) : Int = {
+  def evaluarPara(atacante: Guerrero, oponente: Guerrero/*, criterio: Criterio*/) : Int = {
     // val resultados = this.apply(atacante)(oponente)
     /* FIXME esto de arriba no lo puedo hacer si no unifico un contrato para el apply, lo que yo quiero poder hacer es
        que se de cuenta que un objeto UnItemCualquiera.apply(10) esta parcialmente aplicado y es un movimiento porque
@@ -12,6 +12,8 @@ sealed trait Movimiento{
     //criterio.evaluarPara(resultados._1, resultados._2)
     1
   }
+
+  def apply (atacante : Guerrero, oponente : Guerrero) : (Guerrero, Guerrero)
 } /* Todo esto esta planteado asi porque la idea para resolver el primer requerimiento es :
   * >> en Guerrero
   * def movimientoMasEfectivoContra(oponente)(unCriterio) {
@@ -28,37 +30,35 @@ sealed trait Movimiento{
  * o esta bien lo que hice con la monada?
 * */
 
-type Movimiento = Combatientes => Combatientes
-cargarKi :: Movimiento
-cargarKi combatientes = case combatientes of
-  ...
-  ...
-  ...
-
-usarItem :: Item -> Movimiento
-usarItem item combatientes = case (combatientes, item) of
-  ...
-
-semillaDelErmitanio :: Item
-
-usarItem semillaDelErmitanio :: Movimiento
-
+// Explicacion de juan sobre aplicacion parcial
+//type Movimiento = combatientes => combatientes
+//cargarki :: movimiento
+//cargarki combatientes = case combatientes of
+//  ...
+//  ...
+//  ...
+//
+//usaritem :: item -> movimiento
+//usaritem item combatientes = case (combatientes, item) of
+//  ...
+//
+//semilladelermitanio :: item
+//
+//usaritem semilladelermitanio :: movimiento
+//
 
 object CargarKi extends Movimiento {
-  def apply(atacante : Guerrero) (oponente : Option[Guerrero]) : (Guerrero, Option[Guerrero]) = {
+  def apply(atacante : Guerrero, oponente : Guerrero) : (Guerrero, Guerrero) = {
     atacante.raza match {
-      case s@Saiyajin(nivelSS,_) => (atacante.aumentarEnergia(150 * (nivelSS + 1)), oponente)
-      case Androide(_,_,_,_,_) => (atacante, oponente)
+      case raza:Saiyajin => (atacante.aumentarEnergia(150 * (raza.nivelSS + 1)), oponente)
+      case raza:Androide => (atacante, oponente)
       case _ => (atacante.aumentarEnergia(100), oponente)
     }
   }
 }
 
 case class UsarItem(item:Item) extends Movimiento {
-  def apply(atacante : Guerrero) (oponente : Option[Guerrero]) : (Guerrero, Option[Guerrero]) = {
-    (oponente, item) match {
-      case (None, ActuaSobreOponente()) => (atacante, oponente)
-      case (_, _) => if (atacante.tieneItem(item)) item.apply(atacante)(oponente) else (atacante, oponente)
-    }
+  def apply(atacante : Guerrero, oponente : Guerrero) : (Guerrero, Guerrero) = {
+    if (atacante.tieneItem(item)) atacante.usarItem(item, oponente) else (atacante, oponente)
   }
 }
