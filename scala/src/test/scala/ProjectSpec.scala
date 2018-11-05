@@ -6,6 +6,14 @@ import scala.None
 class ProjectSpec extends FreeSpec with Matchers {
   "dragonBall tests" - {
 
+    "Construccion test" - {
+      "cuando queres superar la energia maxima, deberia fallar" in {
+        //val goku = Guerrero(nombre = "goku", energia = 1000, raza = Saiyajin(nivelSS = 0,tieneCola = true))
+
+      }
+
+    }
+
     "CargarKi test" - {
 
       val goku = Guerrero(nombre = "goku", energia = 40, raza = Saiyajin(nivelSS = 0,tieneCola = true))
@@ -77,6 +85,31 @@ class ProjectSpec extends FreeSpec with Matchers {
         nuevoSatan.energia shouldBe(0)
         (nuevoYamcha.municion().get).asInstanceOf[Municion].cantidadActual shouldBe(municionOriginal - 1) // FEO
       }
+
+      "cuando un humano quiere usar un arma roma contra un androide, ambos quedan igual" in {
+        val yamchaArmado = yamcha.agregarItem(ArmaRoma)
+        val (nuevoYamcha, nuevoAndroide) = UsarItem(ArmaRoma)(yamchaArmado, androide17)
+        nuevoYamcha shouldBe(yamchaArmado)
+        nuevoAndroide shouldBe(androide17)
+      }
+
+      "cuando un humano quiere usar un arma roma contra un no-andoide con mas de 300 de energia, ambos quedan igual" in {
+        val yamchaArmado = yamcha.agregarItem(ArmaRoma)
+        val razaModificada = Saiyajin(nivelSS = 0, tieneCola = true)
+        razaModificada.energiaMaxima = 1000
+        val gokuConMasEnergiaMaxima = goku.copy(energia = 500, raza = razaModificada)
+        val (nuevoYamcha, nuevoGoku) = UsarItem(ArmaRoma)(yamchaArmado, gokuConMasEnergiaMaxima)
+        nuevoYamcha shouldBe(yamchaArmado)
+        nuevoGoku shouldBe(gokuConMasEnergiaMaxima)
+      }
+
+      "cuando un humano quiere usar un arma roma contra un no-androide con menos de 300 de energia, el oponente queda inconsciente" in {
+        val yamchaArmado = yamcha.agregarItem(ArmaRoma)
+        val (nuevoYamcha, nuevoSatan) = UsarItem(ArmaRoma)(yamchaArmado, mrSatan)
+        nuevoYamcha shouldBe(yamchaArmado)
+        nuevoSatan.estado shouldBe(Inconsciente)
+      }
+
     }
   }
 }

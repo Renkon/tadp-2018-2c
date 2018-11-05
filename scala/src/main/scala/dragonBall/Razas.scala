@@ -1,7 +1,7 @@
 package dragonBall
 
 sealed trait Raza {
-  def energiaMaxima: Int
+  var energiaMaxima: Int
 
   def aumentarEnergia(guerrero: Guerrero, incremento: Int): Guerrero = {
     guerrero.copy(energia = this.energiaMaxima.min(guerrero.energia + incremento))
@@ -15,7 +15,7 @@ sealed trait Raza {
 case class Saiyajin(nivelSS: Int, tieneCola: Boolean) extends Raza {
   require((0 to 4).contains(nivelSS)) // TODO quizas se puede parametrizar el maximo nivelSS, pero no lo pide el enunciado
 
-  override def energiaMaxima = 300
+  override var energiaMaxima = 300
 
   def aumentarFase(guerrero : Guerrero): Guerrero = {
     cambiarDeFase(guerrero, +1)
@@ -31,7 +31,7 @@ case class Saiyajin(nivelSS: Int, tieneCola: Boolean) extends Raza {
 }
 
 case class Androide() extends Raza {
-  override def energiaMaxima: Int = 200
+  override var energiaMaxima: Int = 200
 
   override def aumentarEnergia(guerrero: Guerrero, incremento: Int): Guerrero = {
     guerrero.copy(energia = 0)
@@ -39,13 +39,13 @@ case class Androide() extends Raza {
 }
 
 case class Namekusein() extends Raza {
-  override def energiaMaxima: Int = 200
+  override var energiaMaxima: Int = 200
 }
 
 case class Humano() extends Raza {
-  override def energiaMaxima: Int = 200
+  override var energiaMaxima: Int = 200
 }
 
 case class Monstruo() extends Raza {
-  override def energiaMaxima: Int = 200
+  override var energiaMaxima: Int = 200
 }

@@ -9,7 +9,14 @@ sealed trait Item {
 * en movimientos, pero sin esta repeticion de firma que esta al dope?
 * */
 
-//object ArmaRoma extends Item
+object ArmaRoma extends Item {
+  def apply(atacante: Guerrero, oponente : Guerrero) : (Guerrero, Guerrero) = {
+    oponente.raza match {
+      case raza:Androide => (atacante, oponente)
+      case _ => (atacante, if(oponente.energia < 300) oponente.copy(estado = Inconsciente) else oponente)
+    }
+  }
+}
 
 object SemillaDelHermitanio extends Item {
   def apply(atacante: Guerrero, oponente : Guerrero) : (Guerrero, Guerrero) = {

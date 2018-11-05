@@ -21,5 +21,4 @@ case class Guerrero(nombre : String, estado: Estado = Ok, energia: Int, raza : R
       case(_,_) => item.apply(this, oponente)
     }
   }
-
 }
