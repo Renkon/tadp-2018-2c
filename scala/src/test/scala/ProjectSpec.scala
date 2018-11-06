@@ -125,51 +125,51 @@ class ProjectSpec extends FreeSpec with Matchers {
       "cuando un namekusein con mucha energia quiere usar un arma filosa contra un humano, el humano reduce su energia 1 punto por cada cien de energia del namek" in {
         val SuperNamekusein = Namekusein()
         SuperNamekusein.energiaMaxima = 400 // TODO hacer un metodo en el guerrero que esconda esto y que se concatene con el copy del guerrero
-        val pikoloCon350 = pikolo.copy(energia = 350, raza = SuperNamekusein)
-        val (nuevoPikolo, nuevoSatan) = UsarItem(ArmaFilosa)(pikoloCon350, mrSatan)
-        nuevoPikolo shouldBe(pikoloCon350)
+        val pikoloCon350ConNavaja = pikolo.copy(energia = 350, raza = SuperNamekusein, items = List(ArmaFilosa))
+        val (nuevoPikolo, nuevoSatan) = UsarItem(ArmaFilosa)(pikoloCon350ConNavaja, mrSatan)
+        nuevoPikolo shouldBe(pikoloCon350ConNavaja)
         nuevoSatan.energia shouldBe(mrSatan.energia - 3)
       }
 
       "cuando un namekusein con mucha energia quiere usar un arma filosa contra un saiyajin CON COLA, el saiyajin queda sin cola, con la misma fase, y en 1 de energia" in {
         val SuperNamekusein = Namekusein()
         SuperNamekusein.energiaMaxima = 400
-        val pikoloCon350 = pikolo.copy(energia = 350, raza = SuperNamekusein)
+        val pikoloCon350ConNavaja = pikolo.copy(energia = 350, raza = SuperNamekusein, items = List(ArmaFilosa))
         val gokuConColaFaseSS1 = goku.copy(raza = Saiyajin(Fases.SSFase1, tieneCola = true))
-        val (nuevoPikolo, nuevoGoku) = UsarItem(ArmaFilosa)(pikoloCon350, gokuConColaFaseSS1)
-        nuevoPikolo shouldBe(pikoloCon350)
+        val (nuevoPikolo, nuevoGoku) = UsarItem(ArmaFilosa)(pikoloCon350ConNavaja, gokuConColaFaseSS1)
+        nuevoPikolo shouldBe(pikoloCon350ConNavaja)
         nuevoGoku.energia shouldBe(1)
         nuevoGoku.raza match {
-          case raza:Saiyajin => raza.tieneCola shouldBe(false)
-          case raza:Saiyajin => raza.nivelDeFase() shouldBe(Fases.SSFase1)
+          case raza:Saiyajin => (raza.tieneCola, raza.nivelDeFase()) shouldBe((false, Fases.SSFase1))
+          case _ => // para que no salte un warning
         }
       }
 
       "cuando un namekusein con mucha energia quiere usar un arma filosa contra un saiyajin CON COLA y MONO, el saiyajin queda sin cola, con fase normal, y en 1 de energia" in {
         val SuperNamekusein = Namekusein()
         SuperNamekusein.energiaMaxima = 400
-        val pikoloCon350 = pikolo.copy(energia = 350, raza = SuperNamekusein)
+        val pikoloCon350ConNavaja = pikolo.copy(energia = 350, raza = SuperNamekusein, items = List(ArmaFilosa))
         val gokuConColaFaseSS1 = goku.copy(raza = Saiyajin(Fases.Mono, tieneCola = true))
-        val (nuevoPikolo, nuevoGoku) = UsarItem(ArmaFilosa)(pikoloCon350, gokuConColaFaseSS1)
-        nuevoPikolo shouldBe(pikoloCon350)
+        val (nuevoPikolo, nuevoGoku) = UsarItem(ArmaFilosa)(pikoloCon350ConNavaja, gokuConColaFaseSS1)
+        nuevoPikolo shouldBe(pikoloCon350ConNavaja)
         nuevoGoku.energia shouldBe(1)
         nuevoGoku.raza match {
-          case raza:Saiyajin => raza.tieneCola shouldBe(false)
-          case raza:Saiyajin => raza.nivelDeFase() shouldBe(Fases.Normal)
+          case raza:Saiyajin => (raza.tieneCola, raza.nivelDeFase()) shouldBe((false,Fases.Normal ))
+          case _ => // para que no salte un warning
         }
       }
 
       "cuando un namekusein con mucha energia quiere usar un arma filosa contra un saiyajin SIN COLA y cualquier fase, el saiyajin queda sin cola, con la misma fase, y en 1 de energia" in {
         val SuperNamekusein = Namekusein()
         SuperNamekusein.energiaMaxima = 400
-        val pikoloCon350 = pikolo.copy(energia = 350, raza = SuperNamekusein)
+        val pikoloCon350ConNavaja = pikolo.copy(energia = 350, raza = SuperNamekusein, items = List(ArmaFilosa))
         val gokuConColaFaseSS1 = goku.copy(raza = Saiyajin(Fases.SSFase2, tieneCola = false))
-        val (nuevoPikolo, nuevoGoku) = UsarItem(ArmaFilosa)(pikoloCon350, gokuConColaFaseSS1)
-        nuevoPikolo shouldBe(pikoloCon350)
+        val (nuevoPikolo, nuevoGoku) = UsarItem(ArmaFilosa)(pikoloCon350ConNavaja, gokuConColaFaseSS1)
+        nuevoPikolo shouldBe(pikoloCon350ConNavaja)
         nuevoGoku.energia shouldBe(gokuConColaFaseSS1.energia - 3)
         nuevoGoku.raza match {
-          case raza:Saiyajin => raza.tieneCola shouldBe(false)
-          case raza:Saiyajin => raza.nivelDeFase() shouldBe(Fases.SSFase2)
+          case raza:Saiyajin => (raza.tieneCola, raza.nivelDeFase()) shouldBe((false, Fases.SSFase2))
+          case _ => // para que no salte un warning
         }
       }
 
