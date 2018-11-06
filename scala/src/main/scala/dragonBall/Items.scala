@@ -9,6 +9,12 @@ sealed trait Item {
 * en movimientos, pero sin esta repeticion de firma que esta al dope?
 * */
 
+object SemillaDelHermitanio extends Item {
+  def apply(atacante: Guerrero, oponente : Guerrero) : (Guerrero, Guerrero) = {
+    (atacante.aumentarEnergia(atacante.raza.energiaMaxima - atacante.energia), oponente)// FIXME Esto asi como esta en los androides no funicona
+  }
+}
+
 object ArmaRoma extends Item {
   def apply(atacante: Guerrero, oponente : Guerrero) : (Guerrero, Guerrero) = {
     oponente.raza match {
@@ -18,10 +24,22 @@ object ArmaRoma extends Item {
   }
 }
 
-object SemillaDelHermitanio extends Item {
+object ArmaFilosa extends Item {
   def apply(atacante: Guerrero, oponente : Guerrero) : (Guerrero, Guerrero) = {
-    (atacante.aumentarEnergia(atacante.raza.energiaMaxima - atacante.energia), oponente)// FIXME Esto asi como esta en los androides no funicona
+    oponente.raza match {
+      case raza:Saiyajin => (raza.tieneCola, raza.nivelDeFase()) match {
+                                  case (true, Fases.Mono) => (atacante, oponente.copy(raza = Saiyajin(fase = Fases.Normal, tieneCola = false)).disminuirEnergia(oponente.energia - 1))
+                                  case (true, faseActual) => (atacante, oponente.copy(raza = Saiyajin(fase = faseActual, tieneCola = false)).disminuirEnergia(oponente.energia - 1))
+                                  case (_, _) => reducirEnergia(atacante, oponente)
+                            }
+      case _ => reducirEnergia(atacante, oponente)
+    }
   }
+
+  private def reducirEnergia(atacante : Guerrero, oponente : Guerrero): (Guerrero, Guerrero) = {
+    (atacante, oponente.disminuirEnergia(atacante.energia/100))
+  }
+
 }
 
 object ArmaDeFuego extends Item {

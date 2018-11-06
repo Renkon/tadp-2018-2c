@@ -50,7 +50,7 @@ sealed trait Movimiento{
 object CargarKi extends Movimiento {
   def apply(atacante : Guerrero, oponente : Guerrero) : (Guerrero, Guerrero) = {
     atacante.raza match {
-      case raza:Saiyajin => (atacante.aumentarEnergia(150 * (raza.nivelSS + 1)), oponente)
+      case raza:Saiyajin => (atacante.aumentarEnergia(150 * raza.nivelDeFase()), oponente)
       case raza:Androide => (atacante, oponente)
       case _ => (atacante.aumentarEnergia(100), oponente)
     }

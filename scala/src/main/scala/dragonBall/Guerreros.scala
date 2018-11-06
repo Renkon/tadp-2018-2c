@@ -4,6 +4,8 @@ case class Guerrero(nombre : String, estado: Estado = Ok, energia: Int, raza : R
   require(nombre.nonEmpty)
   require(energia >= 0)
 
+  // Es importante siempre usar desde otros objetos estos dos metodos para modificar la energia
+  // porque asi puedo chequear en cada modificacion si hay que cambiar el estado del guerrero a Inconsciente, Ok, etc...
   def aumentarEnergia(incremento : Int) : Guerrero = raza.aumentarEnergia(this, incremento)
 
   def disminuirEnergia(decremento : Int) : Guerrero = raza.disminuirEnergia(this, decremento)

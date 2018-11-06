@@ -12,23 +12,30 @@ sealed trait Raza {
   }
 }
 
-case class Saiyajin(nivelSS: Int, tieneCola: Boolean) extends Raza {
-  require((0 to 4).contains(nivelSS)) // TODO quizas se puede parametrizar el maximo nivelSS, pero no lo pide el enunciado
-
+case class Saiyajin(fase : Int = Fases.Normal, tieneCola: Boolean = false) extends Raza {
   override var energiaMaxima = 300
 
-  def aumentarFase(guerrero : Guerrero): Guerrero = {
-    cambiarDeFase(guerrero, +1)
-  }
+  def nivelDeFase() : Int = fase
 
-  def disminuirFase(guerrero : Guerrero): Guerrero = {
-    cambiarDeFase(guerrero, -1)
-  }
-
-  private def cambiarDeFase(guerrero: Guerrero, modificador : Int)= {
-    guerrero.copy(raza = Saiyajin(nivelSS = this.nivelSS + modificador, tieneCola = tieneCola))
+  def cambiarDeFase(guerrero: Guerrero, nuevaFase : Int) : Guerrero = {
+    guerrero.copy(raza = Saiyajin(fase = nuevaFase, tieneCola = tieneCola))
   }
 }
+
+object Fases {
+  val Normal = 1
+
+  val SSFase1 = 2
+
+  val SSFase2 = 3
+
+  val SSFase3 = 4
+
+  val SSFase4 = 5
+
+  val Mono = 0
+}
+
 
 case class Androide() extends Raza {
   override var energiaMaxima: Int = 200
