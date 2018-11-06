@@ -1,6 +1,11 @@
 package dragonBall
 
-case class Guerrero(nombre : String, estado: Estado = Ok, energia: Int, raza : Raza, items : List[Item] = List()) {
+case class Guerrero(nombre : String,
+                    estado: Estado = Ok,
+                    energia: Int, raza : Raza,
+                    items : List[Item] = List(),
+                    movimientos : List[Movimiento] = List()) {
+
   require(nombre.nonEmpty)
   require(energia >= 0)
 

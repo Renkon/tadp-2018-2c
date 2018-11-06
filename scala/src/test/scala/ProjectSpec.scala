@@ -44,7 +44,7 @@ class ProjectSpec extends FreeSpec with Matchers {
       val goku = Guerrero(nombre = "goku", energia = 40, raza = Saiyajin(), items = List(SemillaDelHermitanio))
       val androide17 = Guerrero(nombre = "androide 17", energia = 40, raza = Androide(), items = List(SemillaDelHermitanio))
       val yamcha = Guerrero(nombre = "yamcha", energia = 25, raza = Humano())
-      val pikolo = Guerrero(nombre = "pikolo", energia = 35, raza = Humano())
+      val pikolo = Guerrero(nombre = "pikolo", energia = 35, raza = Namekusein())
       val mrSatan = Guerrero(nombre = "mr satan", energia = 5, raza = Humano())
 
       // Semilla del hermitanio
@@ -171,6 +171,78 @@ class ProjectSpec extends FreeSpec with Matchers {
           case raza:Saiyajin => (raza.tieneCola, raza.nivelDeFase()) shouldBe((false, Fases.SSFase2))
           case _ => // para que no salte un warning
         }
+      }
+    }
+
+    "ComerseAlOponente test" - {
+      val cell = Guerrero(nombre = "cell", energia = 50, raza = Monstruo(DigestionCell), movimientos = List())
+      val androide17 = Guerrero(nombre = "androide 17", energia = 40, raza = Androide(), movimientos = List(CargarKi, UsarItem(ArmaFilosa)))
+      val androide18 = Guerrero(nombre = "androide 17", energia = 40, raza = Androide(), items = List(Municion(2)), movimientos = List(CargarKi, UsarItem(ArmaDeFuego)))
+      val mrSatan = Guerrero(nombre = "mr satan", energia = 5, raza = Humano(), movimientos = List(UsarItem(ArmaRoma)))
+      val majinBuu = Guerrero(nombre = "cell", energia = 50, raza = Monstruo(DigestionMajinBuu), movimientos = List())
+
+
+      "cuando cell quiere absorver al androide17, aprende sus movimientos y el andoide queda muerto" in {
+        androide17.estado should not be (Muerto)
+        val movimientosAndroide = androide17.movimientos
+        val (nuevoCell, nuevoAndroide) = ComerseAlOponente(cell, androide17)
+        nuevoCell.movimientos should contain theSameElementsAs (movimientosAndroide)
+        nuevoAndroide.estado shouldBe(Muerto)
+      }
+
+      "cuando cell quiere absorver al androide17 y a la androide18, aprende sus movimientos y ambos andoides quedan muertos" in {
+        androide17.estado should not be (Muerto)
+        androide18.estado should not be (Muerto)
+        val movimientosAndroide17 = androide17.movimientos
+        val movimientosAndroide18 = androide18.movimientos
+        val (cellCon17Absorbido, nuevoAndroide17) = ComerseAlOponente(cell, androide17)
+        cellCon17Absorbido.movimientos should contain theSameElementsAs (movimientosAndroide17)
+        nuevoAndroide17.estado shouldBe(Muerto)
+        val (cellCon17y18Absorbidos, nuevoAndroide18) = ComerseAlOponente(cellCon17Absorbido, androide18)
+        cellCon17y18Absorbidos.movimientos should contain theSameElementsAs ( movimientosAndroide17 ::: movimientosAndroide18) // joya, el orden de la concatencion no importa, busca por elementos
+        nuevoAndroide18.estado shouldBe(Muerto)
+      }
+
+      "cuando cell quiere absorver a mrSatan, pasa verguenza" in {
+        val estadoSatan = mrSatan.estado
+        val (nuevoCell, nuevoSatan) = ComerseAlOponente(cell, mrSatan)
+        nuevoCell.movimientos shouldBe empty
+        nuevoSatan.estado shouldBe (estadoSatan)
+      }
+
+      "cuando majinBuu quiere absorber al androide17 aprende sus movimientos y este queda muerto" in {
+        androide17.estado should not be (Muerto)
+        val movimientosAndroide = androide17.movimientos
+        val (nuevoManinBuu, nuevoAndroide) = ComerseAlOponente(majinBuu, androide17)
+        nuevoManinBuu.movimientos should contain theSameElementsAs (movimientosAndroide)
+        nuevoAndroide.estado shouldBe(Muerto)
+      }
+
+      "cuando majinBuu quiere absorber al androide17 aprende sus movimientos y este queda muerto, luego absorve a mrSatan y solo recuerda los movimientos de satan, y el mismo muere" in {
+        androide17.estado should not be (Muerto)
+        val movimientosAndroide = androide17.movimientos
+        val (majinBuuCon17Absorbido, nuevoAndroide) = ComerseAlOponente(majinBuu, androide17)
+        majinBuuCon17Absorbido.movimientos should contain theSameElementsAs (movimientosAndroide)
+        nuevoAndroide.estado shouldBe(Muerto)
+
+        val movimientosSatan = mrSatan.movimientos
+        val (majinBuuConSatanAbsorbido, nuevoSatan) =  ComerseAlOponente(majinBuuCon17Absorbido, mrSatan)
+        majinBuuConSatanAbsorbido.movimientos should contain theSameElementsAs (movimientosSatan)
+        nuevoSatan.estado shouldBe(Muerto)
+      }
+
+      "majinBuu no puede absorver a goku porque tiene mas ki que el" in {
+        val goku = Guerrero(nombre = "goku", energia = 60 , raza = Saiyajin(), movimientos = List(CargarKi))
+        val (majinBuuIgual, gokuIgual) = ComerseAlOponente(majinBuu, goku)
+        majinBuuIgual shouldBe(majinBuu)
+        gokuIgual shouldBe(goku)
+      }
+
+      "cell no puede absorver a superAndroide17 porque tiene mas ki que el" in {
+        val superAndroide17 = Guerrero(nombre = "superAndroide17", energia = 70 , raza = Androide(), movimientos = List(CargarKi))
+        val (cellIgual, super17Igual) = ComerseAlOponente(cell, superAndroide17)
+        cellIgual shouldBe(cell)
+        super17Igual shouldBe(superAndroide17)
       }
 
     }

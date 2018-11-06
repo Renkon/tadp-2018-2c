@@ -47,6 +47,9 @@ sealed trait Movimiento{
 //usaritem semilladelermitanio :: movimiento
 //
 
+
+// object DejarseFajar extends Movimiento // TODO
+
 object CargarKi extends Movimiento {
   def apply(atacante : Guerrero, oponente : Guerrero) : (Guerrero, Guerrero) = {
     atacante.raza match {
@@ -60,5 +63,14 @@ object CargarKi extends Movimiento {
 case class UsarItem(item:Item) extends Movimiento {
   def apply(atacante : Guerrero, oponente : Guerrero) : (Guerrero, Guerrero) = {
     if (atacante.tieneItem(item)) atacante.usarItem(item, oponente) else (atacante, oponente)
+  }
+}
+
+object ComerseAlOponente extends Movimiento {
+  def apply(atacante : Guerrero, oponente : Guerrero) : (Guerrero, Guerrero) = {
+    atacante.raza match {
+      case raza:Monstruo => raza.darDeComerA(atacante, oponente)
+      case _ => (atacante, oponente)
+    }
   }
 }
