@@ -6,9 +6,9 @@ object MovimientosContainer
 
   //CargarKi :: Movimiento
   object CargarKi {
-    def apply(atacante : Guerrero) (atacado : Guerrero) : (Guerrero, Guerrero) = {
+    def apply(atacante : Guerrero, atacado : Guerrero) : (Guerrero, Guerrero) = {
       atacante.raza match {
-        //case Saiyajin => (atacante.aumentarEnergia(150 * (nivelSS + 1)), oponente)
+        case Saiyajin(_,_) => (atacante.aumentarEnergia(100), atacado)
         case Androide => (atacante, atacado)
         case _ => (atacante.aumentarEnergia(100), atacado)
       }
