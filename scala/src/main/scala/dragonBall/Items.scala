@@ -70,6 +70,10 @@ case class Municion(var cantidadActual : Int) extends Item {
   }
 }
 
+case object FotoDeLaLuna extends Item {
+  def apply(atacante: Guerrero, oponente: Guerrero) : (Guerrero, Guerrero) = (atacante, oponente)
+}
+
 // Al final quedamos con juan que usar el item municion significa gastarla, no importa para que,
 // y usar el item arma de fuego significa que si tenes municion te gasta una Y aparte con ella produce el daño al enemigo
 

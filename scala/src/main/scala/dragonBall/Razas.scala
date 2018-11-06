@@ -1,5 +1,7 @@
 package dragonBall
 
+class CambioDeFaseException(msg : String) extends RuntimeException(msg)
+
 sealed trait Raza {
   var energiaMaxima: Int
 
@@ -15,10 +17,21 @@ sealed trait Raza {
 case class Saiyajin(fase : Int = Fases.Normal, tieneCola: Boolean = false) extends Raza {
   override var energiaMaxima = 300
 
+  private def EstadoMono() : Saiyajin = {
+    val razaMono = Saiyajin(fase = Fases.Mono, tieneCola = true)
+    razaMono.energiaMaxima = this.energiaMaxima * 3
+    razaMono
+  }
+
   def nivelDeFase() : Int = fase
 
   def cambiarDeFase(guerrero: Guerrero, nuevaFase : Int) : Guerrero = {
-    guerrero.copy(raza = Saiyajin(fase = nuevaFase, tieneCola = tieneCola))
+    (nivelDeFase(), nuevaFase, tieneCola) match {
+      case (_, Fases.Mono, true) => guerrero.copy(raza = EstadoMono()).aumentarEnergia(EstadoMono().energiaMaxima - guerrero.energia)
+      case (_, Fases.Mono, false) => guerrero
+      case (Fases.Mono, nuevaFase, _) if(nuevaFase != Fases.Normal) => throw new CambioDeFaseException("El estado Mono no se puede combinar con otra fase Saiyajin")
+      case (_,_,_) => guerrero.copy(raza = Saiyajin(fase = nuevaFase, tieneCola = tieneCola))
+    } // TODO no se si la restriccion que dice "no puede combinarse con SuperSaiyajin" se refiere a una excepcion o que lo dejas igual...
   }
 }
 
@@ -33,7 +46,7 @@ object Fases {
 
   val SSFase4 = 5
 
-  val Mono = 0
+  val Mono = 0 // FIXME que onda esto cuando CargaKi ??
 }
 
 

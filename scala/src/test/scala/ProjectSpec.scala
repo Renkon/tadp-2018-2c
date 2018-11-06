@@ -246,5 +246,41 @@ class ProjectSpec extends FreeSpec with Matchers {
       }
 
     }
+
+
+    "ConvertirseEnMono test" - {
+      val gohan = Guerrero(nombre = "gohan", energia = 50, raza = Saiyajin(tieneCola = false))
+      val gokuGT = Guerrero(nombre = "goku", energia = 40, raza = Saiyajin(tieneCola = true))
+
+
+      "cuando gokuGT quiere transformarse en mono no puede porque no tiene la foto de la luna" in {
+        val (gokuIgual, gohanIgual) = ConvertirseEnMono(gokuGT, gohan)
+        gokuIgual shouldBe(gokuGT)
+        gohanIgual shouldBe(gohan)
+      }
+
+      "cuando gokuGT quiere transformarse en mono, y tiene la foto de la luna, todo bien" in {
+        val gokuConFoto = gokuGT.copy(items = List(FotoDeLaLuna))
+        val (gokuMono, gohanIgual) = ConvertirseEnMono(gokuConFoto, gohan)
+        gokuMono.raza match {
+          case raza:Saiyajin => (gokuMono.energia, raza.nivelDeFase(), raza.energiaMaxima) shouldBe(raza.energiaMaxima, Fases.Mono, gokuGT.raza.energiaMaxima * 3)
+          case _ =>
+        }
+        gohanIgual shouldBe(gohan)
+      }
+
+      "cuando gohan quiere transformarse en mono, y tiene la foto de la luna, no puede porque no tiene cola" in {
+        val gohanConFoto = gohan.copy(items = List(FotoDeLaLuna))
+        val (gohanIgual, gokuIgual) = ConvertirseEnMono(gohanConFoto, gokuGT)
+        gohanIgual.raza match {
+          case raza:Saiyajin => (gohanIgual.energia, raza.nivelDeFase(), raza.energiaMaxima) shouldBe(gohan.energia, Fases.Normal, gohan.raza.energiaMaxima)
+          case _ =>
+        }
+        gokuIgual shouldBe(gokuGT)
+      }
+
+    }
+
+
   }
 }
