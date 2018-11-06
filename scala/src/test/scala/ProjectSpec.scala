@@ -1,23 +1,18 @@
+package Simulador
+
 import org.scalatest.{FreeSpec, Matchers}
 
 class ProjectSpec extends FreeSpec with Matchers {
 
-  "Este proyecto" - {
-
-    "cuando está correctamente configurado" - {
-      "debería resolver las dependencias y pasar este test" in {
-        Prueba.materia shouldBe "tadp"
-      }
-    }
-  }
-
   "DragonBall" - {
 
-    "Un test de un guerrero" - {
-      "Creo una nueva instania de guerrero" in {
-        val goku = new Guerrero("Kakaroto", items = List(SemillaErmitanio), 10000)
-        goku.name shouldBe "Kakaroto"
+    "Test de instanciacion" - {
+
+      "Instancia de un guerrero con un nombre conocido y de raza Saiyajin" in {
+        val goku = new Guerrero(name = "Kakaroto", raza = Saiyajin, energia = 1000, energiaMaxima = 100000, items = List(SemillaErmitanio))
+        goku.nombre shouldBe "Kakaroto"
       }
+
     }
   }
 

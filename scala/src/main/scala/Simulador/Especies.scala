@@ -1,11 +1,9 @@
-class Especies(raza: Raza){
-
-}
+package Simulador
 
 trait Raza
 
-case object Humanos extends Raza
-case object Saiyajins extends Raza
-case object Androides extends Raza
-case object Namekuseins extends Raza
-case object Monstruos extends Raza
+case object Humano extends Raza
+case object Saiyajin extends Raza
+case object Androide extends Raza
+case object Namekusein extends Raza
+case object Monstruo extends Raza

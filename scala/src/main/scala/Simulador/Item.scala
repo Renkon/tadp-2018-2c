@@ -1,3 +1,5 @@
+package Simulador
+
 trait Item
 
 trait Arma extends Item

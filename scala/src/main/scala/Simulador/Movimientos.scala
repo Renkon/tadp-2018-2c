@@ -1,3 +1,5 @@
+package Simulador
+
 /*
 type Movimiento = Guerrero => Guerrero
 
