@@ -1,5 +1,24 @@
 package Simulador
 
+object MovimientosContainer
+{
+  type Movimiento = Guerrero => Guerrero
+
+  //CargarKi :: Movimiento
+  object CargarKi {
+    def apply(atacante : Guerrero) (atacado : Guerrero) : (Guerrero, Guerrero) = {
+      atacante.raza match {
+        //case Saiyajin => (atacante.aumentarEnergia(150 * (nivelSS + 1)), oponente)
+        case Androide => (atacante, atacado)
+        case _ => (atacante.aumentarEnergia(100), atacado)
+      }
+    }
+  }
+
+
+
+}
+
 /*
 type Movimiento = Guerrero => Guerrero
 
