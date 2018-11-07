@@ -14,9 +14,26 @@ sealed trait Raza {
   }
 
   def quedoInconsciente(guerrero : Guerrero): Guerrero = guerrero
+
+  def murio(guerrero : Guerrero) : Guerrero = guerrero
 }
 
-case class Saiyajin(fase: Fase = Normal, tieneCola: Boolean = false) extends Raza {
+sealed trait Fusionable
+
+case class Fusionado(guerreroOriginal: Guerrero, companieroDeFusion : Guerrero) extends Raza {
+  // la idea es que no puedas instanciar a goku pasandole su raza Fusionado(goku),
+  // que si o si lo tengas que fusionar luego de haberlo instanciado
+  // Eso si, existe inconsistencia si haces goku = ... raza = Fusionado(krilin) ...
+  // entonces cuando la fusion quede inconsciente te devuelve a krilin ... ¿ tengo en cuenta esos casos ?
+
+  override val energiaMaxima: Int = guerreroOriginal.raza.energiaMaxima + companieroDeFusion.raza.energiaMaxima
+
+  override def quedoInconsciente(guerrero : Guerrero): Guerrero = guerreroOriginal.copy(energia = guerrero.energia, estado = Inconsciente)
+  // asumo que la energia de la fusion, en alguno de estos dos estados, es siempre menor al maximo y cercana a 0
+  override def murio(guerrero : Guerrero) : Guerrero = guerreroOriginal.copy(energia = guerrero.energia, estado = Muerto)
+}
+
+case class Saiyajin(fase: Fase = Normal, tieneCola: Boolean = false) extends Raza with Fusionable {
   override val energiaMaxima: Int = fase.energiaMaxima
 
   def nivelDeFase : Int = fase.nivel
@@ -91,11 +108,11 @@ case class Androide() extends Raza {
   }
 }
 
-case class Namekusein() extends Raza {
+case class Namekusein() extends Raza with Fusionable {
   override val energiaMaxima: Int = 330
 }
 
-case class Humano() extends Raza {
+case class Humano() extends Raza with Fusionable {
   override val energiaMaxima: Int = 300
 }
 

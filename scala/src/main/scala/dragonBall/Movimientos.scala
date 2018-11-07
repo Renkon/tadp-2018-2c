@@ -92,3 +92,13 @@ object ConvertirseEnSuperSaiyajin extends Movimiento {
     }
   }
 }
+
+case class FusionarseCon(compañeroDeFusion : Guerrero) extends Movimiento {
+  def apply(atacante : Guerrero, oponente : Guerrero) : (Guerrero, Guerrero) = {
+    (atacante.raza, compañeroDeFusion.raza) match {
+      case (razaAtacante:Fusionable, razaCompaniero:Fusionable) =>
+        (atacante.copy(raza = Fusionado(atacante, compañeroDeFusion)).aumentarEnergia(compañeroDeFusion.energia), oponente)
+      case (_,_) => (atacante, oponente)
+    }
+  }
+}

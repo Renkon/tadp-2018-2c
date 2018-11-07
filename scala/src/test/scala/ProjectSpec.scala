@@ -336,8 +336,43 @@ class ProjectSpec extends FreeSpec with Matchers {
           case _ =>
         }
       }
+    }
+
+    "FusionarseCon test" - {
+      val goku = Guerrero(nombre = "goku", energia = 40, raza = Saiyajin())
+      val androide17 = Guerrero(nombre = "androide 17", energia = 40, raza = Androide())
+      val paiKuHan = Guerrero(nombre = "paiKuHan", energia = 40, raza = Namekusein())
+      val mrSatan = Guerrero(nombre = "mr satan", energia = 5, raza = Humano())
+
+      "goku no puede fusionarse con androide17 porque los androides no son fusionables" in {
+        val (gokuIgual, paiKuHanIgual) = FusionarseCon(androide17)(goku, paiKuHan)
+        gokuIgual shouldBe(goku)
+        paiKuHanIgual shouldBe(paiKuHan)
+      }
+
+      "goku puede fusionarse con paikuhan y el resultado tiene la suma de sus energias y energiasMaximas" in {
+        val (gokuHan, androideIgual) = FusionarseCon(paiKuHan)(goku, androide17)
+        gokuHan.energia shouldBe(goku.energia + paiKuHan.energia)
+        gokuHan.raza.energiaMaxima shouldBe(goku.raza.energiaMaxima + paiKuHan.raza.energiaMaxima)
+        assert(gokuHan.raza.isInstanceOf[Fusionado])
+      }
+
+      "la fusion de goku y paikuhan al quedar inconsciente da como resultado a goku pero con la energia de la fusion" in {
+        val (gokuHan, androideIgual) = FusionarseCon(paiKuHan)(goku, androide17)
+        val gokuDeNuevo = gokuHan.disminuirEnergia(gokuHan.energia - 1).quedoInconsciente()
+        gokuDeNuevo shouldBe (goku.copy(energia = 1, estado = Inconsciente))
+        androideIgual shouldBe(androide17)
+      }
+
+      "una fusion no puede volver a fusionarse" in {
+        val (gokuHan, androideIgual) = FusionarseCon(paiKuHan)(goku, androide17)
+        val (gokuHanDeNuevo, androideIgualDeNuevo) = FusionarseCon(mrSatan)(gokuHan, androide17)
+        gokuHanDeNuevo shouldBe(gokuHan)
+        androideIgualDeNuevo shouldBe(androide17)
+      }
 
     }
+
 
   }
 }
