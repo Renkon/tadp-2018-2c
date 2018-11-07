@@ -12,84 +12,79 @@ sealed trait Raza {
   def disminuirEnergia(guerrero: Guerrero, decremento: Int): Guerrero = {
     guerrero.copy(energia = 0.max(guerrero.energia - decremento))
   }
+
+  def quedoInconsciente(guerrero : Guerrero): Guerrero = guerrero
 }
 
 case class Saiyajin(fase: Fase = Normal, tieneCola: Boolean = false) extends Raza {
   override val energiaMaxima: Int = fase.energiaMaxima
 
-  private def EstadoMono() : Saiyajin = {
-    val razaMono = Saiyajin(fase = Mono(fase), tieneCola = true)
-    razaMono
-  }
-
-  def nivelDeFase() : Int = fase.nivel()
+  def nivelDeFase : Int = fase.nivel
 
   def siguienteNivel(guerrero : Guerrero) : Guerrero = {
     if(guerrero.energia >= this.energiaMaxima / 2)
-      cambiarDeFase(guerrero, fase.siguienteNivel)
+      guerrero.copy(raza = Saiyajin(fase = fase.siguienteNivel, tieneCola = tieneCola))
     else guerrero
-  }
+  } // interpreto que la unica forma de perder el nivel actual de SSJ que tenes es quedar incosnciente, y que uno no puede ir hacia atras en las fases
 
   def suColaFueCortada(guerrero : Guerrero) : Guerrero = {
-    //case (Fases.Mono) => (atacante, oponente.copy(raza = Saiyajin(fase = Fases.Normal, tieneCola = false)).disminuirEnergia(oponente.energia - 1))
-    //case (faseActual) => (atacante, oponente.copy(raza = Saiyajin(fase = faseActual, tieneCola = false)).disminuirEnergia(oponente.energia - 1))
     this.fase match {
-      case faseActual: Mono => guerrero.copy(energia = 1, fase = Saiyajin(fase = faseActual.faseBase, tieneCola = false))
+      case Mono => guerrero.copy(raza = Saiyajin(fase = Normal, tieneCola = false)).disminuirEnergia(guerrero.energia - 1)
+      case _ => guerrero.copy(raza = this.copy(tieneCola = false)).disminuirEnergia(guerrero.energia - 1)
     }
+  } // interpreto que esta es la unica forma de salir de estado Mono
 
-    
+  def convertirseEnMono(guerrero: Guerrero) : Guerrero = {
+    if(tieneCola && guerrero.tieneItem(FotoDeLaLuna))
+      guerrero.copy(raza = Saiyajin(fase = Mono, tieneCola = true)).aumentarEnergia(Mono.energiaMaxima - guerrero.energia)
+    else
+      guerrero
+ // TODO no se si la restriccion que dice "no puede combinarse con SuperSaiyajin" se refiere a una excepcion o que lo dejas igual...
   }
 
-  def cambiarDeFase(guerrero: Guerrero, nuevaFase : Fase) : Guerrero = {
-    (fase, nuevaFase, tieneCola) match {
-      case (_, faseActual:Mono, true) =>
-        guerrero.copy(raza = EstadoMono()).aumentarEnergia(EstadoMono().energiaMaxima - guerrero.energia)
-      case (_, faseActual:Mono, false) => guerrero
-      case (faseActual:Mono, nuevaFase, _) if(nuevaFase != Normal) =>
-        throw new CambioDeFaseException("El estado Mono no se puede combinar con otra fase Saiyajin")
-      case (_,_,_) => guerrero.copy(raza = Saiyajin(fase = nuevaFase, tieneCola = tieneCola))
-    } // TODO no se si la restriccion que dice "no puede combinarse con SuperSaiyajin" se refiere a una excepcion o que lo dejas igual...
+  override def quedoInconsciente(guerrero: Guerrero): Guerrero = {
+    guerrero.raza match {
+      case raza:Saiyajin => guerrero.copy(raza = raza.copy(fase = Normal))
+      case _ => guerrero
+    }
   }
-} // FIME tengo cambiarDeFase y siguienteNivel porque entiendo que la secuencia de evolucion
-  // puede ser Normal -> SSJ1 -> SSJ2 -> SSJ3, pero si queres ir a Mono, lo podes hacer
-  // estando en cualquiera de estas transformaciones, y si estas en mono tambien podes
-  // querer bajar a la que tenias originalmente
+}
 
 sealed trait Fase {
   val siguienteNivel : Fase
   val nivel : Int
-  val energiaMaxima : Int
+  def energiaMaxima : Int
   val modificadorEnergia = 5
 }
 
 case object Normal extends Fase {
   override val siguienteNivel = SSJFase1
   override val nivel = 1
-  override val energiaMaxima = 300
+  override def energiaMaxima = 350
 }
 case object SSJFase1 extends Fase {
   override val siguienteNivel = SSJFase2
   override val nivel = 2
-  override val energiaMaxima = Normal.energiaMaxima * modificadorEnergia
+  override def energiaMaxima = Normal.energiaMaxima * modificadorEnergia
 }
 case object SSJFase2 extends Fase {
   override val siguienteNivel = SSJFase3
   override val nivel = 3
-  override val energiaMaxima = SSJFase1.energiaMaxima * modificadorEnergia
+  override def energiaMaxima = SSJFase1.energiaMaxima * modificadorEnergia
 }
 case object SSJFase3 extends Fase {
   override val siguienteNivel = SSJFase3
   override val nivel = 4
-  override val energiaMaxima = SSJFase3.energiaMaxima * modificadorEnergia
+  override def energiaMaxima = SSJFase2.energiaMaxima * modificadorEnergia
 }
-case class Mono(faseBase: Fase) extends Fase {
-  override val siguienteNivel = Mono(faseBase)
+case object Mono extends Fase { // antes el mono era case class y recibia una faseBase para que pudiera volver a ella cuando se corta la cola, pero el enunciado dice que cuando sos mono "SE PIERDE" el estado SSJ
+  override val siguienteNivel = Mono
   override val nivel = 0
-  override val energiaMaxima: Int = faseBase.energiaMaxima * 3
+  override def energiaMaxima: Int = Normal.energiaMaxima * 3
 }
 
 case class Androide() extends Raza {
-  override val energiaMaxima: Int = 200
+  override val energiaMaxima: Int = 400
 
   override def aumentarEnergia(guerrero: Guerrero, incremento: Int): Guerrero = {
     guerrero.copy(energia = 0)
@@ -97,15 +92,15 @@ case class Androide() extends Raza {
 }
 
 case class Namekusein() extends Raza {
-  override val energiaMaxima: Int = 200
+  override val energiaMaxima: Int = 330
 }
 
 case class Humano() extends Raza {
-  override val energiaMaxima: Int = 200
+  override val energiaMaxima: Int = 300
 }
 
 case class Monstruo(digestion : Digestion) extends Raza {
-  override val energiaMaxima: Int = 200
+  override val energiaMaxima: Int = 450
 
   def darDeComerA(atacante : Guerrero, oponente: Guerrero) : (Guerrero, Guerrero) = {
     if(atacante.energia > oponente.energia) digestion.hacerDigerirA(atacante, oponente) else (atacante, oponente)

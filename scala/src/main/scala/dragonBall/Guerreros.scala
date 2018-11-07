@@ -11,9 +11,12 @@ case class Guerrero(nombre : String,
 
   // Es importante siempre usar desde otros objetos estos dos metodos para modificar la energia
   // porque asi puedo chequear en cada modificacion si hay que cambiar el estado del guerrero a Inconsciente, Ok, etc...
+  // TODO me falta dilucidar cuando ocurren los cambios de estado
   def aumentarEnergia(incremento : Int) : Guerrero = raza.aumentarEnergia(this, incremento)
 
   def disminuirEnergia(decremento : Int) : Guerrero = raza.disminuirEnergia(this, decremento)
+
+  def quedoInconsciente() : Guerrero = raza.quedoInconsciente(this)
 
   def tieneItem(item : Item) : Boolean = items.contains(item)
 

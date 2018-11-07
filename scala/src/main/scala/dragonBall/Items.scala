@@ -28,10 +28,6 @@ object ArmaFilosa extends Item {
   def apply(atacante: Guerrero, oponente : Guerrero) : (Guerrero, Guerrero) = {
     oponente.raza match {
       case raza:Saiyajin if(raza.tieneCola) => (atacante, raza.suColaFueCortada(oponente))
-                                  //case (true, Fases.Mono) => (atacante, oponente.copy(raza = Saiyajin(fase = Fases.Normal, tieneCola = false)).disminuirEnergia(oponente.energia - 1))
-                                  //case (true, faseActual) => (atacante, oponente.copy(raza = Saiyajin(fase = faseActual, tieneCola = false)).disminuirEnergia(oponente.energia - 1))
-                                  //case (_, _) => reducirEnergia(atacante, oponente)
-
       case _ => reducirEnergia(atacante, oponente)
     }
   }
