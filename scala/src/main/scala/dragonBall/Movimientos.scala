@@ -83,3 +83,12 @@ object ConvertirseEnMono extends Movimiento {
     }
   }
 }
+
+object ConvertirseEnSuperSaiyajin extends Movimiento {
+  def apply(atacante : Guerrero, oponente : Guerrero) : (Guerrero, Guerrero) = {
+    atacante.raza match {
+      case raza:Saiyajin if(atacante.tieneItem(FotoDeLaLuna)) => (raza.cambiarDeFase(atacante, Fases.Mono), oponente)
+      case _ => (atacante, oponente)
+    }
+  }
+}
