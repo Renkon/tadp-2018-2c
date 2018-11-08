@@ -53,9 +53,9 @@ class ProjectSpec extends FreeSpec with Matchers {
         yamchaIgual shouldBe(yamcha)
       }
 
-      "cuando un androide come una semilla del hermitanio, su energia sigue siendo cero, y su oponente queda igual" in {
+      "cuando un androide come una semilla del hermitanio, su energia se restaura al maximo" in { // el enunciado dice cualquier guerrero
         val (androide17Recuperado, yamchaIgual) = UsarItem(SemillaDelHermitanio)(androide17, yamcha)
-        androide17Recuperado.energia shouldBe(0)
+        androide17Recuperado.energia shouldBe(androide17.raza.energiaMaxima)
         yamchaIgual shouldBe(yamcha)
       }
 
@@ -372,6 +372,51 @@ class ProjectSpec extends FreeSpec with Matchers {
       }
 
     }
+
+    "Magia test" - {
+      val goku = Guerrero(nombre = "goku", energia = 40, raza = Saiyajin())
+      val gohan = Guerrero(nombre = "gohan", energia = 50, raza = Saiyajin())
+      val krilin = Guerrero(nombre = "krilin", energia = 25, raza = Humano())
+      val pikolo = Guerrero(nombre = "pikolo", energia = 35, raza = Namekusein())
+      val majinBuu = Guerrero(nombre = "cell", energia = 50, raza = Monstruo(DigestionMajinBuu), movimientos = List())
+
+      "un guerrero sin las esferas del dragon no puede realizar magia" in {
+        val (gokuIgual, gohanIgual) = UsarMagia(efectoSobreAtacante = NoHacerNada, efectoSobreOponente = ObtenerSemillaDelErmitanio) (goku, gohan)
+        gokuIgual shouldBe(goku)
+        gohanIgual shouldBe(gohan)
+      }
+
+      "un guerrero con algunas esferas tampoco debe ser capaz de realizar magia" in {
+        val gokuCon2Esferas = goku.copy(items = List(EsferasDelDragon.cuarta, EsferasDelDragon.quinta))
+        val (gokuIgual, gohanIgual) = UsarMagia(efectoSobreAtacante = NoHacerNada, efectoSobreOponente = ObtenerSemillaDelErmitanio) (gokuCon2Esferas, gohan)
+        gokuIgual shouldBe(gokuCon2Esferas)
+        gohanIgual shouldBe(gohan)
+      }
+
+      "un guerrero con las 7 esferas si es capaz de realizar magia, y las pierde al realizarla" in {
+        val gokuCon7Esferas = goku.copy(items = EsferasDelDragon.todasLasEsferas)
+        gohan.items should not contain(SemillaDelHermitanio)
+        val (gokuIgual, gohanConSemilla) = UsarMagia(efectoSobreAtacante = NoHacerNada, efectoSobreOponente = ObtenerSemillaDelErmitanio) (gokuCon7Esferas, gohan)
+        gokuIgual shouldBe(goku) // pierde las esferas
+        gohanConSemilla.items should contain(SemillaDelHermitanio)
+      }
+
+      "un namekusein debe ser capaz de realizar magia aunque no tenga las esferas" in {
+        val krilinMuerto = krilin.disminuirEnergia(krilin.energia)
+        krilinMuerto.estado shouldBe(Muerto)
+        val (pikoloIgual, krilinConVida) = UsarMagia(efectoSobreAtacante = NoHacerNada, efectoSobreOponente = RevivirAKrilin) (pikolo, krilinMuerto)
+        pikoloIgual shouldBe(pikolo)
+        krilinConVida.estado shouldBe(Ok)
+      }
+
+      "un monstruo es capaz de realizar magia sin necesidad de tener las esferas" in {
+        gohan.estado should not be(Muerto)
+        val (majinBuuIgual, gohanMuerto) = UsarMagia(efectoSobreAtacante = NoHacerNada, efectoSobreOponente = ConvertirEnChocolate) (majinBuu, gohan)
+        majinBuuIgual shouldBe(majinBuu)
+        gohanMuerto.estado shouldBe(Inconsciente)
+      }
+    }
+
 
 
   }

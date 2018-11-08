@@ -5,17 +5,9 @@ class CambioDeFaseException(msg : String) extends RuntimeException(msg)
 sealed trait Raza {
   val energiaMaxima: Int
 
-  def aumentarEnergia(guerrero: Guerrero, incremento: Int): Guerrero = {
-    guerrero.copy(energia = this.energiaMaxima.min(guerrero.energia + incremento))
-  }
+  def quedoInconsciente(guerrero : Guerrero): Guerrero = guerrero.copy(estado = Inconsciente)
 
-  def disminuirEnergia(guerrero: Guerrero, decremento: Int): Guerrero = {
-    guerrero.copy(energia = 0.max(guerrero.energia - decremento))
-  }
-
-  def quedoInconsciente(guerrero : Guerrero): Guerrero = guerrero
-
-  def murio(guerrero : Guerrero) : Guerrero = guerrero
+  def murio(guerrero : Guerrero) : Guerrero = guerrero.copy(estado = Muerto)
 }
 
 sealed trait Fusionable
@@ -28,9 +20,9 @@ case class Fusionado(guerreroOriginal: Guerrero, companieroDeFusion : Guerrero) 
 
   override val energiaMaxima: Int = guerreroOriginal.raza.energiaMaxima + companieroDeFusion.raza.energiaMaxima
 
-  override def quedoInconsciente(guerrero : Guerrero): Guerrero = guerreroOriginal.copy(energia = guerrero.energia, estado = Inconsciente)
+  override def quedoInconsciente(guerrero : Guerrero): Guerrero = super.quedoInconsciente(guerreroOriginal.copy(energia = guerrero.energia))
   // asumo que la energia de la fusion, en alguno de estos dos estados, es siempre menor al maximo y cercana a 0
-  override def murio(guerrero : Guerrero) : Guerrero = guerreroOriginal.copy(energia = guerrero.energia, estado = Muerto)
+  override def murio(guerrero : Guerrero) : Guerrero = super.murio(guerreroOriginal.copy(energia = guerrero.energia))
 }
 
 case class Saiyajin(fase: Fase = Normal, tieneCola: Boolean = false) extends Raza with Fusionable {
@@ -60,9 +52,10 @@ case class Saiyajin(fase: Fase = Normal, tieneCola: Boolean = false) extends Raz
   }
 
   override def quedoInconsciente(guerrero: Guerrero): Guerrero = {
-    guerrero.raza match {
-      case raza:Saiyajin => guerrero.copy(raza = raza.copy(fase = Normal))
-      case _ => guerrero
+    val guerreroInconsciente = super.quedoInconsciente(guerrero)
+    guerreroInconsciente.raza match {
+      case raza:Saiyajin => guerreroInconsciente.copy(raza = raza.copy(fase = Normal))
+      case _ => guerreroInconsciente
     }
   }
 }
@@ -103,9 +96,7 @@ case object Mono extends Fase { // antes el mono era case class y recibia una fa
 case class Androide() extends Raza {
   override val energiaMaxima: Int = 400
 
-  override def aumentarEnergia(guerrero: Guerrero, incremento: Int): Guerrero = {
-    guerrero.copy(energia = 0)
-  }
+  override def quedoInconsciente(guerrero: Guerrero): Guerrero = guerrero
 }
 
 case class Namekusein() extends Raza with Fusionable {

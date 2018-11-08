@@ -102,3 +102,40 @@ case class FusionarseCon(compañeroDeFusion : Guerrero) extends Movimiento {
     }
   }
 }
+
+case class UsarMagia(efectoSobreAtacante : EfectoMagico, efectoSobreOponente : EfectoMagico) extends Movimiento {
+  def apply(atacante : Guerrero, oponente : Guerrero) : (Guerrero, Guerrero) = {
+    atacante.raza match {
+      case raza:Namekusein => (efectoSobreAtacante(atacante), efectoSobreOponente(oponente))
+      case raza:Monstruo => (efectoSobreAtacante(atacante), efectoSobreOponente(oponente))
+      case _  => if (atacante.tieneTodasLasEsferasDelDragon())
+                    (efectoSobreAtacante(atacante).esparcirEsferas(), efectoSobreOponente(oponente))
+                 else (atacante, oponente)
+    }
+  }
+}
+
+sealed trait EfectoMagico {
+  def apply(guerrero : Guerrero) : Guerrero
+}
+
+case object NoHacerNada extends EfectoMagico {
+  override def apply(guerrero: Guerrero): Guerrero = guerrero
+}
+
+case object ObtenerSemillaDelErmitanio extends EfectoMagico {
+  override def apply(guerrero: Guerrero): Guerrero = guerrero.copy(items = SemillaDelHermitanio :: guerrero.items)
+}
+
+case object Matar extends EfectoMagico {
+  override def apply(guerrero: Guerrero): Guerrero = guerrero.disminuirEnergia(guerrero.energia - guerrero.energia) // TODO se supone que le cambia el estado a Muerto
+}
+
+case object ConvertirEnChocolate extends EfectoMagico {
+  override def apply(guerrero: Guerrero): Guerrero = guerrero.quedoInconsciente()
+}
+
+case object RevivirAKrilin extends EfectoMagico {
+  override def apply(guerrero: Guerrero) =
+    if(guerrero.nombre.contains("krilin") && guerrero.estado == Muerto) guerrero.aumentarEnergia(40) else guerrero
+}

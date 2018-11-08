@@ -19,7 +19,7 @@ object ArmaRoma extends Item {
   def apply(atacante: Guerrero, oponente : Guerrero) : (Guerrero, Guerrero) = {
     oponente.raza match {
       case raza:Androide => (atacante, oponente)
-      case _ => (atacante, if(oponente.energia < 300) oponente.copy(estado = Inconsciente) else oponente)
+      case _ => (atacante, if(oponente.energia < 300) oponente.quedoInconsciente() else oponente)
     }
   }
 }
@@ -69,6 +69,26 @@ case class Municion(var cantidadActual : Int) extends Item {
 case object FotoDeLaLuna extends Item {
   def apply(atacante: Guerrero, oponente: Guerrero) : (Guerrero, Guerrero) = (atacante, oponente)
 }
+
+case class EsferaDelDragon(numero : Int) extends Item {
+  require(numero > 0 && numero < 8)
+
+  def apply(atacante: Guerrero, oponente: Guerrero) : (Guerrero, Guerrero) = (atacante, oponente)
+} // No me gasto en hacer que haya unicamente 7 esferas y controlar que dos guerreros
+// no pueden tener la primerEsfera porque no lo pide el enunciado
+
+package object EsferasDelDragon {
+  val primera = EsferaDelDragon(1)
+  val segunda = EsferaDelDragon(2)
+  val tercera = EsferaDelDragon(3)
+  val cuarta = EsferaDelDragon(4)
+  val quinta =  EsferaDelDragon(5)
+  val sexta = EsferaDelDragon(6)
+  val septima = EsferaDelDragon(7)
+
+  val todasLasEsferas = List(primera, segunda,tercera, cuarta, quinta, sexta, septima)
+}
+
 
 // Al final quedamos con juan que usar el item municion significa gastarla, no importa para que,
 // y usar el item arma de fuego significa que si tenes municion te gasta una Y aparte con ella produce el daño al enemigo
