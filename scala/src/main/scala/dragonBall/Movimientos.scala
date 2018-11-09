@@ -13,6 +13,8 @@ sealed trait Movimiento{
     1
   }
 
+  def andThen(segundoMovimiento: Movimiento): Movimiento = new MovimientoCompuesto(this, segundoMovimiento)
+
   def apply(atacante : Guerrero, oponente : Guerrero) : (Guerrero, Guerrero)
 } /* Todo esto esta planteado asi porque la idea para resolver el primer requerimiento es :
   * >> en Guerrero
@@ -47,8 +49,17 @@ sealed trait Movimiento{
 //usaritem semilladelermitanio :: movimiento
 //
 
+class MovimientoCompuesto(primero:Movimiento, segundo:Movimiento) extends Movimiento {
+  def apply(atacante: Guerrero, oponente: Guerrero) : (Guerrero, Guerrero) = {
+    val resultadoPrimeraAplicacion = primero(atacante, oponente)
+    segundo(resultadoPrimeraAplicacion._1, resultadoPrimeraAplicacion._2)
+  }
+}
 
-// object DejarseFajar extends Movimiento // TODO
+
+ object DejarseFajar extends Movimiento {
+   def apply(atacante:Guerrero, oponente:Guerrero) : (Guerrero, Guerrero) = (atacante.seDejoFajar(), oponente)
+ }
 
 object CargarKi extends Movimiento {
   def apply(atacante : Guerrero, oponente : Guerrero) : (Guerrero, Guerrero) = {
@@ -150,12 +161,20 @@ sealed trait Fisico extends Ataque
 
 sealed trait DeEnergia extends Ataque {
   override def apply(atacante : Guerrero, oponente: Guerrero) : (Guerrero, Guerrero) = {
-    if(oponente.raza.isInstanceOf[Androide])
-      (atacante, oponente.aumentarEnergia(this.energiaDelAtaque(atacante, oponente)))
+    if(puedeRealizarla(atacante))
+      if(oponente.raza.isInstanceOf[Androide])
+      this.realizarAtaque(atacante, oponente, consumeLaEnergia)
+      else this.realizarAtaque(atacante, oponente, laEnergiaLoDania)
     else (atacante, oponente)
   }
 
-  def energiaDelAtaque(atacante: Guerrero, oponente : Guerrero) : Int
+  def laEnergiaLoDania(danio : Int , oponente : Guerrero) : Guerrero = oponente.disminuirEnergia(danio)
+
+  def consumeLaEnergia(aumento : Int, oponente: Guerrero) : Guerrero = oponente.aumentarEnergia(aumento)
+
+  def realizarAtaque(atacante: Guerrero, oponente : Guerrero, efectoEnElOponente: (Int, Guerrero) => Guerrero) : (Guerrero, Guerrero)
+
+  def puedeRealizarla(guerrero: Guerrero) : Boolean
 }
 
 case object MuchosGolpesNinja extends Fisico {
@@ -186,4 +205,40 @@ case object Explotar extends Fisico {
       case _ => (atacanteMuerto, oponente.disminuirEnergia(energiaImpacto))
     }
   }
+}
+
+abstract class Onda() extends DeEnergia {
+  override def puedeRealizarla(atacante: Guerrero): Boolean = atacante.energia >= this.energiaDelAtaquePara(atacante) // si es igual queda muerto
+
+  def energiaDelAtaquePara(guerrero : Guerrero) : Int
+
+  override def realizarAtaque(atacante: Guerrero, oponente : Guerrero, efectoEnElOponente: (Int, Guerrero) => Guerrero) : (Guerrero, Guerrero) = {
+    oponente.raza match {
+      case raza:Monstruo => (consumirEnergia(atacante), efectoEnElOponente(energiaDelAtaquePara(atacante) / 2, oponente))
+      case _ => (consumirEnergia(atacante), efectoEnElOponente(energiaDelAtaquePara(atacante) * 2, oponente))
+    }
+  }
+
+  def consumirEnergia(guerrero: Guerrero) : Guerrero = guerrero.disminuirEnergia(this.energiaDelAtaquePara(guerrero))
+}
+
+case object Kamehameha extends Onda {
+  override def energiaDelAtaquePara(atacante: Guerrero) : Int = 80
+}
+
+case object Kienzan extends Onda {
+  override def energiaDelAtaquePara(atacante: Guerrero): Int = 60
+}
+
+case object Genkidama extends Onda {
+  override def puedeRealizarla(atacante: Guerrero): Boolean = atacante.roundsQueSeDejoFajar > 0
+
+  override def energiaDelAtaquePara(atacante : Guerrero): Int = math.pow(10, atacante.roundsQueSeDejoFajar).toInt
+
+  override def realizarAtaque(atacante: Guerrero, oponente: Guerrero, efectoEnElOponente: (Int, Guerrero) => Guerrero): (Guerrero, Guerrero) = {
+    val (nuevoAtacante, nuevoOponente) = super.realizarAtaque(atacante, oponente, efectoEnElOponente)
+    (nuevoAtacante.copy(roundsQueSeDejoFajar = 0), nuevoOponente)
+  }
+
+  override def consumirEnergia(guerrero: Guerrero): Guerrero = guerrero // porque la energia es externa
 }

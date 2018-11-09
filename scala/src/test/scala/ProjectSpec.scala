@@ -1,8 +1,6 @@
 import org.scalatest.{FreeSpec, Matchers}
 import dragonBall._
 
-import scala.None
-
 class ProjectSpec extends FreeSpec with Matchers {
   "dragonBall tests" - {
 
@@ -465,9 +463,70 @@ class ProjectSpec extends FreeSpec with Matchers {
         cellMuerto.energia shouldBe(0)
         cellMuerto.estado shouldBe(Muerto)
       }
+
+      // Ataques de Energia : Ondas y Genkidama
+      val goku = Guerrero(nombre = "goku", energia = 100, raza = Saiyajin())
+      val vegeta = Guerrero(nombre = "vegeta", energia = 100, raza = Saiyajin())
+      val yamcha = Guerrero(nombre = "yamcha", energia = 25, raza = Humano())
+      val majinBuu = Guerrero(nombre = "majinBuu", energia = 200, raza = Monstruo(DigestionMajinBuu))
+
+      "yamcha no puede realizar el kamehameha porque no tiene la suficiente energia para ello" in {
+        val (yamchaIgual, majinBuuIgual) = Kamehameha(yamcha, majinBuu)
+        yamchaIgual shouldBe(yamcha)
+        majinBuuIgual shouldBe(majinBuu)
+      }
+
+      "goku realiza el kamehameha contra vegeta y el danio que este sufre es el doble del requerido para el ataque" in {
+        val (gokuConMenosEnergia, vegetaDaniado) = Kamehameha(goku, vegeta)
+        gokuConMenosEnergia.energia shouldBe(goku.energia - Kamehameha.energiaDelAtaquePara(goku))
+        vegetaDaniado.energia shouldBe(0.max(vegeta.energia - (Kamehameha.energiaDelAtaquePara(goku) * 2)))
+      }
+
+      "gohan realiza el kamehameha contra cell y esto le produce un danio equivalente a la mitad de la energia necesaria para realizarlo, porque es un monstruo" in {
+        val (gohanConMenosEnergia, cellDaniado) = Kamehameha(gohanAlMaximo, cell)
+        gohanConMenosEnergia.energia shouldBe(gohanAlMaximo.energia - Kamehameha.energiaDelAtaquePara(gohanAlMaximo))
+        cellDaniado.energia shouldBe(cell.energia - Kamehameha.energiaDelAtaquePara(gohanAlMaximo) / 2)
+      }
+
+      "goku no puede realizar la Genkidama si nunca se dejo fajar" in {
+        val (gokuIgual, majinBuuIgual) = Genkidama(goku, majinBuu)
+        gokuIgual shouldBe(goku)
+        majinBuuIgual shouldBe(majinBuu)
+      }
+
+      "goku no puede realizar la Genkidama si se dejo fajar 2 veces pero despues realizo otro movimiento" in {
+        val (gokuFajado2Veces, _) = (DejarseFajar andThen DejarseFajar)(goku, majinBuu)
+        gokuFajado2Veces.roundsQueSeDejoFajar shouldBe(2)
+        val (gokuConMasKi, _) = gokuFajado2Veces.realizarMovimientoContra(CargarKi, majinBuu)
+        gokuConMasKi.roundsQueSeDejoFajar shouldBe(0)
+        val (gokuIgual, majinBuuIgual) = Genkidama(goku, majinBuu)
+        gokuIgual shouldBe(gokuConMasKi)
+        majinBuuIgual shouldBe(majinBuu)
+      }
+
+      "goku no puede realizar la Genkidama si se dejo fajar 2 veces pero luego queda inconsciente" in {
+        val (gokuFajado2Veces, _) = (DejarseFajar andThen DejarseFajar)(goku, majinBuu)
+        val gokuInconsciente = gokuFajado2Veces.quedoInconsciente()
+        gokuInconsciente.roundsQueSeDejoFajar shouldBe(0)
+      }
+
+      "goku no puede realizar la Genkidama si se dejo fajar 2 veces pero luego queda muerto" in {
+        val (gokuFajado2Veces, _) = (DejarseFajar andThen DejarseFajar)(goku, majinBuu)
+        val gokuInconsciente = gokuFajado2Veces.murio()
+        gokuInconsciente.roundsQueSeDejoFajar shouldBe(0)
+      }
+
+      "goku puede realizar la Genkidama si se dejo fajar 3 veces y esto le produce un danio de 1000 a majinBuu, osea, lo mata. Y la energia de goku queda igual porque usa energia externa" in {
+        val (gokuFajado3Veces, _) = (DejarseFajar andThen DejarseFajar andThen DejarseFajar)(goku, majinBuu)
+        gokuFajado3Veces.roundsQueSeDejoFajar shouldBe(3)
+        val (gokuConLaMismaEnergiaInicial, majinBuuMuerto) = Genkidama(gokuFajado3Veces, majinBuu)
+        gokuConLaMismaEnergiaInicial.energia shouldBe(gokuFajado3Veces.energia)
+        gokuConLaMismaEnergiaInicial.roundsQueSeDejoFajar shouldBe(0)
+        majinBuuMuerto.energia shouldBe(0)
+        majinBuuMuerto.estado shouldBe(Muerto)
+      }
     }
-
-
 
   }
 }
+
