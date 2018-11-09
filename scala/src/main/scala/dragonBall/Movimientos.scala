@@ -169,3 +169,21 @@ case object MuchosGolpesNinja extends Fisico {
     }
   }
 }
+
+case object Explotar extends Fisico {
+  override def apply(atacante: Guerrero, oponente: Guerrero): (Guerrero, Guerrero) = {
+    atacante.raza match {
+      case raza:Androide => disminuirEnergiaPorExplosion(atacante, oponente, atacante.energia*3)
+      case raza:Monstruo => disminuirEnergiaPorExplosion(atacante, oponente, atacante.energia*2)
+      case _ => (atacante, oponente)
+    }
+  }
+
+  private def disminuirEnergiaPorExplosion(atacante : Guerrero, oponente : Guerrero, energiaImpacto: Int) : (Guerrero, Guerrero) = {
+    val atacanteMuerto = atacante.disminuirEnergia(atacante.energia)
+    oponente.raza match {
+      case raza:Namekusein => (atacanteMuerto, oponente.disminuirEnergia((oponente.energia - 1).min(energiaImpacto)))
+      case _ => (atacanteMuerto, oponente.disminuirEnergia(energiaImpacto))
+    }
+  }
+}

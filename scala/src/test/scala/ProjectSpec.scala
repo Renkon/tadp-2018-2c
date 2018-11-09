@@ -434,6 +434,37 @@ class ProjectSpec extends FreeSpec with Matchers {
         krilinDaniado.energia shouldBe(krilin.energia - 20)
         gohanIgual shouldBe(gohan)
       }
+
+      //Explotar
+      val gohanAlMaximo = gohan.aumentarEnergia(gohan.raza.energiaMaxima - gohan.energia)
+      val pikolo = Guerrero(nombre = "pikolo", energia = 35, raza = Namekusein())
+      val cell = Guerrero(nombre = "cell", energia = 50, raza = Monstruo(DigestionCell), movimientos = List())
+
+      "gohan no puede explotar porque es humano" in {
+        val (gohanIgual, pikoloIgual) = Explotar(gohanAlMaximo, pikolo)
+        gohanIgual shouldBe(gohanAlMaximo)
+        pikoloIgual shouldBe(pikolo)
+      }
+
+      "si androide17 explota, gohan recibe un daño proporcional al triple de la bateria del androide, y este muere" in {
+        val (androideMuerto, gohanConDanio) = Explotar(androide17, gohanAlMaximo)
+        gohanConDanio.energia shouldBe(0.max(gohanAlMaximo.energia - androide17.energia*3))
+        androideMuerto.energia shouldBe(0)
+        androideMuerto.estado shouldBe(Muerto)
+      }
+
+      "si androide17 explota, aunque la energia de pikolo es menor al danio, este queda como mucho en 1 por su elasticidad, y el androide muere" in {
+        val (androideMuerto, pikoloConDanio) = Explotar(androide17, pikolo)
+        pikoloConDanio.energia shouldBe(1)
+        pikoloConDanio.estado should not be(Muerto)
+      }
+
+      "si cell explota, le produce un danio proporcionar al doble de su energia a gohan, y muere" in {
+        val (cellMuerto, gohanConDanio) = Explotar(cell, gohanAlMaximo)
+        gohanConDanio.energia shouldBe(0.max(gohanAlMaximo.energia - cell.energia*2))
+        cellMuerto.energia shouldBe(0)
+        cellMuerto.estado shouldBe(Muerto)
+      }
     }
 
 
