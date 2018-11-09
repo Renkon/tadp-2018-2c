@@ -13,7 +13,7 @@ sealed trait Movimiento{
     1
   }
 
-  def apply (atacante : Guerrero, oponente : Guerrero) : (Guerrero, Guerrero)
+  def apply(atacante : Guerrero, oponente : Guerrero) : (Guerrero, Guerrero)
 } /* Todo esto esta planteado asi porque la idea para resolver el primer requerimiento es :
   * >> en Guerrero
   * def movimientoMasEfectivoContra(oponente)(unCriterio) {
@@ -138,4 +138,34 @@ case object ConvertirEnChocolate extends EfectoMagico {
 case object RevivirAKrilin extends EfectoMagico {
   override def apply(guerrero: Guerrero) =
     if(guerrero.nombre.contains("krilin") && guerrero.estado == Muerto) guerrero.aumentarEnergia(40) else guerrero
+}
+
+case class AtacarCon(ataque : Ataque) extends Movimiento {
+  def apply(atacante: Guerrero, oponente: Guerrero): (Guerrero, Guerrero) = ataque(atacante, oponente)
+}
+
+sealed trait Ataque extends Movimiento
+
+sealed trait Fisico extends Ataque
+
+sealed trait DeEnergia extends Ataque {
+  override def apply(atacante : Guerrero, oponente: Guerrero) : (Guerrero, Guerrero) = {
+    if(oponente.raza.isInstanceOf[Androide])
+      (atacante, oponente.aumentarEnergia(this.energiaDelAtaque(atacante, oponente)))
+    else (atacante, oponente)
+  }
+
+  def energiaDelAtaque(atacante: Guerrero, oponente : Guerrero) : Int
+}
+
+case object MuchosGolpesNinja extends Fisico {
+  override def apply(atacante: Guerrero, oponente: Guerrero): (Guerrero, Guerrero) = {
+    (atacante.raza, oponente.raza) match {
+      case (razaAtacante:Humano, razaOponente:Androide) => (atacante.disminuirEnergia(10), oponente)
+      case (_,_) => List(atacante, oponente).maxBy(g => g.energia) match {
+        case `atacante` => (atacante, oponente.disminuirEnergia(20))
+        case `oponente` => (atacante.disminuirEnergia(20), oponente)
+      }
+    }
+  }
 }

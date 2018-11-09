@@ -417,6 +417,25 @@ class ProjectSpec extends FreeSpec with Matchers {
       }
     }
 
+    "Ataques tests" - {
+      val gohan = Guerrero(nombre = "gohan", energia = 50, raza = Saiyajin())
+      val krilin = Guerrero(nombre = "krilin", energia = 25, raza = Humano())
+      val androide17 = Guerrero(nombre = "androide 17", energia = 40, raza = Androide())
+
+      // MuchosGolpesNinja
+      "si un humano ataca con golpes ninja a un androide, el primero sufre 10 de daño" in {
+        val (krilinDaniado, androideIgual) = MuchosGolpesNinja(krilin, androide17)
+        krilinDaniado.energia shouldBe(krilin.energia - 10)
+        androideIgual shouldBe(androide17)
+      }
+
+      "al intercambiar golpes, krilin disminuye su energia en 20 porque gohan tiene mas ki" in {
+        val (krilinDaniado, gohanIgual) = MuchosGolpesNinja(krilin, gohan)
+        krilinDaniado.energia shouldBe(krilin.energia - 20)
+        gohanIgual shouldBe(gohan)
+      }
+    }
+
 
 
   }
