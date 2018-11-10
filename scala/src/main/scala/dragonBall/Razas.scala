@@ -124,14 +124,14 @@ sealed trait Digestion {
 
 case object DigestionMajinBuu extends Digestion{
   def hacerDigerirA(atacante : Guerrero, oponente: Guerrero) : (Guerrero, Guerrero) = {
-    (atacante.copy(movimientos = oponente.movimientos), oponente.copy(estado = Muerto))
+    (atacante.copy(movimientos = oponente.movimientos), oponente.disminuirEnergia(oponente.energia))
   }
 }
 
 case object DigestionCell extends Digestion{
   def hacerDigerirA(atacante : Guerrero, oponente: Guerrero) : (Guerrero, Guerrero) = {
     oponente.raza match {
-      case raza:Androide => (atacante.copy(movimientos = oponente.movimientos ::: atacante.movimientos), oponente.copy(estado = Muerto))
+      case raza:Androide => (atacante.copy(movimientos = oponente.movimientos ::: atacante.movimientos), oponente.disminuirEnergia(oponente.energia))
       case _ => (atacante, oponente)
     }
   }

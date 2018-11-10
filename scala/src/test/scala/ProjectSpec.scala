@@ -526,7 +526,50 @@ class ProjectSpec extends FreeSpec with Matchers {
         majinBuuMuerto.estado shouldBe(Muerto)
       }
     }
+  }
 
+  "Punto 1 - mejorMovimientoContra" - {
+    val gokuSSJ1 = Guerrero(nombre = "goku", energia = 100, raza = Saiyajin(fase = SSJFase1), movimientos = List(AtacarCon(Genkidama), AtacarCon(Kamehameha), UsarItem(ArmaFilosa)), items = List(ArmaFilosa))
+    val vegetaSSJ1 = Guerrero(nombre = "vegeta", energia = 100, raza = Saiyajin(fase = SSJFase1))
+    val krilin = Guerrero(nombre = "krilin", energia = 25, raza = Humano(), movimientos = List(CargarKi, UsarItem(ArmaRoma)), items = List(ArmaRoma))
+    val androide18 = Guerrero(nombre = "androide 17", energia = 40, raza = Androide(), movimientos = List(Explotar, AtacarCon(MuchosGolpesNinja)))
+    val majinBuu = Guerrero(nombre = "majinBuu", energia = 200, raza = Monstruo(DigestionMajinBuu), movimientos = List(UsarMagia(NoHacerNada, ConvertirEnChocolate), ComerseAlOponente, AtacarCon(MuchosGolpesNinja)))
+    val mrSatan = Guerrero(nombre = "mr satan", energia = 5, raza = Humano(), movimientos = List(UsarItem(ArmaDeFuego), AtacarCon(MuchosGolpesNinja)), items = List(ArmaDeFuego, Municion(1)))
+
+    // Criterio : LoHaceBosta
+    "el mejor movimiento de goku para 'hacer bosta' a vegeta es el kamehameha" in {
+      gokuSSJ1.movimientoMasEfectivoContra(vegetaSSJ1, LoHaceBosta) shouldBe(Some(AtacarCon(Kamehameha)))
+    }
+
+    "el mejor movimiento de goku para 'hacer bosta' a vegeta es la Genkidama, si se dejo fajar tres rounds" in {
+      val (gokuFajado, vegetaIgual) = (DejarseFajar andThen DejarseFajar andThen DejarseFajar)(gokuSSJ1, vegetaSSJ1)
+      gokuFajado.roundsQueSeDejoFajar shouldBe 3
+      gokuFajado.movimientoMasEfectivoContra(vegetaIgual, LoHaceBosta) shouldBe(Some(AtacarCon(Genkidama)))
+    }
+
+    "ninguno de los movimientos de krilin es efectivo si quiere 'hacer bosta' a androide18" in {
+      krilin.movimientoMasEfectivoContra(androide18, LoHaceBosta) shouldBe(None)
+    }
+
+    //"el movimiento mas efectivo de majinBuu contra goku para 'hacerlo bosta' es ComerseAlOponente" in {
+    //  majinBuu.movimientoMasEfectivoContra(gokuSSJ1, LoHaceBosta) shouldBe(Some(ComerseAlOponente))
+    //} lo comente porque esta medio al dope
+
+    // Criterio : DisfrutarCombate
+    "el ataque de androide18 que mas la hace 'disfrutar el combate' contra krilin es AtacarCon(MuchosGolpesNinja)" in {
+      androide18.movimientoMasEfectivoContra(krilin, DisfrutarCombate) shouldBe(Some(AtacarCon(MuchosGolpesNinja)))
+    }
+
+    // Criterio : Tacanio
+    "mrSatan prefiere a krilin con golpes ninja que usar su arma de fuego porque es tacanio" in {
+      mrSatan.movimientoMasEfectivoContra(krilin, Tacanio) shouldBe(Some(AtacarCon(MuchosGolpesNinja)))
+    }
+
+    // Criterio : Supervivencia
+    "krilin puede conformarse con cualquier ataque que no lo mate (o sea, no puede realizar el Kiensan)" in {
+      val krilinConDosAtaques = krilin.copy(energia = Kienzan.energiaDelAtaquePara(krilin), movimientos = List(AtacarCon(Kienzan), CargarKi))
+      krilinConDosAtaques.movimientoMasEfectivoContra(androide18, Supervivencia) shouldBe(Some(CargarKi))
+    }
   }
 }
 

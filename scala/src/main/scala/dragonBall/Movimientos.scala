@@ -1,53 +1,10 @@
 package  dragonBall
 
 sealed trait Movimiento{
-  def evaluarPara(atacante: Guerrero, oponente: Guerrero/*, criterio: Criterio*/) : Int = {
-    // val resultados = this.apply(atacante)(oponente)
-    /* FIXME esto de arriba no lo puedo hacer si no unifico un contrato para el apply, lo que yo quiero poder hacer es
-       que se de cuenta que un objeto UnItemCualquiera.apply(10) esta parcialmente aplicado y es un movimiento porque
-       espera un atacante y un guerrero, entoces de esa forma puedo tratar polimorficamente una lista que tiene
-       CargarKi y UnItemCualquiera.apply(10) porque ambos esperarian que les diga apply(atancante, oponente)
-    */
-
-    //criterio.evaluarPara(resultados._1, resultados._2)
-    1
-  }
-
   def andThen(segundoMovimiento: Movimiento): Movimiento = new MovimientoCompuesto(this, segundoMovimiento)
 
   def apply(atacante : Guerrero, oponente : Guerrero) : (Guerrero, Guerrero)
-} /* Todo esto esta planteado asi porque la idea para resolver el primer requerimiento es :
-  * >> en Guerrero
-  * def movimientoMasEfectivoContra(oponente)(unCriterio) {
-  * this.movimientos.fold(primerMovimiento)((semilla, otro) =>
-  *   if(semilla.evaluarPara(this, oponente, criterio) > otro.evaluarPara(this, oponente, criterio) semilla else otro))
-  * }
-  */
-
-/* FIXME hay alguna forma de hacer el pattern matching de las razas sin que te importen los argumentos, porque
-* si no cada vez que agregue un atributo tengo que agregarlo en el patron, y se va a llegan de guiones bajos
-* */
-
-/* FIXME hay alguna forma de hacer que los items que si reciben un oponente sean polimorficos con los que no reciben?
- * o esta bien lo que hice con la monada?
-* */
-
-// Explicacion de juan sobre aplicacion parcial
-//type Movimiento = combatientes => combatientes
-//cargarki :: movimiento
-//cargarki combatientes = case combatientes of
-//  ...
-//  ...
-//  ...
-//
-//usaritem :: item -> movimiento
-//usaritem item combatientes = case (combatientes, item) of
-//  ...
-//
-//semilladelermitanio :: item
-//
-//usaritem semilladelermitanio :: movimiento
-//
+}
 
 class MovimientoCompuesto(primero:Movimiento, segundo:Movimiento) extends Movimiento {
   def apply(atacante: Guerrero, oponente: Guerrero) : (Guerrero, Guerrero) = {
