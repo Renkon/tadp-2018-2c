@@ -536,6 +536,10 @@ class ProjectSpec extends FreeSpec with Matchers {
     val majinBuu = Guerrero(nombre = "majinBuu", energia = 200, raza = Monstruo(DigestionMajinBuu), movimientos = List(UsarMagia(NoHacerNada, ConvertirEnChocolate), ComerseAlOponente, AtacarCon(MuchosGolpesNinja)))
     val mrSatan = Guerrero(nombre = "mr satan", energia = 5, raza = Humano(), movimientos = List(UsarItem(ArmaDeFuego), AtacarCon(MuchosGolpesNinja)), items = List(ArmaDeFuego, Municion(1)))
 
+    "vegetaSSJ1 no tiene ningun movimiento, el resultado es None" in {
+      vegetaSSJ1.movimientoMasEfectivoContra(gokuSSJ1, LoHaceBosta) shouldBe(None)
+    }
+
     // Criterio : LoHaceBosta
     "el mejor movimiento de goku para 'hacer bosta' a vegeta es el kamehameha" in {
       gokuSSJ1.movimientoMasEfectivoContra(vegetaSSJ1, LoHaceBosta) shouldBe(Some(AtacarCon(Kamehameha)))
@@ -571,5 +575,52 @@ class ProjectSpec extends FreeSpec with Matchers {
       krilinConDosAtaques.movimientoMasEfectivoContra(androide18, Supervivencia) shouldBe(Some(CargarKi))
     }
   }
+
+  "Punto 2 - pelearRound" - {
+    val gokuSSJ1 = Guerrero(nombre = "goku", energia = 100, raza = Saiyajin(fase = SSJFase1), movimientos = List(AtacarCon(Genkidama), AtacarCon(Kamehameha), UsarItem(ArmaFilosa)), items = List(ArmaFilosa))
+    val majinBuu = Guerrero(nombre = "majinBuu", energia = 200, raza = Monstruo(DigestionMajinBuu), movimientos = List(UsarMagia(NoHacerNada, ConvertirEnChocolate), ComerseAlOponente, AtacarCon(MuchosGolpesNinja)))
+    val krilin = Guerrero(nombre = "krilin", energia = 85, raza = Humano(), movimientos = List(AtacarCon(Kienzan), CargarKi, UsarItem(ArmaRoma)), items = List(ArmaRoma))
+    val androide18 = Guerrero(nombre = "androide 17", energia = 150, raza = Androide(), movimientos = List(Explotar, AtacarCon(MuchosGolpesNinja)))
+    val yamcha = Guerrero(nombre = "yamcha", energia = 70, raza = Humano(), movimientos = List())
+
+    "gokuSSJ1 pelea un round contra majinBuu y el resultado final es que goku termina muerto y majinBuu se lo comio" in {
+      val (gokuMuerto, majinBuuConGokuAbsorbido) = gokuSSJ1.pelearUnRound(AtacarCon(Kamehameha), majinBuu)
+      gokuMuerto.energia shouldBe(0)
+      gokuMuerto.estado shouldBe(Muerto)
+      majinBuuConGokuAbsorbido.energia shouldBe(majinBuu.energia - Kamehameha.energiaDelAtaquePara(gokuSSJ1) / 2)
+      majinBuuConGokuAbsorbido.movimientos should contain theSameElementsAs(gokuSSJ1.movimientos)
+    }
+    /* Caminito de este test :
+     * Luego del kamehameha, gokuSSJ1 queda con la misma energia, y como majinBuu es un monstruo le causa 40 de daño, quedando con energia 160
+     * luego majinBuu va a contraatacar con el ataque que mayor diferencia de ki le provoque. entre sus ataques estan:
+     * . UsarMagia(NoHacerNada, ConvertirEnChocolate) que mantendria la diferencia de ki igual porque solo dejaria inconsciente a goku
+     * . ComerseAlOponente, lo cual puede hacer porque tiene mas energia que goku, y si hace esto lo mata
+     * . AtacarCon(MuchosGolpesNinja) en cuyo caso le sacaria 20 puntos nada mas mas
+     * Por lo tanto va a querer comerselo y el resultado final deberia ser un gokuSSJ1 muerto y con energia 0
+     * y un majinBuu que ahora tiene todos los movimientos de goku, y la misma energia y estado que tenia luego de recibir el primer ataque.
+    * */
+
+    "krilin ataca a androide18 con Kienzan, esta responde con muchos golpes ninja y queda con ventaja de energia" in {
+      val (krilinDebil, androide18Fortalecida) = krilin.pelearUnRound(AtacarCon(Kienzan), androide18)
+      krilinDebil.energia shouldBe(0.max(krilin.energia - Kienzan.energiaDelAtaquePara(krilin) - 20))
+      androide18Fortalecida.energia shouldBe(androide18.energia + Kienzan.energiaDelAtaquePara(krilin) * 2)
+    }
+     /* Caminito de este test:
+    * krilin realiza el kienzan contra androide18, luego de esto androide18 queda con mayor energia porque lo absorbe
+    * quedando con 270 (daño del kiensan * 2). Ahora el androide18 tiene 2 posibilidades :
+    * . Explotar, que los mata a ambos
+    * . AtacarCon(MuchosGolpesNinja), que disminuye la energia de krilin en 20
+    * Finalmente elije AtacarCon(MuchosGolpesNinja) porque la diferencia de energia obtenida es mayor
+    * */
+
+    "androide18 ataca a yamcha con muchos golpes ninja, lo que le disminuye 20 de energia, y luego el no puede contraatacar porque no tiene ningun movimiento " in {
+      val (androide18LuegoDelAtaque, yamchaHerido) = androide18.pelearUnRound(AtacarCon(MuchosGolpesNinja), yamcha)
+      yamchaHerido.energia shouldBe(yamcha.copy().disminuirEnergia(20).energia)
+      androide18LuegoDelAtaque shouldBe(androide18)
+    }
+  }
+
+  
+
 }
 

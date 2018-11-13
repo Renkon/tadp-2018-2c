@@ -30,6 +30,13 @@ case object Tacanio extends CriterioSeleccionDeMovimiento {
 case object Supervivencia extends CriterioSeleccionDeMovimiento {
   override def apply(atacante: Guerrero, oponente: Guerrero)(movimientoAEvaluar: Movimiento): Int = {
     val (atacanteResultante, _) = atacante.realizarMovimientoContra(movimientoAEvaluar, oponente)
-    if(atacanteResultante.estado != Muerto) 1 else 0
+    if(atacanteResultante.estado != Muerto) 1 else 0 // interesa cualquiera que lo deje vivo
+  }
+}
+
+case object LoDejaConMayorVentajaEnKi extends CriterioSeleccionDeMovimiento {
+  override def apply(atacante: Guerrero, oponente: Guerrero)(movimientoAEvaluar: Movimiento): Int = {
+    val (atacanteResultante, oponenteResultante) = atacante.realizarMovimientoContra(movimientoAEvaluar, oponente)
+    atacanteResultante.energia - oponenteResultante.energia // cuanto mayor sea la energia del atacante respecto a la del oponente, mas grande el numero resultante
   }
 }

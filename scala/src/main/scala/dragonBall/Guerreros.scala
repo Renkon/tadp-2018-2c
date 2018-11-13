@@ -1,5 +1,6 @@
 package dragonBall
 
+import scala.util.{Failure, Success, Try}
 
 
 case class Guerrero(nombre : String,
@@ -64,12 +65,30 @@ case class Guerrero(nombre : String,
 
   def esparcirEsferas(): Guerrero = this.copy(items = items.filter(i => !i.isInstanceOf[EsferaDelDragon]))
 
-  def movimientoMasEfectivoContra(oponente: Guerrero, unCriterio: CriterioSeleccionDeMovimiento): Option[Movimiento] = {
-    val mejorMovimiento = this.movimientos.maxBy(unCriterio(this, oponente))
-    if (unCriterio(this, oponente)(mejorMovimiento) > 0) Some(mejorMovimiento) else None
-  }
-
   def cantidadDeItems(): Int = items.size + {
     if(this.municion().isDefined) this.municion().get.asInstanceOf[Municion].cantidadActual - 1 else 0
   } // el -1 es para que el objeto Municion(1) no cuente 2 veces (una por el objeto y otra por la cantidad de municion)
+
+  // Punto 1 -----------------------------------------------------------------------
+  def movimientoMasEfectivoContra(oponente: Guerrero, unCriterio: CriterioSeleccionDeMovimiento): Option[Movimiento] = {
+   Try(this.movimientos.maxBy(unCriterio(this, oponente))) match {
+     case Success(mejorMovimiento) if (unCriterio(this, oponente)(mejorMovimiento) > 0) => Some(mejorMovimiento)
+     case _ => None
+    }
+  }
+
+  // Punto 2 -----------------------------------------------------------------------
+  def pelearUnRound(movimientoElegido: Movimiento, oponente: Guerrero): (Guerrero, Guerrero) = {
+    val (atacanteLuegoDelMovimiento, oponenteAfectado) = this.realizarMovimientoContra(movimientoElegido, oponente)
+    oponenteAfectado.contraAtacar(atacanteLuegoDelMovimiento).swap // swapeo al final porque en el contraataque se invirtieron los roles
+  } // se puede hacer en una linea pero quedaba medio gigantesco
+
+  def contraAtacar(oponente: Guerrero) : (Guerrero, Guerrero) = {
+    this.movimientoMasEfectivoContra(oponente, LoDejaConMayorVentajaEnKi) match {
+      case Some(mov) => this.realizarMovimientoContra(mov, oponente)
+      case None if(movimientos.size > 0)=> this.realizarMovimientoContra(movimientos.head, oponente)
+      case _ => (this, oponente)
+    }
+
+  }
 }
