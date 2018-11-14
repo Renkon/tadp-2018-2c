@@ -78,17 +78,24 @@ case class Guerrero(nombre : String,
   }
 
   // Punto 2 -----------------------------------------------------------------------
-  def pelearUnRound(movimientoElegido: Movimiento, oponente: Guerrero): (Guerrero, Guerrero) = {
+  def pelearUnRound(movimientoElegido: Movimiento, oponente: Guerrero): ResultadoDeRound = {
     val (atacanteLuegoDelMovimiento, oponenteAfectado) = this.realizarMovimientoContra(movimientoElegido, oponente)
-    oponenteAfectado.contraAtacar(atacanteLuegoDelMovimiento).swap // swapeo al final porque en el contraataque se invirtieron los roles
-  } // se puede hacer en una linea pero quedaba medio gigantesco
+    val contraataQueMasEfectivo = oponenteAfectado.movimientoMasEfectivoContra(atacanteLuegoDelMovimiento, LoDejaConMayorVentajaEnKi)
+    val (atacanteResultante, oponenteResultante) = oponenteAfectado.contraAtacar(atacanteLuegoDelMovimiento, contraataQueMasEfectivo).swap // swapeo al final porque en el contraataque se invirtieron los roles
+    ResultadoDeRound(movimientoInicialAtacante = movimientoElegido,
+                     movimientoContraataqueOponente = contraataQueMasEfectivo,
+                     estadoFinalAtacante = atacanteResultante,
+                     estadoFinalOponente = oponenteResultante)
+  }
 
-  def contraAtacar(oponente: Guerrero) : (Guerrero, Guerrero) = {
-    this.movimientoMasEfectivoContra(oponente, LoDejaConMayorVentajaEnKi) match {
+  private def contraAtacar(oponente: Guerrero, contraataQueMasEfectivo: Option[Movimiento]) : (Guerrero, Guerrero) = {
+    contraataQueMasEfectivo match {
       case Some(mov) => this.realizarMovimientoContra(mov, oponente)
-      case None if(movimientos.size > 0)=> this.realizarMovimientoContra(movimientos.head, oponente)
+      case None if(movimientos.size > 0) => this.realizarMovimientoContra(movimientos.head, oponente) // si no tiene uno mas efectivo, realiza el primero
       case _ => (this, oponente)
     }
-
   }
+
+  // Punto 3 -----------------------------------------------------------------------
+
 }

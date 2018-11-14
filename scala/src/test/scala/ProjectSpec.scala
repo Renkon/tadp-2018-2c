@@ -584,12 +584,14 @@ class ProjectSpec extends FreeSpec with Matchers {
     val yamcha = Guerrero(nombre = "yamcha", energia = 70, raza = Humano(), movimientos = List())
 
     "gokuSSJ1 pelea un round contra majinBuu y el resultado final es que goku termina muerto y majinBuu se lo comio" in {
-      val (gokuMuerto, majinBuuConGokuAbsorbido) = gokuSSJ1.pelearUnRound(AtacarCon(Kamehameha), majinBuu)
-      gokuMuerto.energia shouldBe(0)
-      gokuMuerto.estado shouldBe(Muerto)
-      majinBuuConGokuAbsorbido.energia shouldBe(majinBuu.energia - Kamehameha.energiaDelAtaquePara(gokuSSJ1) / 2)
-      majinBuuConGokuAbsorbido.movimientos should contain theSameElementsAs(gokuSSJ1.movimientos)
+      val resultadoDeRound = gokuSSJ1.pelearUnRound(AtacarCon(Kamehameha), majinBuu)
+      resultadoDeRound.movimientoContraataqueOponente shouldBe(Some(ComerseAlOponente))
+      resultadoDeRound.estadoFinalAtacante.energia shouldBe(0)
+      resultadoDeRound.estadoFinalAtacante.estado shouldBe(Muerto)
+      resultadoDeRound.estadoFinalOponente.energia shouldBe(majinBuu.energia - Kamehameha.energiaDelAtaquePara(gokuSSJ1) / 2)
+      resultadoDeRound.estadoFinalOponente.movimientos should contain theSameElementsAs(gokuSSJ1.movimientos)
     }
+    
     /* Caminito de este test :
      * Luego del kamehameha, gokuSSJ1 queda con la misma energia, y como majinBuu es un monstruo le causa 40 de daño, quedando con energia 160
      * luego majinBuu va a contraatacar con el ataque que mayor diferencia de ki le provoque. entre sus ataques estan:
@@ -601,9 +603,10 @@ class ProjectSpec extends FreeSpec with Matchers {
     * */
 
     "krilin ataca a androide18 con Kienzan, esta responde con muchos golpes ninja y queda con ventaja de energia" in {
-      val (krilinDebil, androide18Fortalecida) = krilin.pelearUnRound(AtacarCon(Kienzan), androide18)
-      krilinDebil.energia shouldBe(0.max(krilin.energia - Kienzan.energiaDelAtaquePara(krilin) - 20))
-      androide18Fortalecida.energia shouldBe(androide18.energia + Kienzan.energiaDelAtaquePara(krilin) * 2)
+      val resultadoDeRound = krilin.pelearUnRound(AtacarCon(Kienzan), androide18)
+      resultadoDeRound.movimientoContraataqueOponente shouldBe Some(AtacarCon(MuchosGolpesNinja))
+      resultadoDeRound.estadoFinalAtacante.energia shouldBe(0.max(krilin.energia - Kienzan.energiaDelAtaquePara(krilin) - 20))
+      resultadoDeRound.estadoFinalOponente.energia shouldBe(androide18.energia + Kienzan.energiaDelAtaquePara(krilin) * 2)
     }
      /* Caminito de este test:
     * krilin realiza el kienzan contra androide18, luego de esto androide18 queda con mayor energia porque lo absorbe
@@ -614,13 +617,14 @@ class ProjectSpec extends FreeSpec with Matchers {
     * */
 
     "androide18 ataca a yamcha con muchos golpes ninja, lo que le disminuye 20 de energia, y luego el no puede contraatacar porque no tiene ningun movimiento " in {
-      val (androide18LuegoDelAtaque, yamchaHerido) = androide18.pelearUnRound(AtacarCon(MuchosGolpesNinja), yamcha)
-      yamchaHerido.energia shouldBe(yamcha.copy().disminuirEnergia(20).energia)
-      androide18LuegoDelAtaque shouldBe(androide18)
+      val resultadoDeRound = androide18.pelearUnRound(AtacarCon(MuchosGolpesNinja), yamcha)
+      resultadoDeRound.movimientoContraataqueOponente shouldBe None
+      resultadoDeRound.estadoFinalOponente.energia shouldBe(yamcha.copy().disminuirEnergia(20).energia)
+      resultadoDeRound.estadoFinalAtacante shouldBe(androide18)
     }
   }
 
-  
+
 
 }
 
