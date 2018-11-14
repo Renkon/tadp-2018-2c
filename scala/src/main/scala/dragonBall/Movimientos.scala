@@ -187,6 +187,10 @@ case object Kienzan extends Onda {
   override def energiaDelAtaquePara(atacante: Guerrero): Int = 60
 }
 
+case object Dodonpa extends Onda {
+  override def energiaDelAtaquePara(atacante: Guerrero): Int = 30
+}
+
 case object Genkidama extends Onda {
   override def puedeRealizarla(atacante: Guerrero): Boolean = atacante.roundsQueSeDejoFajar > 0
 

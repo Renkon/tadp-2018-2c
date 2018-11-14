@@ -61,6 +61,10 @@ case class Guerrero(nombre : String,
     }
   }
 
+  def eliminarItem(item : Item) : Guerrero = {
+    this.copy(items = this.items.filter(i => !i.eq(item)))
+  }
+
   def tieneTodasLasEsferasDelDragon(): Boolean = EsferasDelDragon.todasLasEsferas.forall(items.contains)
 
   def esparcirEsferas(): Guerrero = this.copy(items = items.filter(i => !i.isInstanceOf[EsferaDelDragon]))
@@ -97,5 +101,21 @@ case class Guerrero(nombre : String,
   }
 
   // Punto 3 -----------------------------------------------------------------------
+  def planDeAtaqueContra(oponente : Guerrero, criterioSeleccionDeMovimiento: CriterioSeleccionDeMovimiento, cantidadDeRounds : Int) : Option[List[Movimiento]] = {
+    Some(List.fill(cantidadDeRounds - 1)(1).foldLeft(List(pelearUnRound(movimientoMasEfectivoContra(oponente, criterioSeleccionDeMovimiento).getOrElse(return None), oponente)))((listaDeResultados, _) => {
+      listaDeResultados.head.estadoFinalAtacante.pelearUnRound(listaDeResultados.head.estadoFinalAtacante.movimientoMasEfectivoContra(listaDeResultados.head.estadoFinalOponente, criterioSeleccionDeMovimiento).getOrElse(return None), listaDeResultados.head.estadoFinalOponente) :: listaDeResultados
+    }).map(unResultado => unResultado.movimientoInicialAtacante).reverse)
 
+    // version con prints :
+    //val movimientoEfectivoPrimerRound = movimientoMasEfectivoContra(oponente, criterioSeleccionDeMovimiento).getOrElse(return None)
+    //val resultadoPrimerRound = pelearUnRound(movimientoEfectivoPrimerRound, oponente)
+    //println(s"Round: 1, estado inicial : $this, estado inicial oponente: $oponente, prox mov atacante: $movimientoEfectivoPrimerRound")
+    //Some(List.fill(cantidadDeRounds - 1)(1).foldLeft(List(resultadoPrimerRound))((listaDeResultados, nroRound) => {
+    //  val estadoFinalAtacante = listaDeResultados.head.estadoFinalAtacante
+    //  val estadoFinalOponente = listaDeResultados.head.estadoFinalOponente
+    //  val proximoMov = listaDeResultados.head.estadoFinalAtacante.movimientoMasEfectivoContra(estadoFinalOponente, criterioSeleccionDeMovimiento).getOrElse(return None)
+    //  println(s"Round: ${nroRound+1}, estado inicial : $estadoFinalAtacante, estado inicial oponente: $estadoFinalOponente, prox mov atacante: $proximoMov")
+    //  estadoFinalAtacante.pelearUnRound(proximoMov, estadoFinalOponente) :: listaDeResultados
+    //}).map(unResultado => unResultado.movimientoInicialAtacante).reverse)
+  }
 }

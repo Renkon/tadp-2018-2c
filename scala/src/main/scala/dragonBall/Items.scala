@@ -11,7 +11,7 @@ sealed trait Item {
 
 object SemillaDelHermitanio extends Item {
   def apply(atacante: Guerrero, oponente : Guerrero) : (Guerrero, Guerrero) = {
-    (atacante.aumentarEnergia(atacante.raza.energiaMaxima - atacante.energia), oponente)// FIXME Esto asi como esta en los androides no funicona
+    (atacante.eliminarItem(this).aumentarEnergia(atacante.raza.energiaMaxima - atacante.energia), oponente)// FIXME Esto asi como esta en los androides no funicona
   }
 }
 

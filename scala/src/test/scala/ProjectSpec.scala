@@ -44,10 +44,11 @@ class ProjectSpec extends FreeSpec with Matchers {
       val mrSatan = Guerrero(nombre = "mr satan", energia = 5, raza = Humano())
 
       // Semilla del hermitanio
-      "cuando un guerrero saiyajin con 50 puntos menos que su maximo se come una semilla del hermitanio, su valor de energia se restaura al maximo, y su oponente queda igual" in {
+      "cuando un guerrero saiyajin con 50 puntos menos que su maximo se come una semilla del hermitanio, su valor de energia se restaura al maximo y pierde la semilla, y su oponente queda igual" in {
         val gokuDaniado = goku.aumentarEnergia(goku.raza.energiaMaxima - goku.energia).disminuirEnergia(50)
         val (gokuRecuperado, yamchaIgual) = UsarItem(SemillaDelHermitanio)(gokuDaniado, yamcha)
         gokuRecuperado.energia shouldBe(goku.raza.energiaMaxima)
+        gokuRecuperado.items should not contain SemillaDelHermitanio
         yamchaIgual shouldBe(yamcha)
       }
 
@@ -591,7 +592,7 @@ class ProjectSpec extends FreeSpec with Matchers {
       resultadoDeRound.estadoFinalOponente.energia shouldBe(majinBuu.energia - Kamehameha.energiaDelAtaquePara(gokuSSJ1) / 2)
       resultadoDeRound.estadoFinalOponente.movimientos should contain theSameElementsAs(gokuSSJ1.movimientos)
     }
-    
+
     /* Caminito de este test :
      * Luego del kamehameha, gokuSSJ1 queda con la misma energia, y como majinBuu es un monstruo le causa 40 de daño, quedando con energia 160
      * luego majinBuu va a contraatacar con el ataque que mayor diferencia de ki le provoque. entre sus ataques estan:
@@ -624,7 +625,20 @@ class ProjectSpec extends FreeSpec with Matchers {
     }
   }
 
+  "Punto 3 - planDeAtaqueContra" - {
+    val yajirobe = Guerrero(nombre = "yajirobe", energia = Humano().energiaMaxima, raza = Humano(), items = List(ArmaFilosa, SemillaDelHermitanio), movimientos = List(UsarItem(ArmaFilosa), UsarItem(SemillaDelHermitanio)))
+    val cell = Guerrero(nombre = "cell", energia = 160, raza = Monstruo(DigestionCell), movimientos = List(AtacarCon(Kamehameha)))
+    val majinBuu = Guerrero(nombre = "majinBuu", energia = 200, raza = Monstruo(DigestionMajinBuu), movimientos = List(UsarMagia(NoHacerNada, ConvertirEnChocolate), ComerseAlOponente, AtacarCon(MuchosGolpesNinja)))
+    val goku = Guerrero(nombre = "goku", energia = 200, raza = Saiyajin(), movimientos = List(AtacarCon(Kamehameha)))
 
+    "plan de ataque de yajirobe" in {
+      yajirobe.planDeAtaqueContra(cell , LoDejaConMayorVentajaEnKi, 2) shouldBe(Some(List(UsarItem(ArmaFilosa), UsarItem(SemillaDelHermitanio))))
+    }
+
+    "dado que goku puede pelear un round contra majinBuu lanzandole un kamehameha, pero luego de ese round majinBuu lo mata, entonces en el segundo no tiene movimientos posibles, por lo tanto no se retorna un plan de ataque incompleto" in {
+      goku.planDeAtaqueContra(majinBuu, LoHaceBosta, 2) shouldBe(None)
+    }
+  }
 
 }
 
