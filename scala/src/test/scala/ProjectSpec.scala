@@ -640,5 +640,48 @@ class ProjectSpec extends FreeSpec with Matchers {
     }
   }
 
+  "Punto 4 - pelearContra" - {
+    val goku = Guerrero(nombre = "goku", energia = Saiyajin().energiaMaxima, raza = Saiyajin(), movimientos = List(AtacarCon(Genkidama), AtacarCon(Kamehameha), AtacarCon(MuchosGolpesNinja)))
+    val vegeta = Guerrero(nombre = "vegeta", energia = Saiyajin().energiaMaxima, raza = Saiyajin(), movimientos = List(AtacarCon(Finalflash), AtacarCon(MuchosGolpesNinja)))
+    val yajirobe = Guerrero(nombre = "yajirobe", energia = Humano().energiaMaxima, raza = Humano(), items = List(ArmaFilosa, SemillaDelHermitanio), movimientos = List(UsarItem(ArmaFilosa), UsarItem(SemillaDelHermitanio)))
+    val mrSatan = Guerrero(nombre = "mr satan", energia = Humano().energiaMaxima, raza = Humano(), movimientos = List(UsarItem(ArmaDeFuego), AtacarCon(MuchosGolpesNinja)), items = List(ArmaDeFuego, Municion(1)))
+
+    //"si pasas un plan vacio no rompe" // TODO
+
+    "goku vs vegeta: gana vegeta " in {
+      // round1 : goku -> kamehameha (le saca 160 a vegeta y 80 a el), vegeta -> final flash (le saca 140 a goku y 70 a el) => (goku queda con 130, vegeta con 120)
+      // round2 : goku -> muchos golpes ninja (le saca 20 a vegeta), vegeta -> final flash (le saca 70 a el )=> (goku queda con 0, vegeta con 30)
+
+      goku.pelearContra(vegeta, List(AtacarCon(Kamehameha), AtacarCon(MuchosGolpesNinja))) match {
+        case Ganador(guerrero) => (guerrero.nombre, guerrero.energia) shouldBe(vegeta.nombre, 30)
+        case _ => fail("el ganador deberia ser vegeta")
+      }
+    }
+
+    "goku vs vegeta: gana goku" in {
+      //round 1 : goku -> kamehameha (le gasta 80 a el y 160 a vegeta), vegeta -> finalflash (le gasta 70 a el y 140 a goku) => (goku 130, vegeta 120)
+      //round 2 : goku-> genkidama (mata a vegeta, se habia dejado fajar 3 veces asi que le saca 1000), vegeta -> nada => (goku 130, vegeta 0)
+
+      goku.copy(roundsQueSeDejoFajar = 3).pelearContra(vegeta, List(AtacarCon(Kamehameha), AtacarCon(Genkidama))) match {
+        case Ganador(guerrero) => (guerrero.nombre, guerrero.energia) shouldBe(goku.nombre, 130)
+        case _ => fail("el ganador deberia ser goku")
+      }
+    }
+
+    "mrSatan vs yajirobe: el combate no termina" in {
+      //round 1 : satan -> arma de fuego (le saca 20), yajirobe -> arma filosa (le saca 2) => (mr satan 298, yajirobe 280)
+      //round 2 : satan -> muchos golpes ninja, yajirobe -> semilla del ermitanio => (mrsatan 298, 300)
+      //round 2 : satan -> muchos golpes ninja (lo afecta a el mismo, le saca 20), yajirobe -> arma filosa (le saca 3) => (mr satan 275, yajirobe 300)
+
+      mrSatan.pelearContra(yajirobe, List(UsarItem(ArmaDeFuego), AtacarCon(MuchosGolpesNinja), AtacarCon(MuchosGolpesNinja))) match {
+        case SigueElCombate(atacante, oponente) => {
+          (atacante.nombre, atacante.energia) shouldBe(mrSatan.nombre, 275)
+          (oponente.nombre, oponente.energia) shouldBe(yajirobe.nombre, 300)
+        }
+        case _ => fail("el combate deberia serguir")
+      }
+    }
+  }
+
 }
 

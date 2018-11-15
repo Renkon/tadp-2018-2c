@@ -4,11 +4,6 @@ sealed trait Item {
   def apply(atacante: Guerrero, oponente : Guerrero) : (Guerrero, Guerrero)
 }
 
-/*
-* FIXME hay alguna forma de lograr una estructura similar que sirva para el pattern matching que hago
-* en movimientos, pero sin esta repeticion de firma que esta al dope?
-* */
-
 object SemillaDelHermitanio extends Item {
   def apply(atacante: Guerrero, oponente : Guerrero) : (Guerrero, Guerrero) = {
     (atacante.eliminarItem(this).aumentarEnergia(atacante.raza.energiaMaxima - atacante.energia), oponente)// FIXME Esto asi como esta en los androides no funicona

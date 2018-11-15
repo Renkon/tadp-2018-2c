@@ -171,10 +171,13 @@ abstract class Onda() extends DeEnergia {
 
   override def realizarAtaque(atacante: Guerrero, oponente : Guerrero, efectoEnElOponente: (Int, Guerrero) => Guerrero) : (Guerrero, Guerrero) = {
     oponente.raza match {
-      case raza:Monstruo => (consumirEnergia(atacante), efectoEnElOponente(energiaDelAtaquePara(atacante) / 2, oponente))
-      case _ => (consumirEnergia(atacante), efectoEnElOponente(energiaDelAtaquePara(atacante) * 2, oponente))
+      case raza:Monstruo => (consumirEnergia(atacante), efectoEnElOponente(modificadorMonstruo(energiaDelAtaquePara(atacante)), oponente))
+      case _ => (consumirEnergia(atacante), efectoEnElOponente(modificadorOtraRaza(energiaDelAtaquePara(atacante)), oponente))
     }
   }
+
+  protected def modificadorMonstruo(energiaOriginal : Int) : Int = energiaOriginal / 2
+  protected def modificadorOtraRaza(energiaOriginal : Int) : Int = energiaOriginal * 2
 
   def consumirEnergia(guerrero: Guerrero) : Guerrero = guerrero.disminuirEnergia(this.energiaDelAtaquePara(guerrero))
 }
@@ -187,11 +190,14 @@ case object Kienzan extends Onda {
   override def energiaDelAtaquePara(atacante: Guerrero): Int = 60
 }
 
-case object Dodonpa extends Onda {
-  override def energiaDelAtaquePara(atacante: Guerrero): Int = 30
+case object Finalflash extends Onda {
+  override def energiaDelAtaquePara(atacante: Guerrero): Int = 70
 }
 
 case object Genkidama extends Onda {
+  override def modificadorMonstruo(energiaOriginal : Int ) : Int = energiaOriginal
+  override def modificadorOtraRaza(energiaOriginal : Int ) : Int = energiaOriginal
+
   override def puedeRealizarla(atacante: Guerrero): Boolean = atacante.roundsQueSeDejoFajar > 0
 
   override def energiaDelAtaquePara(atacante : Guerrero): Int = math.pow(10, atacante.roundsQueSeDejoFajar).toInt

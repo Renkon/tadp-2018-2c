@@ -37,6 +37,12 @@ case object Supervivencia extends CriterioSeleccionDeMovimiento {
 case object LoDejaConMayorVentajaEnKi extends CriterioSeleccionDeMovimiento {
   override def apply(atacante: Guerrero, oponente: Guerrero)(movimientoAEvaluar: Movimiento): Int = {
     val (atacanteResultante, oponenteResultante) = atacante.realizarMovimientoContra(movimientoAEvaluar, oponente)
-    atacanteResultante.energia - oponenteResultante.energia // cuanto mayor sea la energia del atacante respecto a la del oponente, mas grande el numero resultante
+    val diferenciaDeEnergia = oponenteResultante.energia - atacanteResultante.energia
+    if(diferenciaDeEnergia <= 0 )
+      math.abs(diferenciaDeEnergia) // cuanto mas grande la diferencia, mas grande el numero final
+    else math.abs(diferenciaDeEnergia) / diferenciaDeEnergia // no convienen los ataques que dejen al oponente con mayor energia que la del atacante
+
+    // intenta retornar un numero que representa que tan chica es la diferencai entre las energias,
+    // te quedas con el movimiento que haga mas chica esta diferencia
   }
 }
