@@ -104,7 +104,7 @@ case object ConvertirEnChocolate extends EfectoMagico {
 }
 
 case object RevivirAKrilin extends EfectoMagico {
-  override def apply(guerrero: Guerrero) :Guerrero =
+  override def apply(guerrero: Guerrero) : Guerrero =
     if(guerrero.nombre.contains("krilin") && guerrero.estado == Muerto) guerrero.aumentarEnergia(40) else guerrero
 }
 
