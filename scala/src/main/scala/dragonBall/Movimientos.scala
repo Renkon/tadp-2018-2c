@@ -55,7 +55,7 @@ object ConvertirseEnMono extends Movimiento {
 object ConvertirseEnSuperSaiyajin extends Movimiento {
   def apply(atacante : Guerrero, oponente : Guerrero) : (Guerrero, Guerrero) = {
     atacante.raza match {
-      case raza:Saiyajin if(raza.fase != Mono) => (raza.siguienteNivel(atacante), oponente)
+      case raza:Saiyajin if raza.fase != Mono => (raza.siguienteNivel(atacante), oponente)
       case _ => (atacante, oponente)
     }
   }
@@ -104,7 +104,7 @@ case object ConvertirEnChocolate extends EfectoMagico {
 }
 
 case object RevivirAKrilin extends EfectoMagico {
-  override def apply(guerrero: Guerrero) =
+  override def apply(guerrero: Guerrero) :Guerrero =
     if(guerrero.nombre.contains("krilin") && guerrero.estado == Muerto) guerrero.aumentarEnergia(40) else guerrero
 }
 
