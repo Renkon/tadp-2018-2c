@@ -6,7 +6,7 @@ sealed trait Item {
 
 object SemillaDelHermitanio extends Item {
   def apply(atacante: Guerrero, oponente : Guerrero) : (Guerrero, Guerrero) = {
-    (atacante.eliminarItem(this).aumentarEnergia(atacante.raza.energiaMaxima - atacante.energia), oponente)// FIXME Esto asi como esta en los androides no funicona
+    (atacante.eliminarItem(this).aumentarEnergia(atacante.raza.energiaMaxima - atacante.energia), oponente)
   }
 }
 
@@ -22,7 +22,7 @@ object ArmaRoma extends Item {
 object ArmaFilosa extends Item {
   def apply(atacante: Guerrero, oponente : Guerrero) : (Guerrero, Guerrero) = {
     oponente.raza match {
-      case raza:Saiyajin if(raza.tieneCola) => (atacante, raza.suColaFueCortada(oponente))
+      case raza:Saiyajin if raza.tieneCola => (atacante, raza.suColaFueCortada(oponente))
       case _ => reducirEnergia(atacante, oponente)
     }
   }

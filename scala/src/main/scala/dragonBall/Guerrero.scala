@@ -76,7 +76,7 @@ case class Guerrero(nombre : String,
   // Punto 1 -----------------------------------------------------------------------
   def movimientoMasEfectivoContra(oponente: Guerrero, unCriterio: CriterioSeleccionDeMovimiento): Option[Movimiento] = {
    Try(this.movimientos.maxBy(unCriterio(this, oponente))) match {
-     case Success(mejorMovimiento) if (unCriterio(this, oponente)(mejorMovimiento) > 0) => Some(mejorMovimiento)
+     case Success(mejorMovimiento) if unCriterio(this, oponente)(mejorMovimiento) > 0  => Some(mejorMovimiento)
      case _ => None
     }
   }
@@ -95,7 +95,7 @@ case class Guerrero(nombre : String,
   private def contraAtacar(oponente: Guerrero, contraataQueMasEfectivo: Option[Movimiento]) : (Guerrero, Guerrero) = {
     contraataQueMasEfectivo match {
       case Some(mov) => this.realizarMovimientoContra(mov, oponente)
-      case None if(movimientos.size > 0) => this.realizarMovimientoContra(movimientos.head, oponente) // si no tiene uno mas efectivo, realiza el primero
+      case None if movimientos.nonEmpty => this.realizarMovimientoContra(movimientos.head, oponente) // si no tiene uno mas efectivo, realiza el primero
       case _ => (this, oponente)
     }
   }

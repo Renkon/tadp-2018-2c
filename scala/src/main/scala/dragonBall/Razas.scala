@@ -64,31 +64,31 @@ sealed trait Fase {
   val siguienteNivel : Fase
   val nivel : Int
   def energiaMaxima : Int
-  val modificadorEnergia = 5
+  val modificadorEnergia : Int = 5
 }
 
 case object Normal extends Fase {
-  override val siguienteNivel = SSJFase1
+  override val siguienteNivel : Fase = SSJFase1
   override val nivel = 1
-  override def energiaMaxima = 350
+  override def energiaMaxima : Int = 350
 }
 case object SSJFase1 extends Fase {
-  override val siguienteNivel = SSJFase2
+  override val siguienteNivel : Fase = SSJFase2
   override val nivel = 2
-  override def energiaMaxima = Normal.energiaMaxima * modificadorEnergia
+  override def energiaMaxima : Int = Normal.energiaMaxima * modificadorEnergia
 }
 case object SSJFase2 extends Fase {
-  override val siguienteNivel = SSJFase3
+  override val siguienteNivel : Fase = SSJFase3
   override val nivel = 3
-  override def energiaMaxima = SSJFase1.energiaMaxima * modificadorEnergia
+  override def energiaMaxima : Int = SSJFase1.energiaMaxima * modificadorEnergia
 }
 case object SSJFase3 extends Fase {
-  override val siguienteNivel = SSJFase3
+  override val siguienteNivel : Fase = SSJFase3
   override val nivel = 4
-  override def energiaMaxima = SSJFase2.energiaMaxima * modificadorEnergia
+  override def energiaMaxima: Int = SSJFase2.energiaMaxima * modificadorEnergia
 }
 case object Mono extends Fase { // antes el mono era case class y recibia una faseBase para que pudiera volver a ella cuando se corta la cola, pero el enunciado dice que cuando sos mono "SE PIERDE" el estado SSJ
-  override val siguienteNivel = Mono
+  override val siguienteNivel : Fase = Mono
   override val nivel = 0
   override def energiaMaxima: Int = Normal.energiaMaxima * 3
 }
