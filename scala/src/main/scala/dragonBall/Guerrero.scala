@@ -49,7 +49,7 @@ case class Guerrero(nombre : String,
 
   def tieneItem(item: Item): Boolean = items.contains(item)
 
-  def municion(): Option[Item] = this.items.find(i => i.isInstanceOf[Municion])
+  def municion(): Option[Municion] = this.items.collect { case municion@Municion(_) => municion }.headOption
 
   def agregarItem(item: Item): Guerrero = copy(items = item :: items)
 
@@ -103,8 +103,8 @@ case class Guerrero(nombre : String,
   // Punto 3 -----------------------------------------------------------------------
   def planDeAtaqueContra(oponente : Guerrero, criterioSeleccionDeMovimiento: CriterioSeleccionDeMovimiento, cantidadDeRounds : Int) : Option[List[Movimiento]] = {
     Some(List.fill(cantidadDeRounds - 1)(1).foldLeft(List(pelearUnRound(movimientoMasEfectivoContra(oponente, criterioSeleccionDeMovimiento).getOrElse(return None), oponente)))((listaDeResultados, _) => {
-      listaDeResultados.head.estadoFinalAtacante.pelearUnRound(listaDeResultados.head.estadoFinalAtacante.movimientoMasEfectivoContra(listaDeResultados.head.estadoFinalOponente, criterioSeleccionDeMovimiento).getOrElse(return None), listaDeResultados.head.estadoFinalOponente) :: listaDeResultados
-    }).map(unResultado => unResultado.movimientoInicialAtacante).reverse)
+      listaDeResultados :+ listaDeResultados.head.estadoFinalAtacante.pelearUnRound(listaDeResultados.head.estadoFinalAtacante.movimientoMasEfectivoContra(listaDeResultados.head.estadoFinalOponente, criterioSeleccionDeMovimiento).getOrElse(return None), listaDeResultados.head.estadoFinalOponente)
+    }).map(unResultado => unResultado.movimientoInicialAtacante))
   }
 
   // Punto 4 -----------------------------------------------------------------------
