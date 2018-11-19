@@ -18,7 +18,7 @@ case class Fusionado(guerreroOriginal: Guerrero, companieroDeFusion : Guerrero) 
   // Eso si, existe inconsistencia si haces goku = ... raza = Fusionado(krilin) ...
   // entonces cuando la fusion quede inconsciente te devuelve a krilin ... ¿ tengo en cuenta esos casos ?
 
-  override val energiaMaxima: Int = guerreroOriginal.raza.energiaMaxima + companieroDeFusion.raza.energiaMaxima
+  override val energiaMaxima: Int = guerreroOriginal.energiaMaxima + companieroDeFusion.energiaMaxima
 
   override def quedoInconsciente(guerrero : Guerrero): Guerrero = super.quedoInconsciente(guerreroOriginal.copy(energia = guerrero.energia))
   // asumo que la energia de la fusion, en alguno de estos dos estados, es siempre menor al maximo y cercana a 0

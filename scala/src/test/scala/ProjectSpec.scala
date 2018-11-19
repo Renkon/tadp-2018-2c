@@ -4,9 +4,27 @@ import dragonBall._
 class ProjectSpec extends FreeSpec with Matchers {
   "dragonBall tests" - {
 
-    "Construccion test" - {
-      "cuando queres superar la energia maxima, deberia fallar" in {
-        //val goku = Guerrero(nombre = "goku", energia = 1000, raza = Saiyajin(nivelSS = 0,tieneCola = true))
+    "Construccion instancias test" - {
+
+      "Cuando queres instnciar un guerrero sin nombre debe fallar" in {
+        intercept[IllegalArgumentException] {
+          Guerrero(nombre = "", energia = 40, raza = Saiyajin())
+        }
+        assertTypeError("El guerrero debe poseer un nombre")
+      }
+
+      "Cuando queres instnciar un guerrero con energia negativa debe fallar" in {
+        intercept[IllegalArgumentException] {
+          Guerrero(nombre = "goku", energia = -5, raza = Saiyajin())
+        }
+        assertTypeError("La energia del guerrero no puede ser un numero negativo")
+      }
+
+      "Cuando queres instnciar un guerrero con un numero de fajadas negativo nombre debe fallar" in {
+        intercept[IllegalArgumentException] {
+          Guerrero(nombre = "goku", energia = 50, raza = Saiyajin(), roundsQueSeDejoFajar = -1)
+        }
+        assertTypeError("El numero de veces que se fajo al guerrero no puede ser un nuemero negativo")
       }
     }
 
@@ -19,7 +37,7 @@ class ProjectSpec extends FreeSpec with Matchers {
 
       "cuando un guerrero saiyajin con 40 de energia inicial y nivelSS = 1 carga ki entonces su eneria es la original mas 150, y el oponente no debe verse afetado" in {
         val (gokuConMasKi, yamchaIgual) = CargarKi(goku, yamcha)
-        gokuConMasKi.energia shouldBe(goku.energia + 150)
+        gokuConMasKi.energia shouldBe (goku.energia + 150)
         yamchaIgual shouldBe yamcha
       }
 
@@ -31,7 +49,7 @@ class ProjectSpec extends FreeSpec with Matchers {
 
       "cuando un humano intenta cargarKi su energia aumenta en 100, y el oponente debe permanecer igual" in {
         val (yamchaConMasKi, gokuIgual) = CargarKi(yamcha, goku)
-        yamchaConMasKi.energia shouldBe(yamcha.energia + 100)
+        yamchaConMasKi.energia shouldBe (yamcha.energia + 100)
         gokuIgual shouldBe goku
       }
     }
@@ -59,28 +77,28 @@ class ProjectSpec extends FreeSpec with Matchers {
       }
 
       "cuando alguien inconsciente quiere comer una semilla de hermitanio, todo bien" in {
-        val (gokuRecuperado, androideIgual) = UsarItem(SemillaDelHermitanio) (goku, androide17)
+        val (gokuRecuperado, androideIgual) = UsarItem(SemillaDelHermitanio)(goku, androide17)
         gokuRecuperado.energia shouldBe gokuRecuperado.raza.energiaMaxima
         androideIgual shouldBe androide17
       }
 
       // Item Generico
       "cuando un humano quiere usar un item que no tiene, no sucede nada, y su oponente queda igual" in {
-        val (yamchaIgual, satanIgual)= UsarItem(SemillaDelHermitanio)(yamcha, mrSatan)
+        val (yamchaIgual, satanIgual) = UsarItem(SemillaDelHermitanio)(yamcha, mrSatan)
         yamchaIgual shouldBe yamcha
         satanIgual shouldBe mrSatan
       }
 
       // Arma de fuego
       "cuando un humano quiere usar un arma de fuego contra alguien pero no la tiene no pasa nada, y su oponente queda igual" in {
-        val (yamchaIgual, pikoloIgual) = UsarItem(ArmaDeFuego)(yamcha,pikolo)
+        val (yamchaIgual, pikoloIgual) = UsarItem(ArmaDeFuego)(yamcha, pikolo)
         yamchaIgual shouldBe yamcha
         pikoloIgual shouldBe pikolo
       }
 
       "cuando un humano quiere usar un arma de fuego contra alguien pero no tiene municion, no pasa nada" in {
         val yamchaArmado = yamcha.agregarItem(ArmaDeFuego)
-        val (yamchaIgual, pikoloIgual) = UsarItem(ArmaDeFuego)(yamchaArmado,pikolo)
+        val (yamchaIgual, pikoloIgual) = UsarItem(ArmaDeFuego)(yamchaArmado, pikolo)
         yamchaIgual shouldBe yamchaArmado
         pikoloIgual shouldBe pikolo
       }
@@ -90,7 +108,7 @@ class ProjectSpec extends FreeSpec with Matchers {
         val yamchaArmadoConMunicion = yamcha.agregarItem(ArmaDeFuego).agregarItem(Municion(municionOriginal))
         val (nuevoYamcha, nuevoSatan) = UsarItem(ArmaDeFuego)(yamchaArmadoConMunicion, mrSatan)
         nuevoSatan.energia shouldBe 0
-        (nuevoYamcha.municion().get).asInstanceOf[Municion].cantidadActual shouldBe(municionOriginal - 1) // FEO
+        (nuevoYamcha.municion().get).asInstanceOf[Municion].cantidadActual shouldBe (municionOriginal - 1) // FEO
       }
 
       // TODO cuando alguien se queda sin municiones, luego, la municion deja de ser uno de sus items
@@ -133,7 +151,7 @@ class ProjectSpec extends FreeSpec with Matchers {
         nuevoPikolo shouldBe pikoloCon330ConNavaja
         nuevoGoku.energia shouldBe 1
         nuevoGoku.raza match {
-          case raza:Saiyajin => (raza.tieneCola, raza.fase) shouldBe((false, SSJFase1))
+          case raza: Saiyajin => (raza.tieneCola, raza.fase) shouldBe ((false, SSJFase1))
           case _ => // para que no salte un warning
         }
       }
@@ -145,7 +163,7 @@ class ProjectSpec extends FreeSpec with Matchers {
         nuevoPikolo shouldBe pikoloCon330ConNavaja
         nuevoGoku.energia shouldBe 1
         nuevoGoku.raza match {
-          case raza:Saiyajin => (raza.tieneCola, raza.fase) shouldBe((false, Normal ))
+          case raza: Saiyajin => (raza.tieneCola, raza.fase) shouldBe ((false, Normal))
           case _ => // para que no salte un warning
         }
       }
@@ -157,7 +175,7 @@ class ProjectSpec extends FreeSpec with Matchers {
         nuevoPikolo shouldBe pikoloCon330ConNavaja
         nuevoGoku.energia shouldBe (gokuConColaFaseSS1.energia - 3)
         nuevoGoku.raza match {
-          case raza:Saiyajin => (raza.tieneCola, raza.fase) shouldBe((false, SSJFase2))
+          case raza: Saiyajin => (raza.tieneCola, raza.fase) shouldBe ((false, SSJFase2))
           case _ => // para que no salte un warning
         }
       }
@@ -188,7 +206,7 @@ class ProjectSpec extends FreeSpec with Matchers {
         cellCon17Absorbido.movimientos should contain theSameElementsAs movimientosAndroide17
         nuevoAndroide17.estado shouldBe Muerto
         val (cellCon17y18Absorbidos, nuevoAndroide18) = ComerseAlOponente(cellCon17Absorbido, androide18)
-        cellCon17y18Absorbidos.movimientos should contain theSameElementsAs ( movimientosAndroide17 ::: movimientosAndroide18) // joya, el orden de la concatencion no importa, busca por elementos
+        cellCon17y18Absorbidos.movimientos should contain theSameElementsAs (movimientosAndroide17 ::: movimientosAndroide18) // joya, el orden de la concatencion no importa, busca por elementos
         nuevoAndroide18.estado shouldBe Muerto
       }
 
@@ -215,26 +233,25 @@ class ProjectSpec extends FreeSpec with Matchers {
         nuevoAndroide.estado shouldBe Muerto
 
         val movimientosSatan = mrSatan.movimientos
-        val (majinBuuConSatanAbsorbido, nuevoSatan) =  ComerseAlOponente(majinBuuCon17Absorbido, mrSatan)
+        val (majinBuuConSatanAbsorbido, nuevoSatan) = ComerseAlOponente(majinBuuCon17Absorbido, mrSatan)
         majinBuuConSatanAbsorbido.movimientos should contain theSameElementsAs movimientosSatan
         nuevoSatan.estado shouldBe Muerto
       }
 
       "majinBuu no puede absorver a goku porque tiene mas ki que el" in {
-        val goku = Guerrero(nombre = "goku", energia = 60 , raza = Saiyajin(), movimientos = List(CargarKi))
+        val goku = Guerrero(nombre = "goku", energia = 60, raza = Saiyajin(), movimientos = List(CargarKi))
         val (majinBuuIgual, gokuIgual) = ComerseAlOponente(majinBuu, goku)
         majinBuuIgual shouldBe majinBuu
         gokuIgual shouldBe goku
       }
 
       "cell no puede absorver a superAndroide17 porque tiene mas ki que el" in {
-        val superAndroide17 = Guerrero(nombre = "superAndroide17", energia = 70 , raza = Androide(), movimientos = List(CargarKi))
+        val superAndroide17 = Guerrero(nombre = "superAndroide17", energia = 70, raza = Androide(), movimientos = List(CargarKi))
         val (cellIgual, super17Igual) = ComerseAlOponente(cell, superAndroide17)
         cellIgual shouldBe cell
         super17Igual shouldBe superAndroide17
       }
     }
-
 
     "ConvertirseEnMono test" - {
       val gohan = Guerrero(nombre = "gohan", energia = 50, raza = Saiyajin(tieneCola = false))
@@ -251,7 +268,7 @@ class ProjectSpec extends FreeSpec with Matchers {
         val gokuConFoto = gokuGT.copy(items = List(FotoDeLaLuna))
         val (gokuMono, gohanIgual) = ConvertirseEnMono(gokuConFoto, gohan)
         gokuMono.raza match {
-          case raza:Saiyajin => (gokuMono.energia, raza.fase, raza.energiaMaxima) shouldBe (raza.energiaMaxima, Mono, gokuGT.raza.energiaMaxima * 3)
+          case raza: Saiyajin => (gokuMono.energia, raza.fase, raza.energiaMaxima) shouldBe(raza.energiaMaxima, Mono, gokuGT.raza.energiaMaxima * 3)
           case _ =>
         }
         gohanIgual shouldBe gohan
@@ -261,7 +278,7 @@ class ProjectSpec extends FreeSpec with Matchers {
         val gohanConFoto = gohan.copy(items = List(FotoDeLaLuna))
         val (gohanIgual, gokuIgual) = ConvertirseEnMono(gohanConFoto, gokuGT)
         gohanIgual.raza match {
-          case raza:Saiyajin => (gohanIgual.energia, raza.fase, raza.energiaMaxima) shouldBe (gohan.energia, Normal, gohan.raza.energiaMaxima)
+          case raza: Saiyajin => (gohanIgual.energia, raza.fase, raza.energiaMaxima) shouldBe(gohan.energia, Normal, gohan.raza.energiaMaxima)
           case _ =>
         }
         gokuIgual shouldBe gokuGT
@@ -293,19 +310,19 @@ class ProjectSpec extends FreeSpec with Matchers {
       }
 
       "cuando un saiyajin normal se transforma a fase1, su energia maxima se quintuplica pero su ki queda igual" in {
-        val energiaInicial = (gokuGT.raza.energiaMaxima/2) + 10
+        val energiaInicial = (gokuGT.raza.energiaMaxima / 2) + 10
         val gokuGTConMasKi = gokuGT.copy(energia = energiaInicial)
         val (gokuGTSSJFase1, gohanIgual) = ConvertirseEnSuperSaiyajin(gokuGTConMasKi, gohan)
         gokuGTSSJFase1.energia shouldBe energiaInicial
         gokuGTSSJFase1.raza match {
-          case raza:Saiyajin => (raza.fase, raza.energiaMaxima) shouldBe(SSJFase1, SSJFase1.energiaMaxima)
+          case raza: Saiyajin => (raza.fase, raza.energiaMaxima) shouldBe(SSJFase1, SSJFase1.energiaMaxima)
           case _ =>
         }
         gohanIgual shouldBe gohan
       }
 
       "cuando un saiyajin normal se transforma a fase1 y luego a fase2, su energia maxima original se multiplica por 10, y su ki se mantiene" in {
-        val energiaInicial = (gokuGT.raza.energiaMaxima/2) + 10
+        val energiaInicial = (gokuGT.raza.energiaMaxima / 2) + 10
         val gokuGTConMasKi = gokuGT.copy(energia = energiaInicial)
         val (gokuGTSSJFase1, gohanIgual) = ConvertirseEnSuperSaiyajin(gokuGTConMasKi, gohan)
         val energiaParaSSJ2 = energiaInicial * 5
@@ -313,10 +330,10 @@ class ProjectSpec extends FreeSpec with Matchers {
         val (gokuGTSSJFase2, gohanDeNuevoIgual) = ConvertirseEnSuperSaiyajin(gokuGTSSJ1ConMasKi, gohanIgual)
         gokuGTSSJFase2.energia shouldBe energiaParaSSJ2
         gokuGTSSJFase2.raza match {
-          case raza:Saiyajin => (raza.fase, raza.energiaMaxima) shouldBe(SSJFase2, SSJFase2.energiaMaxima)
+          case raza: Saiyajin => (raza.fase, raza.energiaMaxima) shouldBe(SSJFase2, SSJFase2.energiaMaxima)
           case _ =>
         }
-        gohanDeNuevoIgual shouldBe(gohan)
+        gohanDeNuevoIgual shouldBe (gohan)
       }
 
       "cuando un saiyajin faseX se transforma en mono, su estado ssj se pierde, es decir, tu energia maxima pasa a ser la correspondiente al estado mono, y su ki aumenta al maximo" in {
@@ -331,7 +348,7 @@ class ProjectSpec extends FreeSpec with Matchers {
         val gokuGTSSJ3 = gokuGT.copy(raza = Saiyajin(fase = SSJFase3))
         val gokuGTInconsciente = gokuGTSSJ3.quedoInconsciente()
         gokuGTInconsciente.raza match {
-          case raza:Saiyajin => raza.fase shouldBe Normal
+          case raza: Saiyajin => raza.fase shouldBe Normal
           case _ =>
         }
       }
@@ -351,8 +368,8 @@ class ProjectSpec extends FreeSpec with Matchers {
 
       "goku puede fusionarse con paikuhan y el resultado tiene la suma de sus energias y energiasMaximas" in {
         val (gokuHan, androideIgual) = FusionarseCon(paiKuHan)(goku, androide17)
-        gokuHan.energia shouldBe(goku.energia + paiKuHan.energia)
-        gokuHan.raza.energiaMaxima shouldBe(goku.raza.energiaMaxima + paiKuHan.raza.energiaMaxima)
+        gokuHan.energia shouldBe (goku.energia + paiKuHan.energia)
+        gokuHan.raza.energiaMaxima shouldBe (goku.raza.energiaMaxima + paiKuHan.raza.energiaMaxima)
         assert(gokuHan.raza.isInstanceOf[Fusionado])
       }
 
@@ -380,14 +397,14 @@ class ProjectSpec extends FreeSpec with Matchers {
       val majinBuu = Guerrero(nombre = "cell", energia = 50, raza = Monstruo(DigestionMajinBuu), movimientos = List())
 
       "un guerrero sin las esferas del dragon no puede realizar magia" in {
-        val (gokuIgual, gohanIgual) = UsarMagia(efectoSobreAtacante = NoHacerNada, efectoSobreOponente = ObtenerSemillaDelErmitanio) (goku, gohan)
+        val (gokuIgual, gohanIgual) = UsarMagia(efectoSobreAtacante = NoHacerNada, efectoSobreOponente = ObtenerSemillaDelErmitanio)(goku, gohan)
         gokuIgual shouldBe goku
         gohanIgual shouldBe gohan
       }
 
       "un guerrero con algunas esferas tampoco debe ser capaz de realizar magia" in {
         val gokuCon2Esferas = goku.copy(items = List(EsferasDelDragon.cuarta, EsferasDelDragon.quinta))
-        val (gokuIgual, gohanIgual) = UsarMagia(efectoSobreAtacante = NoHacerNada, efectoSobreOponente = ObtenerSemillaDelErmitanio) (gokuCon2Esferas, gohan)
+        val (gokuIgual, gohanIgual) = UsarMagia(efectoSobreAtacante = NoHacerNada, efectoSobreOponente = ObtenerSemillaDelErmitanio)(gokuCon2Esferas, gohan)
         gokuIgual shouldBe gokuCon2Esferas
         gohanIgual shouldBe gohan
       }
@@ -395,7 +412,7 @@ class ProjectSpec extends FreeSpec with Matchers {
       "un guerrero con las 7 esferas si es capaz de realizar magia, y las pierde al realizarla" in {
         val gokuCon7Esferas = goku.copy(items = EsferasDelDragon.todasLasEsferas)
         gohan.items should not contain SemillaDelHermitanio
-        val (gokuIgual, gohanConSemilla) = UsarMagia(efectoSobreAtacante = NoHacerNada, efectoSobreOponente = ObtenerSemillaDelErmitanio) (gokuCon7Esferas, gohan)
+        val (gokuIgual, gohanConSemilla) = UsarMagia(efectoSobreAtacante = NoHacerNada, efectoSobreOponente = ObtenerSemillaDelErmitanio)(gokuCon7Esferas, gohan)
         gokuIgual shouldBe goku // pierde las esferas
         gohanConSemilla.items should contain(SemillaDelHermitanio)
       }
@@ -403,14 +420,14 @@ class ProjectSpec extends FreeSpec with Matchers {
       "un namekusein debe ser capaz de realizar magia aunque no tenga las esferas" in {
         val krilinMuerto = krilin.disminuirEnergia(krilin.energia)
         krilinMuerto.estado shouldBe Muerto
-        val (pikoloIgual, krilinConVida) = UsarMagia(efectoSobreAtacante = NoHacerNada, efectoSobreOponente = RevivirAKrilin) (pikolo, krilinMuerto)
+        val (pikoloIgual, krilinConVida) = UsarMagia(efectoSobreAtacante = NoHacerNada, efectoSobreOponente = RevivirAKrilin)(pikolo, krilinMuerto)
         pikoloIgual shouldBe pikolo
         krilinConVida.estado shouldBe Ok
       }
 
       "un monstruo es capaz de realizar magia sin necesidad de tener las esferas" in {
         gohan.estado should not be Muerto
-        val (majinBuuIgual, gohanMuerto) = UsarMagia(efectoSobreAtacante = NoHacerNada, efectoSobreOponente = ConvertirEnChocolate) (majinBuu, gohan)
+        val (majinBuuIgual, gohanMuerto) = UsarMagia(efectoSobreAtacante = NoHacerNada, efectoSobreOponente = ConvertirEnChocolate)(majinBuu, gohan)
         majinBuuIgual shouldBe majinBuu
         gohanMuerto.estado shouldBe Inconsciente
       }
@@ -424,13 +441,13 @@ class ProjectSpec extends FreeSpec with Matchers {
       // MuchosGolpesNinja
       "si un humano ataca con golpes ninja a un androide, el primero sufre 10 de daño" in {
         val (krilinDaniado, androideIgual) = MuchosGolpesNinja(krilin, androide17)
-        krilinDaniado.energia shouldBe(krilin.energia - 10)
+        krilinDaniado.energia shouldBe (krilin.energia - 10)
         androideIgual shouldBe androide17
       }
 
       "al intercambiar golpes, krilin disminuye su energia en 20 porque gohan tiene mas ki" in {
         val (krilinDaniado, gohanIgual) = MuchosGolpesNinja(krilin, gohan)
-        krilinDaniado.energia shouldBe(krilin.energia - 20)
+        krilinDaniado.energia shouldBe (krilin.energia - 20)
         gohanIgual shouldBe gohan
       }
 
@@ -447,7 +464,7 @@ class ProjectSpec extends FreeSpec with Matchers {
 
       "si androide17 explota, gohan recibe un daño proporcional al triple de la bateria del androide, y este muere" in {
         val (androideMuerto, gohanConDanio) = Explotar(androide17, gohanAlMaximo)
-        gohanConDanio.energia shouldBe 0.max(gohanAlMaximo.energia - androide17.energia*3)
+        gohanConDanio.energia shouldBe 0.max(gohanAlMaximo.energia - androide17.energia * 3)
         androideMuerto.energia shouldBe 0
         androideMuerto.estado shouldBe Muerto
       }
@@ -460,7 +477,7 @@ class ProjectSpec extends FreeSpec with Matchers {
 
       "si cell explota, le produce un danio proporcionar al doble de su energia a gohan, y muere" in {
         val (cellMuerto, gohanConDanio) = Explotar(cell, gohanAlMaximo)
-        gohanConDanio.energia shouldBe 0.max(gohanAlMaximo.energia - cell.energia*2)
+        gohanConDanio.energia shouldBe 0.max(gohanAlMaximo.energia - cell.energia * 2)
         cellMuerto.energia shouldBe 0
         cellMuerto.estado shouldBe Muerto
       }
@@ -479,14 +496,14 @@ class ProjectSpec extends FreeSpec with Matchers {
 
       "goku realiza el kamehameha contra vegeta y el danio que este sufre es el doble del requerido para el ataque" in {
         val (gokuConMenosEnergia, vegetaDaniado) = Kamehameha(goku, vegeta)
-        gokuConMenosEnergia.energia shouldBe(goku.energia - Kamehameha.energiaDelAtaquePara(goku))
+        gokuConMenosEnergia.energia shouldBe (goku.energia - Kamehameha.energiaDelAtaquePara(goku))
         vegetaDaniado.energia shouldBe 0.max(vegeta.energia - (Kamehameha.energiaDelAtaquePara(goku) * 2))
       }
 
       "gohan realiza el kamehameha contra cell y esto le produce un danio equivalente a la mitad de la energia necesaria para realizarlo, porque es un monstruo" in {
         val (gohanConMenosEnergia, cellDaniado) = Kamehameha(gohanAlMaximo, cell)
-        gohanConMenosEnergia.energia shouldBe(gohanAlMaximo.energia - Kamehameha.energiaDelAtaquePara(gohanAlMaximo))
-        cellDaniado.energia shouldBe(cell.energia - Kamehameha.energiaDelAtaquePara(gohanAlMaximo) / 2)
+        gohanConMenosEnergia.energia shouldBe (gohanAlMaximo.energia - Kamehameha.energiaDelAtaquePara(gohanAlMaximo))
+        cellDaniado.energia shouldBe (cell.energia - Kamehameha.energiaDelAtaquePara(gohanAlMaximo) / 2)
       }
 
       "goku no puede realizar la Genkidama si nunca se dejo fajar" in {
@@ -496,7 +513,7 @@ class ProjectSpec extends FreeSpec with Matchers {
       }
 
       "goku no puede realizar la Genkidama si se dejo fajar 2 veces pero despues realizo otro movimiento" in {
-        val (gokuFajado2Veces, _) = (DejarseFajar andThen DejarseFajar)(goku, majinBuu)
+        val (gokuFajado2Veces, _) = (DejarseFajar andThen DejarseFajar) (goku, majinBuu)
         gokuFajado2Veces.roundsQueSeDejoFajar shouldBe 2
         val (gokuConMasKi, _) = gokuFajado2Veces.realizarMovimientoContra(CargarKi, majinBuu)
         gokuConMasKi.roundsQueSeDejoFajar shouldBe 0
@@ -506,19 +523,19 @@ class ProjectSpec extends FreeSpec with Matchers {
       }
 
       "goku no puede realizar la Genkidama si se dejo fajar 2 veces pero luego queda inconsciente" in {
-        val (gokuFajado2Veces, _) = (DejarseFajar andThen DejarseFajar)(goku, majinBuu)
+        val (gokuFajado2Veces, _) = (DejarseFajar andThen DejarseFajar) (goku, majinBuu)
         val gokuInconsciente = gokuFajado2Veces.quedoInconsciente()
         gokuInconsciente.roundsQueSeDejoFajar shouldBe 0
       }
 
       "goku no puede realizar la Genkidama si se dejo fajar 2 veces pero luego queda muerto" in {
-        val (gokuFajado2Veces, _) = (DejarseFajar andThen DejarseFajar)(goku, majinBuu)
+        val (gokuFajado2Veces, _) = (DejarseFajar andThen DejarseFajar) (goku, majinBuu)
         val gokuInconsciente = gokuFajado2Veces.murio()
         gokuInconsciente.roundsQueSeDejoFajar shouldBe 0
       }
 
       "goku puede realizar la Genkidama si se dejo fajar 3 veces y esto le produce un danio de 1000 a majinBuu, osea, lo mata. Y la energia de goku queda igual porque usa energia externa" in {
-        val (gokuFajado3Veces, _) = (DejarseFajar andThen DejarseFajar andThen DejarseFajar)(goku, majinBuu)
+        val (gokuFajado3Veces, _) = (DejarseFajar andThen DejarseFajar andThen DejarseFajar) (goku, majinBuu)
         gokuFajado3Veces.roundsQueSeDejoFajar shouldBe 3
         val (gokuConLaMismaEnergiaInicial, majinBuuMuerto) = Genkidama(gokuFajado3Veces, majinBuu)
         gokuConLaMismaEnergiaInicial.energia shouldBe gokuFajado3Veces.energia
@@ -547,7 +564,7 @@ class ProjectSpec extends FreeSpec with Matchers {
     }
 
     "el mejor movimiento de goku para 'hacer bosta' a vegeta es la Genkidama, si se dejo fajar tres rounds" in {
-      val (gokuFajado, vegetaIgual) = (DejarseFajar andThen DejarseFajar andThen DejarseFajar)(gokuSSJ1, vegetaSSJ1)
+      val (gokuFajado, vegetaIgual) = (DejarseFajar andThen DejarseFajar andThen DejarseFajar) (gokuSSJ1, vegetaSSJ1)
       gokuFajado.roundsQueSeDejoFajar shouldBe 3
       gokuFajado.movimientoMasEfectivoContra(vegetaIgual, LoHaceBosta) shouldBe Some(AtacarCon(Genkidama))
     }
@@ -589,7 +606,7 @@ class ProjectSpec extends FreeSpec with Matchers {
       resultadoDeRound.movimientoContraataqueOponente shouldBe Some(ComerseAlOponente)
       resultadoDeRound.estadoFinalAtacante.energia shouldBe 0
       resultadoDeRound.estadoFinalAtacante.estado shouldBe Muerto
-      resultadoDeRound.estadoFinalOponente.energia shouldBe(majinBuu.energia - Kamehameha.energiaDelAtaquePara(gokuSSJ1) / 2)
+      resultadoDeRound.estadoFinalOponente.energia shouldBe (majinBuu.energia - Kamehameha.energiaDelAtaquePara(gokuSSJ1) / 2)
       resultadoDeRound.estadoFinalOponente.movimientos should contain theSameElementsAs gokuSSJ1.movimientos
     }
 
@@ -609,13 +626,13 @@ class ProjectSpec extends FreeSpec with Matchers {
       resultadoDeRound.estadoFinalAtacante.energia shouldBe 0.max(krilin.energia - Kienzan.energiaDelAtaquePara(krilin) - 20)
       resultadoDeRound.estadoFinalOponente.energia shouldBe (androide18.energia + Kienzan.energiaDelAtaquePara(krilin) * 2)
     }
-     /* Caminito de este test:
-    * krilin realiza el kienzan contra androide18, luego de esto androide18 queda con mayor energia porque lo absorbe
-    * quedando con 270 (daño del kiensan * 2). Ahora el androide18 tiene 2 posibilidades :
-    * . Explotar, que los mata a ambos
-    * . AtacarCon(MuchosGolpesNinja), que disminuye la energia de krilin en 20
-    * Finalmente elije AtacarCon(MuchosGolpesNinja) porque la diferencia de energia obtenida es mayor
-    * */
+    /* Caminito de este test:
+   * krilin realiza el kienzan contra androide18, luego de esto androide18 queda con mayor energia porque lo absorbe
+   * quedando con 270 (daño del kiensan * 2). Ahora el androide18 tiene 2 posibilidades :
+   * . Explotar, que los mata a ambos
+   * . AtacarCon(MuchosGolpesNinja), que disminuye la energia de krilin en 20
+   * Finalmente elije AtacarCon(MuchosGolpesNinja) porque la diferencia de energia obtenida es mayor
+   * */
 
     "androide18 ataca a yamcha con muchos golpes ninja, lo que le disminuye 20 de energia, y luego el no puede contraatacar porque no tiene ningun movimiento " in {
       val resultadoDeRound = androide18.pelearUnRound(AtacarCon(MuchosGolpesNinja), yamcha)
@@ -632,7 +649,7 @@ class ProjectSpec extends FreeSpec with Matchers {
     val goku = Guerrero(nombre = "goku", energia = 200, raza = Saiyajin(), movimientos = List(AtacarCon(Kamehameha)))
 
     "plan de ataque de yajirobe" in {
-      yajirobe.planDeAtaqueContra(cell , LoDejaConMayorVentajaEnKi, 2) shouldBe Some(List(UsarItem(ArmaFilosa), UsarItem(SemillaDelHermitanio)))
+      yajirobe.planDeAtaqueContra(cell, LoDejaConMayorVentajaEnKi, 2) shouldBe Some(List(UsarItem(ArmaFilosa), UsarItem(SemillaDelHermitanio)))
     }
 
     "dado que goku puede pelear un round contra majinBuu lanzandole un kamehameha, pero luego de ese round majinBuu lo mata, entonces en el segundo no tiene movimientos posibles, por lo tanto no se retorna un plan de ataque incompleto" in {

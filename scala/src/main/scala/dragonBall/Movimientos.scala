@@ -1,89 +1,88 @@
-package  dragonBall
+package dragonBall
 
-sealed trait Movimiento{
+sealed trait Movimiento {
   def andThen(segundoMovimiento: Movimiento): Movimiento = new MovimientoCompuesto(this, segundoMovimiento)
 
-  def apply(atacante : Guerrero, oponente : Guerrero) : (Guerrero, Guerrero)
+  def apply(atacante: Guerrero, oponente: Guerrero): (Guerrero, Guerrero)
 }
 
-class MovimientoCompuesto(primero:Movimiento, segundo:Movimiento) extends Movimiento {
-  def apply(atacante: Guerrero, oponente: Guerrero) : (Guerrero, Guerrero) = {
+class MovimientoCompuesto(primero: Movimiento, segundo: Movimiento) extends Movimiento {
+  def apply(atacante: Guerrero, oponente: Guerrero): (Guerrero, Guerrero) = {
     val resultadoPrimeraAplicacion = primero(atacante, oponente)
     segundo(resultadoPrimeraAplicacion._1, resultadoPrimeraAplicacion._2)
   }
 }
 
-
- object DejarseFajar extends Movimiento {
-   def apply(atacante:Guerrero, oponente:Guerrero) : (Guerrero, Guerrero) = (atacante.seDejoFajar(), oponente)
- }
+object DejarseFajar extends Movimiento {
+  def apply(atacante: Guerrero, oponente: Guerrero): (Guerrero, Guerrero) = (atacante.seDejoFajar(), oponente)
+}
 
 object CargarKi extends Movimiento {
-  def apply(atacante : Guerrero, oponente : Guerrero) : (Guerrero, Guerrero) = {
+  def apply(atacante: Guerrero, oponente: Guerrero): (Guerrero, Guerrero) = {
     atacante.raza match {
-      case raza:Saiyajin => (atacante.aumentarEnergia(150 * raza.nivelDeFase), oponente)
-      case raza:Androide => (atacante, oponente)
+      case raza: Saiyajin => (atacante.aumentarEnergia(150 * raza.nivelDeFase), oponente)
+      case raza: Androide => (atacante, oponente)
       case _ => (atacante.aumentarEnergia(100), oponente)
     }
   }
 }
 
-case class UsarItem(item:Item) extends Movimiento {
-  def apply(atacante : Guerrero, oponente : Guerrero) : (Guerrero, Guerrero) = {
+case class UsarItem(item: Item) extends Movimiento {
+  def apply(atacante: Guerrero, oponente: Guerrero): (Guerrero, Guerrero) = {
     if (atacante.tieneItem(item)) atacante.usarItem(item, oponente) else (atacante, oponente)
   }
 }
 
 object ComerseAlOponente extends Movimiento {
-  def apply(atacante : Guerrero, oponente : Guerrero) : (Guerrero, Guerrero) = {
+  def apply(atacante: Guerrero, oponente: Guerrero): (Guerrero, Guerrero) = {
     atacante.raza match {
-      case raza:Monstruo => raza.darDeComerA(atacante, oponente)
+      case raza: Monstruo => raza.darDeComerA(atacante, oponente)
       case _ => (atacante, oponente)
     }
   }
 }
 
 object ConvertirseEnMono extends Movimiento {
-  def apply(atacante : Guerrero, oponente : Guerrero) : (Guerrero, Guerrero) = {
+  def apply(atacante: Guerrero, oponente: Guerrero): (Guerrero, Guerrero) = {
     atacante.raza match {
-      case raza:Saiyajin => (raza.convertirseEnMono(atacante), oponente)
+      case raza: Saiyajin => (raza.convertirseEnMono(atacante), oponente)
       case _ => (atacante, oponente)
     }
   }
 }
 
 object ConvertirseEnSuperSaiyajin extends Movimiento {
-  def apply(atacante : Guerrero, oponente : Guerrero) : (Guerrero, Guerrero) = {
+  def apply(atacante: Guerrero, oponente: Guerrero): (Guerrero, Guerrero) = {
     atacante.raza match {
-      case raza:Saiyajin if raza.fase != Mono => (raza.siguienteNivel(atacante), oponente)
+      case raza: Saiyajin if raza.fase != Mono => (raza.siguienteNivel(atacante), oponente)
       case _ => (atacante, oponente)
     }
   }
 }
 
-case class FusionarseCon(compañeroDeFusion : Guerrero) extends Movimiento {
-  def apply(atacante : Guerrero, oponente : Guerrero) : (Guerrero, Guerrero) = {
+case class FusionarseCon(compañeroDeFusion: Guerrero) extends Movimiento {
+  def apply(atacante: Guerrero, oponente: Guerrero): (Guerrero, Guerrero) = {
     (atacante.raza, compañeroDeFusion.raza) match {
-      case (razaAtacante:Fusionable, razaCompaniero:Fusionable) =>
+      case (razaAtacante: Fusionable, razaCompaniero: Fusionable) =>
         (atacante.copy(raza = Fusionado(atacante, compañeroDeFusion)).aumentarEnergia(compañeroDeFusion.energia), oponente)
-      case (_,_) => (atacante, oponente)
+      case (_, _) => (atacante, oponente)
     }
   }
 }
 
-case class UsarMagia(efectoSobreAtacante : EfectoMagico, efectoSobreOponente : EfectoMagico) extends Movimiento {
-  def apply(atacante : Guerrero, oponente : Guerrero) : (Guerrero, Guerrero) = {
+case class UsarMagia(efectoSobreAtacante: EfectoMagico, efectoSobreOponente: EfectoMagico) extends Movimiento {
+  def apply(atacante: Guerrero, oponente: Guerrero): (Guerrero, Guerrero) = {
     atacante.raza match {
-      case (_:Namekusein | _:Monstruo) => (efectoSobreAtacante(atacante), efectoSobreOponente(oponente))
-      case _  => if (atacante.tieneTodasLasEsferasDelDragon())
-                    (efectoSobreAtacante(atacante).esparcirEsferas(), efectoSobreOponente(oponente))
-                 else (atacante, oponente)
+      case (_: Namekusein | _: Monstruo) => (efectoSobreAtacante(atacante), efectoSobreOponente(oponente))
+      case _ => if (atacante.tieneTodasLasEsferasDelDragon())
+        (efectoSobreAtacante(atacante).esparcirEsferas(), efectoSobreOponente(oponente))
+      else (atacante, oponente)
     }
   }
 }
 
 sealed trait EfectoMagico {
-  def apply(guerrero : Guerrero) : Guerrero
+  def apply(guerrero: Guerrero): Guerrero
 }
 
 case object NoHacerNada extends EfectoMagico {
@@ -103,11 +102,11 @@ case object ConvertirEnChocolate extends EfectoMagico {
 }
 
 case object RevivirAKrilin extends EfectoMagico {
-  override def apply(guerrero: Guerrero) : Guerrero =
-    if(guerrero.nombre.contains("krilin") && guerrero.estado == Muerto) guerrero.aumentarEnergia(40) else guerrero
+  override def apply(guerrero: Guerrero): Guerrero =
+    if (guerrero.nombre.contains("krilin") && guerrero.estado == Muerto) guerrero.aumentarEnergia(40) else guerrero
 }
 
-case class AtacarCon(ataque : Ataque) extends Movimiento {
+case class AtacarCon(ataque: Ataque) extends Movimiento {
   def apply(atacante: Guerrero, oponente: Guerrero): (Guerrero, Guerrero) = ataque(atacante, oponente)
 }
 
@@ -116,28 +115,28 @@ sealed trait Ataque extends Movimiento
 sealed trait Fisico extends Ataque
 
 sealed trait DeEnergia extends Ataque {
-  override def apply(atacante : Guerrero, oponente: Guerrero) : (Guerrero, Guerrero) = {
-    if(puedeRealizarla(atacante))
-      if(oponente.raza.isInstanceOf[Androide])
-      this.realizarAtaque(atacante, oponente, consumeLaEnergia)
+  override def apply(atacante: Guerrero, oponente: Guerrero): (Guerrero, Guerrero) = {
+    if (puedeRealizarla(atacante))
+      if (oponente.raza.isInstanceOf[Androide])
+        this.realizarAtaque(atacante, oponente, consumeLaEnergia)
       else this.realizarAtaque(atacante, oponente, laEnergiaLoDania)
     else (atacante, oponente)
   }
 
-  def laEnergiaLoDania(danio : Int , oponente : Guerrero) : Guerrero = oponente.disminuirEnergia(danio)
+  def laEnergiaLoDania(danio: Int, oponente: Guerrero): Guerrero = oponente.disminuirEnergia(danio)
 
-  def consumeLaEnergia(aumento : Int, oponente: Guerrero) : Guerrero = oponente.aumentarEnergia(aumento)
+  def consumeLaEnergia(aumento: Int, oponente: Guerrero): Guerrero = oponente.aumentarEnergia(aumento)
 
-  def realizarAtaque(atacante: Guerrero, oponente : Guerrero, efectoEnElOponente: (Int, Guerrero) => Guerrero) : (Guerrero, Guerrero)
+  def realizarAtaque(atacante: Guerrero, oponente: Guerrero, efectoEnElOponente: (Int, Guerrero) => Guerrero): (Guerrero, Guerrero)
 
-  def puedeRealizarla(guerrero: Guerrero) : Boolean
+  def puedeRealizarla(guerrero: Guerrero): Boolean
 }
 
 case object MuchosGolpesNinja extends Fisico {
   override def apply(atacante: Guerrero, oponente: Guerrero): (Guerrero, Guerrero) = {
     (atacante.raza, oponente.raza) match {
-      case (razaAtacante:Humano, razaOponente:Androide) => (atacante.disminuirEnergia(10), oponente)
-      case (_,_) => List(atacante, oponente).maxBy(g => g.energia) match {
+      case (razaAtacante: Humano, razaOponente: Androide) => (atacante.disminuirEnergia(10), oponente)
+      case (_, _) => List(atacante, oponente).maxBy(g => g.energia) match {
         case `atacante` => (atacante, oponente.disminuirEnergia(20))
         case `oponente` => (atacante.disminuirEnergia(20), oponente)
       }
@@ -148,16 +147,16 @@ case object MuchosGolpesNinja extends Fisico {
 case object Explotar extends Fisico {
   override def apply(atacante: Guerrero, oponente: Guerrero): (Guerrero, Guerrero) = {
     atacante.raza match {
-      case raza:Androide => disminuirEnergiaPorExplosion(atacante, oponente, atacante.energia*3)
-      case raza:Monstruo => disminuirEnergiaPorExplosion(atacante, oponente, atacante.energia*2)
+      case raza: Androide => disminuirEnergiaPorExplosion(atacante, oponente, atacante.energia * 3)
+      case raza: Monstruo => disminuirEnergiaPorExplosion(atacante, oponente, atacante.energia * 2)
       case _ => (atacante, oponente)
     }
   }
 
-  private def disminuirEnergiaPorExplosion(atacante : Guerrero, oponente : Guerrero, energiaImpacto: Int) : (Guerrero, Guerrero) = {
+  private def disminuirEnergiaPorExplosion(atacante: Guerrero, oponente: Guerrero, energiaImpacto: Int): (Guerrero, Guerrero) = {
     val atacanteMuerto = atacante.disminuirEnergia(atacante.energia)
     oponente.raza match {
-      case raza:Namekusein => (atacanteMuerto, oponente.disminuirEnergia((oponente.energia - 1).min(energiaImpacto)))
+      case raza: Namekusein => (atacanteMuerto, oponente.disminuirEnergia((oponente.energia - 1).min(energiaImpacto)))
       case _ => (atacanteMuerto, oponente.disminuirEnergia(energiaImpacto))
     }
   }
@@ -166,23 +165,24 @@ case object Explotar extends Fisico {
 abstract class Onda() extends DeEnergia {
   override def puedeRealizarla(atacante: Guerrero): Boolean = atacante.energia >= this.energiaDelAtaquePara(atacante) // si es igual queda muerto
 
-  def energiaDelAtaquePara(guerrero : Guerrero) : Int
+  def energiaDelAtaquePara(guerrero: Guerrero): Int
 
-  override def realizarAtaque(atacante: Guerrero, oponente : Guerrero, efectoEnElOponente: (Int, Guerrero) => Guerrero) : (Guerrero, Guerrero) = {
+  override def realizarAtaque(atacante: Guerrero, oponente: Guerrero, efectoEnElOponente: (Int, Guerrero) => Guerrero): (Guerrero, Guerrero) = {
     oponente.raza match {
-      case raza:Monstruo => (consumirEnergia(atacante), efectoEnElOponente(modificadorMonstruo(energiaDelAtaquePara(atacante)), oponente))
+      case raza: Monstruo => (consumirEnergia(atacante), efectoEnElOponente(modificadorMonstruo(energiaDelAtaquePara(atacante)), oponente))
       case _ => (consumirEnergia(atacante), efectoEnElOponente(modificadorOtraRaza(energiaDelAtaquePara(atacante)), oponente))
     }
   }
 
-  protected def modificadorMonstruo(energiaOriginal : Int) : Int = energiaOriginal / 2
-  protected def modificadorOtraRaza(energiaOriginal : Int) : Int = energiaOriginal * 2
+  protected def modificadorMonstruo(energiaOriginal: Int): Int = energiaOriginal / 2
 
-  def consumirEnergia(guerrero: Guerrero) : Guerrero = guerrero.disminuirEnergia(this.energiaDelAtaquePara(guerrero))
+  protected def modificadorOtraRaza(energiaOriginal: Int): Int = energiaOriginal * 2
+
+  def consumirEnergia(guerrero: Guerrero): Guerrero = guerrero.disminuirEnergia(this.energiaDelAtaquePara(guerrero))
 }
 
 case object Kamehameha extends Onda {
-  override def energiaDelAtaquePara(atacante: Guerrero) : Int = 80
+  override def energiaDelAtaquePara(atacante: Guerrero): Int = 80
 }
 
 case object Kienzan extends Onda {
@@ -194,12 +194,13 @@ case object Finalflash extends Onda {
 }
 
 case object Genkidama extends Onda {
-  override def modificadorMonstruo(energiaOriginal : Int ) : Int = energiaOriginal
-  override def modificadorOtraRaza(energiaOriginal : Int ) : Int = energiaOriginal
+  override def modificadorMonstruo(energiaOriginal: Int): Int = energiaOriginal
+
+  override def modificadorOtraRaza(energiaOriginal: Int): Int = energiaOriginal
 
   override def puedeRealizarla(atacante: Guerrero): Boolean = atacante.roundsQueSeDejoFajar > 0
 
-  override def energiaDelAtaquePara(atacante : Guerrero): Int = math.pow(10, atacante.roundsQueSeDejoFajar).toInt
+  override def energiaDelAtaquePara(atacante: Guerrero): Int = math.pow(10, atacante.roundsQueSeDejoFajar).toInt
 
   override def realizarAtaque(atacante: Guerrero, oponente: Guerrero, efectoEnElOponente: (Int, Guerrero) => Guerrero): (Guerrero, Guerrero) = {
     val (nuevoAtacante, nuevoOponente) = super.realizarAtaque(atacante, oponente, efectoEnElOponente)

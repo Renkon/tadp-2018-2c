@@ -3,16 +3,18 @@ package dragonBall
 import scala.util.{Success, Try}
 
 
-case class Guerrero(nombre : String,
+case class Guerrero(nombre: String,
                     estado: Estado = Ok,
-                    energia: Int, raza : Raza,
-                    items : List[Item] = List(),
-                    movimientos : List[Movimiento] = List(),
-                    roundsQueSeDejoFajar : Int = 0) {
+                    energia: Int, raza: Raza,
+                    items: List[Item] = List(),
+                    movimientos: List[Movimiento] = List(),
+                    roundsQueSeDejoFajar: Int = 0) {
 
-  require(nombre.nonEmpty)
-  require(energia >= 0)
-  require(roundsQueSeDejoFajar >= 0)
+  require(nombre.nonEmpty, "El guerrero debe poseer un nombre")
+  require(energia >= 0, "La energia del guerrero no puede ser un numero negativo")
+  require(roundsQueSeDejoFajar >= 0, "El numero de veces que se fajo al guerrero no puede ser un nuemero negativo")
+
+  def energiaMaxima(): Int = this.raza.energiaMaxima
 
   def seDejoFajar(): Guerrero = this.copy(roundsQueSeDejoFajar = roundsQueSeDejoFajar + 1)
 
@@ -61,7 +63,7 @@ case class Guerrero(nombre : String,
     }
   }
 
-  def eliminarItem(item : Item) : Guerrero = {
+  def eliminarItem(item: Item): Guerrero = {
     this.copy(items = this.items.filter(i => !i.eq(item)))
   }
 
@@ -70,14 +72,14 @@ case class Guerrero(nombre : String,
   def esparcirEsferas(): Guerrero = this.copy(items = items.filter(i => !i.isInstanceOf[EsferaDelDragon]))
 
   def cantidadDeItems(): Int = items.size + {
-    if(this.municion().isDefined) this.municion().get.asInstanceOf[Municion].cantidadActual - 1 else 0
+    if (this.municion().isDefined) this.municion().get.asInstanceOf[Municion].cantidadActual - 1 else 0
   } // el -1 es para que el objeto Municion(1) no cuente 2 veces (una por el objeto y otra por la cantidad de municion)
 
   // Punto 1 -----------------------------------------------------------------------
   def movimientoMasEfectivoContra(oponente: Guerrero, unCriterio: CriterioSeleccionDeMovimiento): Option[Movimiento] = {
-   Try(this.movimientos.maxBy(unCriterio(this, oponente))) match {
-     case Success(mejorMovimiento) if unCriterio(this, oponente)(mejorMovimiento) > 0  => Some(mejorMovimiento)
-     case _ => None
+    Try(this.movimientos.maxBy(unCriterio(this, oponente))) match {
+      case Success(mejorMovimiento) if unCriterio(this, oponente)(mejorMovimiento) > 0 => Some(mejorMovimiento)
+      case _ => None
     }
   }
 
@@ -87,12 +89,12 @@ case class Guerrero(nombre : String,
     val contraataQueMasEfectivo = oponenteAfectado.movimientoMasEfectivoContra(atacanteLuegoDelMovimiento, LoDejaConMayorVentajaEnKi)
     val (atacanteResultante, oponenteResultante) = oponenteAfectado.contraAtacar(atacanteLuegoDelMovimiento, contraataQueMasEfectivo).swap // swapeo al final porque en el contraataque se invirtieron los roles
     ResultadoDeRound(movimientoInicialAtacante = movimientoElegido,
-                     movimientoContraataqueOponente = contraataQueMasEfectivo,
-                     estadoFinalAtacante = atacanteResultante,
-                     estadoFinalOponente = oponenteResultante)
+      movimientoContraataqueOponente = contraataQueMasEfectivo,
+      estadoFinalAtacante = atacanteResultante,
+      estadoFinalOponente = oponenteResultante)
   }
 
-  private def contraAtacar(oponente: Guerrero, contraataQueMasEfectivo: Option[Movimiento]) : (Guerrero, Guerrero) = {
+  private def contraAtacar(oponente: Guerrero, contraataQueMasEfectivo: Option[Movimiento]): (Guerrero, Guerrero) = {
     contraataQueMasEfectivo match {
       case Some(mov) => this.realizarMovimientoContra(mov, oponente)
       case None if movimientos.nonEmpty => this.realizarMovimientoContra(movimientos.head, oponente) // si no tiene uno mas efectivo, realiza el primero
@@ -101,17 +103,17 @@ case class Guerrero(nombre : String,
   }
 
   // Punto 3 -----------------------------------------------------------------------
-  def planDeAtaqueContra(oponente : Guerrero, criterioSeleccionDeMovimiento: CriterioSeleccionDeMovimiento, cantidadDeRounds : Int) : Option[List[Movimiento]] = {
+  def planDeAtaqueContra(oponente: Guerrero, criterioSeleccionDeMovimiento: CriterioSeleccionDeMovimiento, cantidadDeRounds: Int): Option[List[Movimiento]] = {
     Some(List.fill(cantidadDeRounds - 1)(1).foldLeft(List(pelearUnRound(movimientoMasEfectivoContra(oponente, criterioSeleccionDeMovimiento).getOrElse(return None), oponente)))((listaDeResultados, _) => {
       listaDeResultados :+ listaDeResultados.head.estadoFinalAtacante.pelearUnRound(listaDeResultados.head.estadoFinalAtacante.movimientoMasEfectivoContra(listaDeResultados.head.estadoFinalOponente, criterioSeleccionDeMovimiento).getOrElse(return None), listaDeResultados.head.estadoFinalOponente)
     }).map(unResultado => unResultado.movimientoInicialAtacante))
   }
 
   // Punto 4 -----------------------------------------------------------------------
-  def pelearContra(oponente: Guerrero, planDeAtaque : List[Movimiento]) : ResultadoDePelea = {
+  def pelearContra(oponente: Guerrero, planDeAtaque: List[Movimiento]): ResultadoDePelea = {
     planDeAtaque.tail.foldLeft(ResultadoDePelea(pelearUnRound(planDeAtaque.head, oponente)))((resultadoDePelea, movimientoDelRound) => {
       resultadoDePelea match {
-        case huboGanador @ Ganador(_) => huboGanador
+        case huboGanador@Ganador(_) => huboGanador
         case SigueElCombate(atacanteProximoRound, oponenteProximoRound) =>
           ResultadoDePelea(atacanteProximoRound.pelearUnRound(movimientoDelRound, oponenteProximoRound))
       }
