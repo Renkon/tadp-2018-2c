@@ -26,6 +26,12 @@ class ProjectSpec extends FreeSpec with Matchers {
         }
         assertTypeError("El numero de veces que se fajo al guerrero no puede ser un nuemero negativo")
       }
+
+      "Cuando queres instnciar una esfera del dragon con un numero superior a 7 debe fallar" in {
+        intercept[IllegalArgumentException] {
+          EsferaDelDragon(numero = 20)
+        }
+      }
     }
 
     "CargarKi test" - {

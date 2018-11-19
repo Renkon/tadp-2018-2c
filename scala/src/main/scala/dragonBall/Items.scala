@@ -4,9 +4,6 @@ sealed trait Item {
   def apply(atacante: Guerrero, oponente: Guerrero): (Guerrero, Guerrero)
 }
 
-/* ------- A partir de aca inician los Items ------- */
-
-
 /* Inicio  semillas*/
 
 object SemillaDelHermitanio extends Item {
@@ -16,8 +13,8 @@ object SemillaDelHermitanio extends Item {
   }
 
 }
-/* Fin semillas */
 
+/* Fin semillas */
 
 
 /* Inicio Armas */
@@ -72,7 +69,7 @@ case class Municion(var cantidadActual: Int) extends Item {
   }
 
   private def gastarUnaMunicion(items: List[Item]): List[Item] = {
-    val listaSinMuniciones = items.filter( item => item != this )
+    val listaSinMuniciones = items.filter(item => item != this)
 
     if (this.esUltimaMunicion)
       listaSinMuniciones
@@ -80,7 +77,7 @@ case class Municion(var cantidadActual: Int) extends Item {
       Municion(cantidadActual - 1) :: listaSinMuniciones
   }
 
-  private def esUltimaMunicion():Boolean = {
+  private def esUltimaMunicion(): Boolean = {
     return cantidadActual == 1
   }
 }
@@ -89,16 +86,18 @@ case class Municion(var cantidadActual: Int) extends Item {
 
 
 
+/* Inicio Foto */
 case object FotoDeLaLuna extends Item {
   def apply(atacante: Guerrero, oponente: Guerrero): (Guerrero, Guerrero) = (atacante, oponente)
 }
+/* Fin Foto */
 
+
+/* Inicio Esferas */
 case class EsferaDelDragon(numero: Int) extends Item {
-  require(numero > 0 && numero < 8)
-
+  require(numero > 0 && numero < 8, "El numero de esfera debe ser entre 1 y 7")
   def apply(atacante: Guerrero, oponente: Guerrero): (Guerrero, Guerrero) = (atacante, oponente)
-} // No me gasto en hacer que haya unicamente 7 esferas y controlar que dos guerreros
-// no pueden tener la primerEsfera porque no lo pide el enunciado
+}
 
 package object EsferasDelDragon {
   val primera = EsferaDelDragon(1)
@@ -111,14 +110,11 @@ package object EsferasDelDragon {
 
   val todasLasEsferas = List(primera, segunda, tercera, cuarta, quinta, sexta, septima)
 }
+/* Fin Esferas */
 
 
-
-
-
-// Notas de Correcciones:
-
-/*
+/* Notas de Correcciones:
+*
 *  1) Al final quedamos con Juan que usar el item municion significa gastarla, no importa para que,
 *     y usar el item arma de fuego significa que si tenes municion te gasta una Y aparte con ella produce el daño al enemigo.
 *
