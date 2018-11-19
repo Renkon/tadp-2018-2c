@@ -76,6 +76,7 @@ class ProjectSpec extends FreeSpec with Matchers {
         yamchaIgual shouldBe yamcha
       }
 
+      // ver este test
       "cuando alguien inconsciente quiere comer una semilla de hermitanio, todo bien" in {
         val (gokuRecuperado, androideIgual) = UsarItem(SemillaDelHermitanio)(goku, androide17)
         gokuRecuperado.energia shouldBe gokuRecuperado.raza.energiaMaxima
@@ -83,35 +84,51 @@ class ProjectSpec extends FreeSpec with Matchers {
       }
 
       // Item Generico
-      "cuando un humano quiere usar un item que no tiene, no sucede nada, y su oponente queda igual" in {
+      "Cuando un humano quiere usar un item que no tiene, no sucede nada, y su oponente queda igual" in {
         val (yamchaIgual, satanIgual) = UsarItem(SemillaDelHermitanio)(yamcha, mrSatan)
         yamchaIgual shouldBe yamcha
         satanIgual shouldBe mrSatan
       }
 
       // Arma de fuego
-      "cuando un humano quiere usar un arma de fuego contra alguien pero no la tiene no pasa nada, y su oponente queda igual" in {
+      "Cuando un humano quiere usar un arma de fuego contra alguien pero no la tiene no pasa nada, y su oponente queda igual" in {
         val (yamchaIgual, pikoloIgual) = UsarItem(ArmaDeFuego)(yamcha, pikolo)
         yamchaIgual shouldBe yamcha
         pikoloIgual shouldBe pikolo
       }
 
-      "cuando un humano quiere usar un arma de fuego contra alguien pero no tiene municion, no pasa nada" in {
+      "Cuando un humano quiere usar un arma de fuego contra alguien pero no tiene municion, no pasa nada" in {
         val yamchaArmado = yamcha.agregarItem(ArmaDeFuego)
         val (yamchaIgual, pikoloIgual) = UsarItem(ArmaDeFuego)(yamchaArmado, pikolo)
         yamchaIgual shouldBe yamchaArmado
         pikoloIgual shouldBe pikolo
       }
 
-      "cuando un humano quiere usar un arma de fuego contra mr satan, este queda en cero y yamcha queda con 1 menos de municion" in {
+      "Cuando un humano quiere usar un arma de fuego se gasta una municion" in {
         val municionOriginal = 10
         val yamchaArmadoConMunicion = yamcha.agregarItem(ArmaDeFuego).agregarItem(Municion(municionOriginal))
         val (nuevoYamcha, nuevoSatan) = UsarItem(ArmaDeFuego)(yamchaArmadoConMunicion, mrSatan)
-        nuevoSatan.energia shouldBe 0
-        (nuevoYamcha.municion().get).asInstanceOf[Municion].cantidadActual shouldBe (municionOriginal - 1) // FEO
+
+        nuevoYamcha.municion().get.cantidadActual shouldBe (municionOriginal - 1)
       }
 
-      // TODO cuando alguien se queda sin municiones, luego, la municion deja de ser uno de sus items
+      "Cuando un humano quiere usar un arma de fuego y gasta su ultima municion deja de tener la munision entre sus items" in {
+        val municionOriginal = 1
+        val yamchaArmadoConMunicion = yamcha.agregarItem(ArmaDeFuego).agregarItem(Municion(municionOriginal))
+        val cantidadOriginaDeItems = yamchaArmadoConMunicion.items.size
+
+        val (nuevoYamcha, nuevoSatan) = UsarItem(ArmaDeFuego)(yamchaArmadoConMunicion, mrSatan)
+
+        nuevoYamcha.items.size shouldBe (cantidadOriginaDeItems - 1)
+      }
+
+      "Cuando un humano usa un arma de fuego sobre otro, el oponente recibe el danio" in {
+        val municionOriginal = 10
+        val yamchaArmadoConMunicion = yamcha.agregarItem(ArmaDeFuego).agregarItem(Municion(municionOriginal))
+        val (nuevoYamcha, nuevoSatan) = UsarItem(ArmaDeFuego)(yamchaArmadoConMunicion, mrSatan)
+
+        nuevoSatan.energia shouldBe 0
+      }
 
       // Arma Roma
       "cuando un humano quiere usar un arma roma contra un androide, ambos quedan igual" in {
@@ -530,7 +547,7 @@ class ProjectSpec extends FreeSpec with Matchers {
 
       "goku no puede realizar la Genkidama si se dejo fajar 2 veces pero luego queda muerto" in {
         val (gokuFajado2Veces, _) = (DejarseFajar andThen DejarseFajar) (goku, majinBuu)
-        val gokuInconsciente = gokuFajado2Veces.murio()
+        val gokuInconsciente = gokuFajado2Veces.morir()
         gokuInconsciente.roundsQueSeDejoFajar shouldBe 0
       }
 

@@ -27,10 +27,10 @@ case class Guerrero(nombre: String,
   def disminuirEnergia(decremento: Int): Guerrero = {
     require(decremento >= 0)
     val nuevoGuerrero = this.copy(energia = 0.max(this.energia - decremento))
-    if (nuevoGuerrero.energia == 0) nuevoGuerrero.murio() else nuevoGuerrero
+    if (nuevoGuerrero.energia == 0) nuevoGuerrero.morir() else nuevoGuerrero
   }
 
-  def murio(): Guerrero = {
+  def morir(): Guerrero = {
     raza.murio(this.copy(roundsQueSeDejoFajar = 0))
   }
 
