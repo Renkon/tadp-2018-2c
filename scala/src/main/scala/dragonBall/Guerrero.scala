@@ -71,13 +71,7 @@ case class Guerrero(nombre: String,
 
   def esparcirEsferas(): Guerrero = this.copy(items = items.filter(i => !i.isInstanceOf[EsferaDelDragon]))
 
-  def usarItem(item: Item, oponente: Guerrero): (Guerrero, Guerrero) = {
-    (item, estado) match {
-      case (SemillaDelHermitanio, _) => item.apply(this, oponente)
-      case (_, Inconsciente) => (this, oponente)
-      case (_, _) => item.apply(this, oponente)
-    }
-  }
+  def usarItem(item: Item, oponente: Guerrero): (Guerrero, Guerrero) = item.apply(this, oponente)
 
 
   /* Movimientos */
