@@ -24,7 +24,7 @@ object ArmaRoma extends Item {
   def apply(atacante: Guerrero, oponente: Guerrero): (Guerrero, Guerrero) = {
     oponente.raza match {
       case raza: Androide => (atacante, oponente)
-      case _ => (atacante, if (oponente.energia < 300) oponente.quedoInconsciente() else oponente)
+      case _ => (atacante, if (oponente.energia < 300) oponente.quedarInconsciente() else oponente)
     }
   }
 

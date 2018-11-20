@@ -10,42 +10,14 @@ case class Guerrero(nombre: String,
                     movimientos: List[Movimiento] = List(),
                     roundsQueSeDejoFajar: Int = 0) {
 
+  /* Validaciones */
   require(nombre.nonEmpty, "El guerrero debe poseer un nombre")
   require(energia >= 0, "La energia del guerrero no puede ser un numero negativo")
   require(roundsQueSeDejoFajar >= 0, "El numero de veces que se fajo al guerrero no puede ser un nuemero negativo")
 
+
+  /* "Accesors" */
   def energiaMaxima(): Int = this.raza.energiaMaxima
-
-  def seDejoFajar(): Guerrero = this.copy(roundsQueSeDejoFajar = roundsQueSeDejoFajar + 1)
-
-  def aumentarEnergia(incremento: Int): Guerrero = {
-    require(incremento >= 0)
-    val nuevoGuerrero = this.copy(energia = this.raza.energiaMaxima.min(this.energia + incremento))
-    if (nuevoGuerrero.estado == Muerto && nuevoGuerrero.energia > 0) nuevoGuerrero.copy(estado = Ok) else nuevoGuerrero
-  }
-
-  def disminuirEnergia(decremento: Int): Guerrero = {
-    require(decremento >= 0)
-    val nuevoGuerrero = this.copy(energia = 0.max(this.energia - decremento))
-    if (nuevoGuerrero.energia == 0) nuevoGuerrero.morir() else nuevoGuerrero
-  }
-
-  def morir(): Guerrero = {
-    raza.murio(this.copy(roundsQueSeDejoFajar = 0))
-  }
-
-  def quedoInconsciente(): Guerrero = {
-    raza.quedoInconsciente(this.copy(roundsQueSeDejoFajar = 0))
-  }
-
-  def realizarMovimientoContra(movimiento: Movimiento, oponente: Guerrero): (Guerrero, Guerrero) = {
-    if (tieneMovimiento(movimiento)) (this.estado, movimiento) match {
-      case (Ok, _) => movimiento(this, oponente) // la Genkidama se encarga de limpiar las veces que fue fajado
-      case (_, UsarItem(SemillaDelHermitanio)) => movimiento(this.copy(roundsQueSeDejoFajar = 0), oponente)
-      case (_, _) => (this, oponente)
-    }
-    else (this.copy(roundsQueSeDejoFajar = 0), oponente) // en el caso de que el movimiento no haga efecto, igual le descuento las veces que se dejo fajar.
-  }
 
   def tieneMovimiento(movimiento: Movimiento): Boolean = movimientos.contains(movimiento)
 
@@ -53,7 +25,51 @@ case class Guerrero(nombre: String,
 
   def municion(): Option[Municion] = this.items.collect { case municion@Municion(_) => municion }.headOption
 
+  def tieneTodasLasEsferasDelDragon(): Boolean = EsferasDelDragon.todasLasEsferas.forall(items.contains)
+
+  def cantidadDeItems(): Int = items.size + {
+    if (this.municion().isDefined) this.municion().get.asInstanceOf[Municion].cantidadActual - 1 else 0
+  } // el -1 es para que el objeto Municion(1) no cuente 2 veces (una por el objeto y otra por la cantidad de municion)
+
+
+  /* Copys */
+  def dejarseFajar(): Guerrero = this.copy(roundsQueSeDejoFajar = roundsQueSeDejoFajar + 1)
+
+  def aumentarEnergia(incremento: Int): Guerrero = {
+    require(incremento >= 0)
+
+    val nuevoGuerrero = this.copy(energia = this.raza.energiaMaxima.min(this.energia + incremento))
+
+    if (nuevoGuerrero.estado == Muerto && nuevoGuerrero.energia > 0)
+      nuevoGuerrero.copy(estado = Ok)
+    else
+      nuevoGuerrero
+  }
+
+  def disminuirEnergia(decremento: Int): Guerrero = {
+    require(decremento >= 0)
+
+    val nuevoGuerrero = this.copy(energia = 0.max(this.energia - decremento))
+
+    if (nuevoGuerrero.energia == 0)
+      nuevoGuerrero.morir()
+    else
+      nuevoGuerrero
+  }
+
+  def morir(): Guerrero = raza.murio(this.copy(roundsQueSeDejoFajar = 0))
+
+  def quedarInconsciente(): Guerrero = raza.quedoInconsciente(this.copy(roundsQueSeDejoFajar = 0))
+
+
+  /* Manejo de Items */
   def agregarItem(item: Item): Guerrero = copy(items = item :: items)
+
+  def eliminarItem(item: Item): Guerrero = {
+    this.copy(items = this.items.filter(i => !i.eq(item)))
+  }
+
+  def esparcirEsferas(): Guerrero = this.copy(items = items.filter(i => !i.isInstanceOf[EsferaDelDragon]))
 
   def usarItem(item: Item, oponente: Guerrero): (Guerrero, Guerrero) = {
     (item, estado) match {
@@ -63,17 +79,19 @@ case class Guerrero(nombre: String,
     }
   }
 
-  def eliminarItem(item: Item): Guerrero = {
-    this.copy(items = this.items.filter(i => !i.eq(item)))
+
+  /* Movimientos */
+  def realizarMovimientoContra(movimiento: Movimiento, oponente: Guerrero): (Guerrero, Guerrero) = {
+    if (tieneMovimiento(movimiento)) (this.estado, movimiento) match {
+      case (Ok, DejarseFajar) => movimiento(this, oponente)
+      case (Ok, AtacarCon(Genkidama)) => movimiento(this, oponente)
+      case (Ok, _) => movimiento(this.copy(roundsQueSeDejoFajar = 0), oponente)
+      case (_, UsarItem(SemillaDelHermitanio)) => movimiento(this.copy(roundsQueSeDejoFajar = 0), oponente)
+      case (_, _) => (this, oponente)
+    }
+    else (this.copy(roundsQueSeDejoFajar = 0), oponente) // en el caso de que el movimiento no haga efecto, igual le descuento las veces que se dejo fajar.
   }
 
-  def tieneTodasLasEsferasDelDragon(): Boolean = EsferasDelDragon.todasLasEsferas.forall(items.contains)
-
-  def esparcirEsferas(): Guerrero = this.copy(items = items.filter(i => !i.isInstanceOf[EsferaDelDragon]))
-
-  def cantidadDeItems(): Int = items.size + {
-    if (this.municion().isDefined) this.municion().get.asInstanceOf[Municion].cantidadActual - 1 else 0
-  } // el -1 es para que el objeto Municion(1) no cuente 2 veces (una por el objeto y otra por la cantidad de municion)
 
   // Punto 1 -----------------------------------------------------------------------
   def movimientoMasEfectivoContra(oponente: Guerrero, unCriterio: CriterioSeleccionDeMovimiento): Option[Movimiento] = {

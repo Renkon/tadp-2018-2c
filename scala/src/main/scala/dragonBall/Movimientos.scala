@@ -13,11 +13,12 @@ class MovimientoCompuesto(primero: Movimiento, segundo: Movimiento) extends Movi
   }
 }
 
-object DejarseFajar extends Movimiento {
-  def apply(atacante: Guerrero, oponente: Guerrero): (Guerrero, Guerrero) = (atacante.seDejoFajar(), oponente)
+
+case object DejarseFajar extends Movimiento {
+  def apply(atacante: Guerrero, oponente: Guerrero): (Guerrero, Guerrero) = (atacante.dejarseFajar(), oponente)
 }
 
-object CargarKi extends Movimiento {
+case object CargarKi extends Movimiento {
   def apply(atacante: Guerrero, oponente: Guerrero): (Guerrero, Guerrero) = {
     atacante.raza match {
       case raza: Saiyajin => (atacante.aumentarEnergia(150 * raza.nivelDeFase), oponente)
@@ -81,6 +82,8 @@ case class UsarMagia(efectoSobreAtacante: EfectoMagico, efectoSobreOponente: Efe
   }
 }
 
+/* Efectos magicos */
+
 sealed trait EfectoMagico {
   def apply(guerrero: Guerrero): Guerrero
 }
@@ -98,7 +101,7 @@ case object Matar extends EfectoMagico {
 }
 
 case object ConvertirEnChocolate extends EfectoMagico {
-  override def apply(guerrero: Guerrero): Guerrero = guerrero.quedoInconsciente()
+  override def apply(guerrero: Guerrero): Guerrero = guerrero.quedarInconsciente()
 }
 
 case object RevivirAKrilin extends EfectoMagico {
@@ -109,6 +112,9 @@ case object RevivirAKrilin extends EfectoMagico {
 case class AtacarCon(ataque: Ataque) extends Movimiento {
   def apply(atacante: Guerrero, oponente: Guerrero): (Guerrero, Guerrero) = ataque(atacante, oponente)
 }
+
+
+/* Ataques De distintos tipos*/
 
 sealed trait Ataque extends Movimiento
 
@@ -161,6 +167,9 @@ case object Explotar extends Fisico {
     }
   }
 }
+
+
+/* Ataques de ondas */
 
 abstract class Onda() extends DeEnergia {
   override def puedeRealizarla(atacante: Guerrero): Boolean = atacante.energia >= this.energiaDelAtaquePara(atacante) // si es igual queda muerto
