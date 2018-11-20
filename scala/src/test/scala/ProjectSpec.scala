@@ -36,12 +36,12 @@ class ProjectSpec extends FreeSpec with Matchers {
 
     "CargarKi test" - {
 
-      val goku = Guerrero(nombre = "goku", energia = 40, raza = Saiyajin())
+      val goku = Guerrero(nombre = "goku", energia = 40, raza = Saiyajin(fase = Normal))
       val androide17 = Guerrero(nombre = "androide 17", energia = 40, raza = Androide())
       val yamcha = Guerrero(nombre = "yamcha", energia = 25, raza = Humano())
       val pikolo = Guerrero(nombre = "pikolo", energia = 35, raza = Namekusein())
 
-      "cuando un guerrero saiyajin con 40 de energia inicial y nivelSS = 1 carga ki entonces su eneria es la original mas 150, y el oponente no debe verse afetado" in {
+      "Cuando un guerrero saiyajin con 40 de energia inicial y nivelSS = 1 carga ki entonces su energia es la original mas , y el oponente no debe verse afetado" in {
         val (gokuConMasKi, yamchaIgual) = CargarKi(goku, yamcha)
         gokuConMasKi.energia shouldBe (goku.energia + 150)
         yamchaIgual shouldBe yamcha
@@ -68,24 +68,28 @@ class ProjectSpec extends FreeSpec with Matchers {
       val mrSatan = Guerrero(nombre = "mr satan", energia = 5, raza = Humano())
 
       // Semilla del hermitanio
-      "cuando un guerrero saiyajin con 50 puntos menos que su maximo se come una semilla del hermitanio, su valor de energia se restaura al maximo y pierde la semilla, y su oponente queda igual" in {
-        val gokuDaniado = goku.aumentarEnergia(goku.raza.energiaMaxima - goku.energia).disminuirEnergia(50)
+      "Cuando un guerrero saiyajin con 50 puntos menos que su maximo se come una semilla del hermitanio, " +
+        "su valor de energia se restaura al maximo y pierde la semilla, y su oponente queda igual" in {
+        val ene = goku.energiaMaxima()
+        val gokuDaniado = goku.copy(energia = goku.energiaMaxima() - 50)
         val (gokuRecuperado, yamchaIgual) = UsarItem(SemillaDelHermitanio)(gokuDaniado, yamcha)
-        gokuRecuperado.energia shouldBe goku.raza.energiaMaxima
+
+        gokuRecuperado.energia shouldBe goku.energiaMaxima()
         gokuRecuperado.items should not contain SemillaDelHermitanio
+
         yamchaIgual shouldBe yamcha
       }
 
       "cuando un androide come una semilla del hermitanio, su energia se restaura al maximo" in { // el enunciado dice cualquier guerrero
         val (androide17Recuperado, yamchaIgual) = UsarItem(SemillaDelHermitanio)(androide17, yamcha)
-        androide17Recuperado.energia shouldBe androide17.raza.energiaMaxima
+        androide17Recuperado.energia shouldBe androide17.energiaMaxima
         yamchaIgual shouldBe yamcha
       }
 
       // ver este test
       "cuando alguien inconsciente quiere comer una semilla de hermitanio, todo bien" in {
         val (gokuRecuperado, androideIgual) = UsarItem(SemillaDelHermitanio)(goku, androide17)
-        gokuRecuperado.energia shouldBe gokuRecuperado.raza.energiaMaxima
+        gokuRecuperado.energia shouldBe gokuRecuperado.energiaMaxima
         androideIgual shouldBe androide17
       }
 
@@ -146,7 +150,7 @@ class ProjectSpec extends FreeSpec with Matchers {
 
       "cuando un humano quiere usar un arma roma contra un no-andoide con mas de 300 de energia, ambos quedan igual" in {
         val yamchaArmado = yamcha.agregarItem(ArmaRoma)
-        val gokuConMasEnergiaMaxima = goku.copy(energia = 500, raza = Saiyajin(fase = SSJFase3))
+        val gokuConMasEnergiaMaxima = goku.copy(energia = 500, raza = Saiyajin(fase = SuperSaiyan(3)))
         val (nuevoYamcha, nuevoGoku) = UsarItem(ArmaRoma)(yamchaArmado, gokuConMasEnergiaMaxima)
         nuevoYamcha shouldBe yamchaArmado
         nuevoGoku shouldBe gokuConMasEnergiaMaxima
@@ -169,12 +173,12 @@ class ProjectSpec extends FreeSpec with Matchers {
 
       "cuando un namekusein con mucha energia quiere usar un arma filosa contra un saiyajin CON COLA, el saiyajin queda sin cola, con la misma fase, y en 1 de energia" in {
         val pikoloCon330ConNavaja = pikolo.copy(energia = 330, raza = Namekusein(), items = List(ArmaFilosa))
-        val gokuConColaFaseSS1 = goku.copy(raza = Saiyajin(SSJFase1, tieneCola = true))
+        val gokuConColaFaseSS1 = goku.copy(raza = Saiyajin(fase = SuperSaiyan(1), tieneCola = true))
         val (nuevoPikolo, nuevoGoku) = UsarItem(ArmaFilosa)(pikoloCon330ConNavaja, gokuConColaFaseSS1)
         nuevoPikolo shouldBe pikoloCon330ConNavaja
         nuevoGoku.energia shouldBe 1
         nuevoGoku.raza match {
-          case raza: Saiyajin => (raza.tieneCola, raza.fase) shouldBe ((false, SSJFase1))
+          case raza: Saiyajin => (raza.tieneCola, raza.fase) shouldBe ((false, SuperSaiyan(1)))
           case _ => // para que no salte un warning
         }
       }
@@ -193,12 +197,12 @@ class ProjectSpec extends FreeSpec with Matchers {
 
       "cuando un namekusein con mucha energia quiere usar un arma filosa contra un saiyajin SIN COLA y cualquier fase, el saiyajin queda sin cola, con la misma fase, y en 1 de energia" in {
         val pikoloCon330ConNavaja = pikolo.copy(energia = 330, raza = Namekusein(), items = List(ArmaFilosa))
-        val gokuConColaFaseSS1 = goku.copy(raza = Saiyajin(fase = SSJFase2, tieneCola = false))
+        val gokuConColaFaseSS1 = goku.copy(raza = Saiyajin(fase = SuperSaiyan(2), tieneCola = false))
         val (nuevoPikolo, nuevoGoku) = UsarItem(ArmaFilosa)(pikoloCon330ConNavaja, gokuConColaFaseSS1)
         nuevoPikolo shouldBe pikoloCon330ConNavaja
         nuevoGoku.energia shouldBe (gokuConColaFaseSS1.energia - 3)
         nuevoGoku.raza match {
-          case raza: Saiyajin => (raza.tieneCola, raza.fase) shouldBe ((false, SSJFase2))
+          case raza: Saiyajin => (raza.tieneCola, raza.fase) shouldBe ((false, SuperSaiyan(2)))
           case _ => // para que no salte un warning
         }
       }
@@ -290,8 +294,9 @@ class ProjectSpec extends FreeSpec with Matchers {
       "cuando gokuGT quiere transformarse en mono, y tiene la foto de la luna, todo bien" in {
         val gokuConFoto = gokuGT.copy(items = List(FotoDeLaLuna))
         val (gokuMono, gohanIgual) = ConvertirseEnMono(gokuConFoto, gohan)
+
         gokuMono.raza match {
-          case raza: Saiyajin => (gokuMono.energia, raza.fase, raza.energiaMaxima) shouldBe(raza.energiaMaxima, Mono, gokuGT.raza.energiaMaxima * 3)
+          case s@Saiyajin(_,_) => s.fase shouldBe Mono
           case _ =>
         }
         gohanIgual shouldBe gohan
@@ -300,10 +305,11 @@ class ProjectSpec extends FreeSpec with Matchers {
       "cuando gohan quiere transformarse en mono, y tiene la foto de la luna, no puede porque no tiene cola" in {
         val gohanConFoto = gohan.copy(items = List(FotoDeLaLuna))
         val (gohanIgual, gokuIgual) = ConvertirseEnMono(gohanConFoto, gokuGT)
+
         gohanIgual.raza match {
-          case raza: Saiyajin => (gohanIgual.energia, raza.fase, raza.energiaMaxima) shouldBe(gohan.energia, Normal, gohan.raza.energiaMaxima)
-          case _ =>
+          case s@Saiyajin(fase,_) => s.fase shouldBe Normal
         }
+
         gokuIgual shouldBe gokuGT
       }
 
@@ -332,43 +338,53 @@ class ProjectSpec extends FreeSpec with Matchers {
         gohanIgual shouldBe gohan
       }
 
-      "cuando un saiyajin normal se transforma a fase1, su energia maxima se quintuplica pero su ki queda igual" in {
-        val energiaInicial = (gokuGT.raza.energiaMaxima / 2) + 10
-        val gokuGTConMasKi = gokuGT.copy(energia = energiaInicial)
+      "cuando un saiyajin normal se transforma a fase 1, su energia maxima aumenta pero su ki queda igual" in {
+        val energiaMaximaInicial = gokuGT.energiaMaxima
+        val gokuGTConMasKi = gokuGT.copy(energia = energiaMaximaInicial)
+
         val (gokuGTSSJFase1, gohanIgual) = ConvertirseEnSuperSaiyajin(gokuGTConMasKi, gohan)
-        gokuGTSSJFase1.energia shouldBe energiaInicial
+
+        gokuGTSSJFase1.energiaMaxima() shouldBe (5 * 1 * 350)
+        gokuGTSSJFase1.energia shouldBe gokuGTConMasKi.energia
         gokuGTSSJFase1.raza match {
-          case raza: Saiyajin => (raza.fase, raza.energiaMaxima) shouldBe(SSJFase1, SSJFase1.energiaMaxima)
+          case s@Saiyajin(_,_) => s.fase shouldBe SuperSaiyan(1)
           case _ =>
         }
         gohanIgual shouldBe gohan
       }
 
       "cuando un saiyajin normal se transforma a fase1 y luego a fase2, su energia maxima original se multiplica por 10, y su ki se mantiene" in {
-        val energiaInicial = (gokuGT.raza.energiaMaxima / 2) + 10
-        val gokuGTConMasKi = gokuGT.copy(energia = energiaInicial)
+        val gokuGTConMasKi = gokuGT.copy(energia = 1500)
+
         val (gokuGTSSJFase1, gohanIgual) = ConvertirseEnSuperSaiyajin(gokuGTConMasKi, gohan)
-        val energiaParaSSJ2 = energiaInicial * 5
-        val gokuGTSSJ1ConMasKi = gokuGTSSJFase1.copy(energia = energiaParaSSJ2)
-        val (gokuGTSSJFase2, gohanDeNuevoIgual) = ConvertirseEnSuperSaiyajin(gokuGTSSJ1ConMasKi, gohanIgual)
-        gokuGTSSJFase2.energia shouldBe energiaParaSSJ2
+        val (gokuGTSSJFase2, _) = ConvertirseEnSuperSaiyajin(gokuGTSSJFase1, gohanIgual)
+
+        gokuGTSSJFase2.energia shouldBe gokuGTConMasKi.energia
+
         gokuGTSSJFase2.raza match {
-          case raza: Saiyajin => (raza.fase, raza.energiaMaxima) shouldBe(SSJFase2, SSJFase2.energiaMaxima)
-          case _ =>
+          case s@Saiyajin(_,_) => s.fase shouldBe SuperSaiyan(2)
         }
-        gohanDeNuevoIgual shouldBe (gohan)
+
+        gokuGTSSJFase2.energiaMaxima() shouldBe (5 * 2 * 350)
       }
 
-      "cuando un saiyajin faseX se transforma en mono, su estado ssj se pierde, es decir, tu energia maxima pasa a ser la correspondiente al estado mono, y su ki aumenta al maximo" in {
-        val gokuGTSSJ3 = gokuGT.copy(raza = Saiyajin(fase = SSJFase3, tieneCola = true), items = List(FotoDeLaLuna))
-        gokuGTSSJ3.raza.energiaMaxima shouldBe SSJFase3.energiaMaxima
+      "Cuando un saiyajin fase X se transforma en mono, su estado ssj se pierde," +
+        " es decir, tu energia maxima pasa a ser la correspondiente al estado mono, y su ki aumenta al maximo" in {
+        val gokuGTSSJ3 = gokuGT.copy(raza = Saiyajin(fase = SuperSaiyan(3), tieneCola = true), items = List(FotoDeLaLuna))
+
         val (gokuMono, gohanIgual) = ConvertirseEnMono(gokuGTSSJ3, gohan)
-        gokuMono.raza.energiaMaxima shouldBe Mono.energiaMaxima
+
+        gokuMono.raza match {
+          case s@Saiyajin(_,_) => s.fase shouldBe Mono
+        }
+
+        gokuMono.energiaMaxima shouldBe (3 * 5 * 350)
+
         gohanIgual shouldBe gohan
       }
 
       "cuando un saiyajin faseX queda inconsciente, su estado ssj se pierde, vuelve a Normal" in {
-        val gokuGTSSJ3 = gokuGT.copy(raza = Saiyajin(fase = SSJFase3))
+        val gokuGTSSJ3 = gokuGT.copy(raza = Saiyajin(fase = SuperSaiyan(3)))
         val gokuGTInconsciente = gokuGTSSJ3.quedarInconsciente()
         gokuGTInconsciente.raza match {
           case raza: Saiyajin => raza.fase shouldBe Normal
@@ -392,7 +408,7 @@ class ProjectSpec extends FreeSpec with Matchers {
       "goku puede fusionarse con paikuhan y el resultado tiene la suma de sus energias y energiasMaximas" in {
         val (gokuHan, androideIgual) = FusionarseCon(paiKuHan)(goku, androide17)
         gokuHan.energia shouldBe (goku.energia + paiKuHan.energia)
-        gokuHan.raza.energiaMaxima shouldBe (goku.raza.energiaMaxima + paiKuHan.raza.energiaMaxima)
+        gokuHan.energiaMaxima shouldBe (goku.energiaMaxima + paiKuHan.energiaMaxima)
         assert(gokuHan.raza.isInstanceOf[Fusionado])
       }
 
@@ -418,6 +434,12 @@ class ProjectSpec extends FreeSpec with Matchers {
       val krilin = Guerrero(nombre = "krilin", energia = 25, raza = Humano())
       val pikolo = Guerrero(nombre = "pikolo", energia = 35, raza = Namekusein())
       val majinBuu = Guerrero(nombre = "cell", energia = 50, raza = Monstruo(DigestionMajinBuu), movimientos = List())
+
+      // FIXME Porque esto no anda?
+      type NoHacerNada = EfectoMagico
+      object NoHacerNada2  {
+        def apply(guerrero: Guerrero): Guerrero = guerrero
+      }
 
       "un guerrero sin las esferas del dragon no puede realizar magia" in {
         val (gokuIgual, gohanIgual) = UsarMagia(efectoSobreAtacante = NoHacerNada, efectoSobreOponente = ObtenerSemillaDelErmitanio)(goku, gohan)
@@ -475,7 +497,7 @@ class ProjectSpec extends FreeSpec with Matchers {
       }
 
       //Explotar
-      val gohanAlMaximo = gohan.aumentarEnergia(gohan.raza.energiaMaxima - gohan.energia)
+      val gohanAlMaximo = gohan.aumentarEnergia(gohan.energiaMaxima())
       val pikolo = Guerrero(nombre = "pikolo", energia = 35, raza = Namekusein())
       val cell = Guerrero(nombre = "cell", energia = 50, raza = Monstruo(DigestionCell), movimientos = List())
 
@@ -570,8 +592,8 @@ class ProjectSpec extends FreeSpec with Matchers {
   }
 
   "Punto 1 - mejorMovimientoContra" - {
-    val gokuSSJ1 = Guerrero(nombre = "goku", energia = 100, raza = Saiyajin(fase = SSJFase1), movimientos = List(AtacarCon(Genkidama), AtacarCon(Kamehameha), UsarItem(ArmaFilosa)), items = List(ArmaFilosa))
-    val vegetaSSJ1 = Guerrero(nombre = "vegeta", energia = 100, raza = Saiyajin(fase = SSJFase1))
+    val gokuSSJ1 = Guerrero(nombre = "goku", energia = 100, raza = Saiyajin(fase = SuperSaiyan(1)), movimientos = List(AtacarCon(Genkidama), AtacarCon(Kamehameha), UsarItem(ArmaFilosa)), items = List(ArmaFilosa))
+    val vegetaSSJ1 = Guerrero(nombre = "vegeta", energia = 100, raza = Saiyajin(fase = SuperSaiyan(1)))
     val krilin = Guerrero(nombre = "krilin", energia = 25, raza = Humano(), movimientos = List(CargarKi, UsarItem(ArmaRoma)), items = List(ArmaRoma))
     val androide18 = Guerrero(nombre = "androide 17", energia = 40, raza = Androide(), movimientos = List(Explotar, AtacarCon(MuchosGolpesNinja)))
     val majinBuu = Guerrero(nombre = "majinBuu", energia = 200, raza = Monstruo(DigestionMajinBuu), movimientos = List(UsarMagia(NoHacerNada, ConvertirEnChocolate), ComerseAlOponente, AtacarCon(MuchosGolpesNinja)))
@@ -619,7 +641,7 @@ class ProjectSpec extends FreeSpec with Matchers {
   }
 
   "Punto 2 - pelearRound" - {
-    val gokuSSJ1 = Guerrero(nombre = "goku", energia = 100, raza = Saiyajin(fase = SSJFase1), movimientos = List(AtacarCon(Genkidama), AtacarCon(Kamehameha), UsarItem(ArmaFilosa)), items = List(ArmaFilosa))
+    val gokuSSJ1 = Guerrero(nombre = "goku", energia = 100, raza = Saiyajin(fase = SuperSaiyan(1)), movimientos = List(AtacarCon(Genkidama), AtacarCon(Kamehameha), UsarItem(ArmaFilosa)), items = List(ArmaFilosa))
     val majinBuu = Guerrero(nombre = "majinBuu", energia = 200, raza = Monstruo(DigestionMajinBuu), movimientos = List(UsarMagia(NoHacerNada, ConvertirEnChocolate), ComerseAlOponente, AtacarCon(MuchosGolpesNinja)))
     val krilin = Guerrero(nombre = "krilin", energia = 85, raza = Humano(), movimientos = List(AtacarCon(Kienzan), CargarKi, UsarItem(ArmaRoma)), items = List(ArmaRoma))
     val androide18 = Guerrero(nombre = "androide 17", energia = 150, raza = Androide(), movimientos = List(Explotar, AtacarCon(MuchosGolpesNinja)))
@@ -666,8 +688,8 @@ class ProjectSpec extends FreeSpec with Matchers {
     }
   }
 
-  "Punto 3 - planDeAtaqueContra" - {
-    val yajirobe = Guerrero(nombre = "yajirobe", energia = Humano().energiaMaxima, raza = Humano(), items = List(ArmaFilosa, SemillaDelHermitanio), movimientos = List(UsarItem(ArmaFilosa), UsarItem(SemillaDelHermitanio)))
+  "Punto 3 - planDeAtaqueContra" - { // fixme
+    val yajirobe = Guerrero(nombre = "yajirobe", energia = 42, raza = Humano(), items = List(ArmaFilosa, SemillaDelHermitanio), movimientos = List(UsarItem(ArmaFilosa), UsarItem(SemillaDelHermitanio)))
     val cell = Guerrero(nombre = "cell", energia = 160, raza = Monstruo(DigestionCell), movimientos = List(AtacarCon(Kamehameha)))
     val majinBuu = Guerrero(nombre = "majinBuu", energia = 200, raza = Monstruo(DigestionMajinBuu), movimientos = List(UsarMagia(NoHacerNada, ConvertirEnChocolate), ComerseAlOponente, AtacarCon(MuchosGolpesNinja)))
     val goku = Guerrero(nombre = "goku", energia = 200, raza = Saiyajin(), movimientos = List(AtacarCon(Kamehameha)))
@@ -682,10 +704,10 @@ class ProjectSpec extends FreeSpec with Matchers {
   }
 
   "Punto 4 - pelearContra" - {
-    val goku = Guerrero(nombre = "goku", energia = Saiyajin().energiaMaxima, raza = Saiyajin(), movimientos = List(AtacarCon(Genkidama), AtacarCon(Kamehameha), AtacarCon(MuchosGolpesNinja)))
-    val vegeta = Guerrero(nombre = "vegeta", energia = Saiyajin().energiaMaxima, raza = Saiyajin(), movimientos = List(AtacarCon(Finalflash), AtacarCon(MuchosGolpesNinja)))
-    val yajirobe = Guerrero(nombre = "yajirobe", energia = Humano().energiaMaxima, raza = Humano(), items = List(ArmaFilosa, SemillaDelHermitanio), movimientos = List(UsarItem(ArmaFilosa), UsarItem(SemillaDelHermitanio)))
-    val mrSatan = Guerrero(nombre = "mr satan", energia = Humano().energiaMaxima, raza = Humano(), movimientos = List(UsarItem(ArmaDeFuego), AtacarCon(MuchosGolpesNinja)), items = List(ArmaDeFuego, Municion(1)))
+    val goku = Guerrero(nombre = "goku", energia = 42, raza = Saiyajin(), movimientos = List(AtacarCon(Genkidama), AtacarCon(Kamehameha), AtacarCon(MuchosGolpesNinja)))
+    val vegeta = Guerrero(nombre = "vegeta", energia = 42, raza = Saiyajin(), movimientos = List(AtacarCon(Finalflash), AtacarCon(MuchosGolpesNinja)))
+    val yajirobe = Guerrero(nombre = "yajirobe", energia = 42, raza = Humano(), items = List(ArmaFilosa, SemillaDelHermitanio), movimientos = List(UsarItem(ArmaFilosa), UsarItem(SemillaDelHermitanio)))
+    val mrSatan = Guerrero(nombre = "mr satan", energia = 42, raza = Humano(), movimientos = List(UsarItem(ArmaDeFuego), AtacarCon(MuchosGolpesNinja)), items = List(ArmaDeFuego, Municion(1)))
 
     //"si pasas un plan vacio no rompe" // TODO
 
@@ -703,10 +725,10 @@ class ProjectSpec extends FreeSpec with Matchers {
       //round 1 : goku -> kamehameha (le gasta 80 a el y 160 a vegeta), vegeta -> finalflash (le gasta 70 a el y 140 a goku) => (goku 130, vegeta 120)
       //round 2 : goku-> genkidama (mata a vegeta, se habia dejado fajar 3 veces asi que le saca 1000), vegeta -> nada => (goku 130, vegeta 0)
 
-     // goku.pelearContra(vegeta, List(AtacarCon(Kamehameha), DejarseFajar, DejarseFajar, DejarseFajar, AtacarCon(Genkidama))) match {
+      // goku.pelearContra(vegeta, List(AtacarCon(Kamehameha), DejarseFajar, DejarseFajar, DejarseFajar, AtacarCon(Genkidama))) match {
       //  case Ganador(guerrero) => (guerrero.nombre, guerrero.energia) shouldBe(goku.nombre, 130)
-     //   case _ => fail("el ganador deberia ser goku")
-     // }
+      //   case _ => fail("el ganador deberia ser goku")
+      // }
 
       // TODO : esto ya no funciona asi como se plantea, hayq eu arreglar este test, pero hay que revisar primero el punto 2
     }

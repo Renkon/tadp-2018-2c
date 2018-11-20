@@ -14,6 +14,32 @@ class MovimientoCompuesto(primero: Movimiento, segundo: Movimiento) extends Movi
 }
 
 
+case class AtacarCon(ataque: Ataque) extends Movimiento {
+  def apply(atacante: Guerrero, oponente: Guerrero): (Guerrero, Guerrero) = ataque(atacante, oponente)
+}
+
+case class FusionarseCon(compañeroDeFusion: Guerrero) extends Movimiento {
+  def apply(atacante: Guerrero, oponente: Guerrero): (Guerrero, Guerrero) = {
+    (atacante.raza, compañeroDeFusion.raza) match {
+      case (razaAtacante: Fusionable, razaCompaniero: Fusionable) =>
+        (atacante.copy(raza = Fusionado(atacante, compañeroDeFusion)).aumentarEnergia(compañeroDeFusion.energia), oponente)
+      case (_, _) => (atacante, oponente)
+    }
+  }
+}
+
+case class UsarMagia(efectoSobreAtacante: EfectoMagico, efectoSobreOponente: EfectoMagico) extends Movimiento {
+  def apply(atacante: Guerrero, oponente: Guerrero): (Guerrero, Guerrero) = {
+    atacante.raza match {
+      case (_: Namekusein | _: Monstruo) => (efectoSobreAtacante(atacante), efectoSobreOponente(oponente))
+      case _ => if (atacante.tieneTodasLasEsferasDelDragon())
+        (efectoSobreAtacante(atacante).esparcirEsferas(), efectoSobreOponente(oponente))
+      else (atacante, oponente)
+    }
+  }
+}
+
+
 case object DejarseFajar extends Movimiento {
   def apply(atacante: Guerrero, oponente: Guerrero): (Guerrero, Guerrero) = (atacante.dejarseFajar(), oponente)
 }
@@ -61,26 +87,6 @@ object ConvertirseEnSuperSaiyajin extends Movimiento {
   }
 }
 
-case class FusionarseCon(compañeroDeFusion: Guerrero) extends Movimiento {
-  def apply(atacante: Guerrero, oponente: Guerrero): (Guerrero, Guerrero) = {
-    (atacante.raza, compañeroDeFusion.raza) match {
-      case (razaAtacante: Fusionable, razaCompaniero: Fusionable) =>
-        (atacante.copy(raza = Fusionado(atacante, compañeroDeFusion)).aumentarEnergia(compañeroDeFusion.energia), oponente)
-      case (_, _) => (atacante, oponente)
-    }
-  }
-}
-
-case class UsarMagia(efectoSobreAtacante: EfectoMagico, efectoSobreOponente: EfectoMagico) extends Movimiento {
-  def apply(atacante: Guerrero, oponente: Guerrero): (Guerrero, Guerrero) = {
-    atacante.raza match {
-      case (_: Namekusein | _: Monstruo) => (efectoSobreAtacante(atacante), efectoSobreOponente(oponente))
-      case _ => if (atacante.tieneTodasLasEsferasDelDragon())
-        (efectoSobreAtacante(atacante).esparcirEsferas(), efectoSobreOponente(oponente))
-      else (atacante, oponente)
-    }
-  }
-}
 
 /* Efectos magicos */
 
@@ -88,6 +94,7 @@ sealed trait EfectoMagico {
   def apply(guerrero: Guerrero): Guerrero
 }
 
+/* No se me ocurre como sacarlos de aca y declararlos en lso test.. onda si se me ocurre como peroo no puedo haerlos del tipo efectomagico*/
 case object NoHacerNada extends EfectoMagico {
   override def apply(guerrero: Guerrero): Guerrero = guerrero
 }
@@ -107,10 +114,6 @@ case object ConvertirEnChocolate extends EfectoMagico {
 case object RevivirAKrilin extends EfectoMagico {
   override def apply(guerrero: Guerrero): Guerrero =
     if (guerrero.nombre.contains("krilin") && guerrero.estado == Muerto) guerrero.aumentarEnergia(40) else guerrero
-}
-
-case class AtacarCon(ataque: Ataque) extends Movimiento {
-  def apply(atacante: Guerrero, oponente: Guerrero): (Guerrero, Guerrero) = ataque(atacante, oponente)
 }
 
 

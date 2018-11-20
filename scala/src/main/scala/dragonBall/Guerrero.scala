@@ -38,7 +38,7 @@ case class Guerrero(nombre: String,
   def aumentarEnergia(incremento: Int): Guerrero = {
     require(incremento >= 0)
 
-    val nuevoGuerrero = this.copy(energia = this.raza.energiaMaxima.min(this.energia + incremento))
+    val nuevoGuerrero = this.copy(energia = this.energiaMaxima.min(this.energia + incremento))
 
     if (nuevoGuerrero.estado == Muerto && nuevoGuerrero.energia > 0)
       nuevoGuerrero.copy(estado = Ok)

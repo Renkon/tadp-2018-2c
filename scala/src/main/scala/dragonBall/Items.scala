@@ -4,12 +4,12 @@ sealed trait Item {
   def apply(atacante: Guerrero, oponente: Guerrero): (Guerrero, Guerrero)
 }
 
-/* Inicio  semillas*/
+/* Inicio Semillas*/
 
 object SemillaDelHermitanio extends Item {
 
   def apply(atacante: Guerrero, oponente: Guerrero): (Guerrero, Guerrero) = {
-    (atacante.eliminarItem(this).aumentarEnergia(atacante.energiaMaxima - atacante.energia), oponente)
+    (atacante.eliminarItem(this).aumentarEnergia(atacante.energiaMaxima), oponente)
   }
 
 }
@@ -85,17 +85,17 @@ case class Municion(var cantidadActual: Int) extends Item {
 /* Fin armas */
 
 
-
 /* Inicio Foto */
 case object FotoDeLaLuna extends Item {
   def apply(atacante: Guerrero, oponente: Guerrero): (Guerrero, Guerrero) = (atacante, oponente)
 }
-/* Fin Foto */
 
+/* Fin Foto */
 
 /* Inicio Esferas */
 case class EsferaDelDragon(numero: Int) extends Item {
   require(numero > 0 && numero < 8, "El numero de esfera debe ser entre 1 y 7")
+
   def apply(atacante: Guerrero, oponente: Guerrero): (Guerrero, Guerrero) = (atacante, oponente)
 }
 
@@ -110,6 +110,7 @@ package object EsferasDelDragon {
 
   val todasLasEsferas = List(primera, segunda, tercera, cuarta, quinta, sexta, septima)
 }
+
 /* Fin Esferas */
 
 
