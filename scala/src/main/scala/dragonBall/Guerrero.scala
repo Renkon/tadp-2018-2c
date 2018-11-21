@@ -89,10 +89,11 @@ case class Guerrero(nombre: String,
 
   // Punto 1 -----------------------------------------------------------------------
   def movimientoMasEfectivoContra(oponente: Guerrero, unCriterio: CriterioSeleccionDeMovimiento): Option[Movimiento] = {
-    Try(this.movimientos.maxBy(unCriterio(this, oponente))) match {
-      case Success(mejorMovimiento) if unCriterio(this, oponente)(mejorMovimiento) > 0 => Some(mejorMovimiento)
-      case _ => None
-    }
+    Try(this.movimientos.filter(esMovimientoBuenoContra(oponente, unCriterio)).maxBy(unCriterio(this, oponente))).toOption
+  }
+
+  private def esMovimientoBuenoContra(oponente: Guerrero, unCriterio: CriterioSeleccionDeMovimiento)(movimiento: Movimiento): Boolean = {
+    unCriterio(this, oponente)(movimiento) > 0
   }
 
   // Punto 2 -----------------------------------------------------------------------
