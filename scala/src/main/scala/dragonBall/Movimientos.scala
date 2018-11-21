@@ -117,9 +117,7 @@ case object RevivirAKrilin extends EfectoMagico {
 }
 
 
-
 sealed trait Ataque extends Movimiento
-
 
 /* Ataques De distintos tipos*/
 
@@ -162,23 +160,13 @@ case object Explotar extends Fisico {
 sealed trait DeEnergia extends Ataque {
 
   override def apply(atacante: Guerrero, oponente: Guerrero): (Guerrero, Guerrero) = {
-
-    if (puedeRealizarla(atacante)) {
-      if (oponente.raza.isInstanceOf[Androide])
-        this.realizarAtaque(atacante, oponente, consumeLaEnergia)
-      else
-        this.realizarAtaque(atacante, oponente, laEnergiaLoDania)
-    }
-    else {
+    if (puedeRealizarla(atacante))
+      this.realizarAtaque(atacante, oponente)
+    else
       (atacante, oponente)
-    }
   }
 
-  def laEnergiaLoDania(danio: Int, oponente: Guerrero): Guerrero = oponente.disminuirEnergia(danio)
-
-  def consumeLaEnergia(aumento: Int, oponente: Guerrero): Guerrero = oponente.aumentarEnergia(aumento)
-
-  def realizarAtaque(atacante: Guerrero, oponente: Guerrero, efectoEnElOponente: (Int, Guerrero) => Guerrero): (Guerrero, Guerrero)
+  def realizarAtaque(atacante: Guerrero, oponente: Guerrero): (Guerrero, Guerrero)
 
   def puedeRealizarla(guerrero: Guerrero): Boolean
 }
@@ -188,12 +176,17 @@ abstract class Onda() extends DeEnergia {
 
   def energiaDelAtaquePara(guerrero: Guerrero): Int
 
-  override def realizarAtaque(atacante: Guerrero, oponente: Guerrero, efectoEnElOponente: (Int, Guerrero) => Guerrero): (Guerrero, Guerrero) = {
+  override def realizarAtaque(atacante: Guerrero, oponente: Guerrero): (Guerrero, Guerrero) = {
     oponente.raza match {
-      case raza: Monstruo => (consumirEnergia(atacante), efectoEnElOponente(modificadorMonstruo(energiaDelAtaquePara(atacante)), oponente))
-      case _ => (consumirEnergia(atacante), efectoEnElOponente(modificadorOtraRaza(energiaDelAtaquePara(atacante)), oponente))
+      case raza: Monstruo => (consumirEnergia(atacante), laEnergiaLoDania(modificadorMonstruo(energiaDelAtaquePara(atacante)), oponente))
+      case raza: Androide => (consumirEnergia(atacante), consumeLaEnergia(modificadorOtraRaza(energiaDelAtaquePara(atacante)), oponente))
+      case _ => (consumirEnergia(atacante), laEnergiaLoDania(modificadorOtraRaza(energiaDelAtaquePara(atacante)), oponente))
     }
   }
+
+  def laEnergiaLoDania(danio: Int, oponente: Guerrero): Guerrero = oponente.disminuirEnergia(danio)
+
+  def consumeLaEnergia(aumento: Int, oponente: Guerrero): Guerrero = oponente.aumentarEnergia(aumento)
 
   protected def modificadorMonstruo(energiaOriginal: Int): Int = energiaOriginal / 2
 
@@ -223,8 +216,8 @@ case object Genkidama extends Onda {
 
   override def energiaDelAtaquePara(atacante: Guerrero): Int = math.pow(10, atacante.roundsQueSeDejoFajar).toInt
 
-  override def realizarAtaque(atacante: Guerrero, oponente: Guerrero, efectoEnElOponente: (Int, Guerrero) => Guerrero): (Guerrero, Guerrero) = {
-    val (nuevoAtacante, nuevoOponente) = super.realizarAtaque(atacante, oponente, efectoEnElOponente)
+  override def realizarAtaque(atacante: Guerrero, oponente: Guerrero): (Guerrero, Guerrero) = {
+    val (nuevoAtacante, nuevoOponente) = super.realizarAtaque(atacante, oponente)
     (nuevoAtacante.copy(roundsQueSeDejoFajar = 0), nuevoOponente)
   }
 

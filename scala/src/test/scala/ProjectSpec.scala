@@ -296,7 +296,7 @@ class ProjectSpec extends FreeSpec with Matchers {
         val (gokuMono, gohanIgual) = ConvertirseEnMono(gokuConFoto, gohan)
 
         gokuMono.raza match {
-          case s@Saiyajin(_,_) => s.fase shouldBe Mono
+          case s@Saiyajin(_, _) => s.fase shouldBe Mono
           case _ =>
         }
         gohanIgual shouldBe gohan
@@ -307,7 +307,7 @@ class ProjectSpec extends FreeSpec with Matchers {
         val (gohanIgual, gokuIgual) = ConvertirseEnMono(gohanConFoto, gokuGT)
 
         gohanIgual.raza match {
-          case s@Saiyajin(fase,_) => s.fase shouldBe Normal
+          case s@Saiyajin(fase, _) => s.fase shouldBe Normal
         }
 
         gokuIgual shouldBe gokuGT
@@ -347,7 +347,7 @@ class ProjectSpec extends FreeSpec with Matchers {
         gokuGTSSJFase1.energiaMaxima() shouldBe (5 * 1 * 350)
         gokuGTSSJFase1.energia shouldBe gokuGTConMasKi.energia
         gokuGTSSJFase1.raza match {
-          case s@Saiyajin(_,_) => s.fase shouldBe SuperSaiyan(1)
+          case s@Saiyajin(_, _) => s.fase shouldBe SuperSaiyan(1)
           case _ =>
         }
         gohanIgual shouldBe gohan
@@ -362,7 +362,7 @@ class ProjectSpec extends FreeSpec with Matchers {
         gokuGTSSJFase2.energia shouldBe gokuGTConMasKi.energia
 
         gokuGTSSJFase2.raza match {
-          case s@Saiyajin(_,_) => s.fase shouldBe SuperSaiyan(2)
+          case s@Saiyajin(_, _) => s.fase shouldBe SuperSaiyan(2)
         }
 
         gokuGTSSJFase2.energiaMaxima() shouldBe (5 * 2 * 350)
@@ -375,7 +375,7 @@ class ProjectSpec extends FreeSpec with Matchers {
         val (gokuMono, gohanIgual) = ConvertirseEnMono(gokuGTSSJ3, gohan)
 
         gokuMono.raza match {
-          case s@Saiyajin(_,_) => s.fase shouldBe Mono
+          case s@Saiyajin(_, _) => s.fase shouldBe Mono
         }
 
         gokuMono.energiaMaxima shouldBe (3 * 5 * 350)
@@ -437,7 +437,7 @@ class ProjectSpec extends FreeSpec with Matchers {
 
       // FIXME Porque esto no anda?
       type NoHacerNada = EfectoMagico
-      object NoHacerNada2  {
+      object NoHacerNada2 {
         def apply(guerrero: Guerrero): Guerrero = guerrero
       }
 
@@ -725,10 +725,10 @@ class ProjectSpec extends FreeSpec with Matchers {
       //round 1 : goku -> kamehameha (le gasta 80 a el y 160 a vegeta), vegeta -> finalflash (le gasta 70 a el y 140 a goku) => (goku 130, vegeta 120)
       //round 2 : goku-> genkidama (mata a vegeta, se habia dejado fajar 3 veces asi que le saca 1000), vegeta -> nada => (goku 130, vegeta 0)
       val gokuSagaMajinBoo = goku.copy(energia = Saiyajin().energiaMaxima(), movimientos = List(AtacarCon(Genkidama), AtacarCon(Kamehameha), AtacarCon(MuchosGolpesNinja), DejarseFajar))
-      val vegetaBabidi = vegeta.copy(movimientos = List(AtacarCon(Finalflash),DejarseFajar, AtacarCon(MuchosGolpesNinja), AtacarCon(MuchosGolpesNinja), DejarseFajar, AtacarCon(Finalflash), AtacarCon(MuchosGolpesNinja)))
+      val vegetaBabidi = vegeta.copy(movimientos = List(AtacarCon(Finalflash), DejarseFajar, AtacarCon(MuchosGolpesNinja), AtacarCon(MuchosGolpesNinja), DejarseFajar, AtacarCon(Finalflash), AtacarCon(MuchosGolpesNinja)))
 
       gokuSagaMajinBoo.pelearContra(vegetaBabidi, List(AtacarCon(Kamehameha), DejarseFajar, DejarseFajar, DejarseFajar, DejarseFajar, AtacarCon(Genkidama))) match {
-        case Ganador(guerrero) => (guerrero.nombre) shouldBe(goku.nombre)
+        case Ganador(guerrero) => (guerrero.nombre) shouldBe (goku.nombre)
         case _ => fail("el ganador deberia ser goku")
       }
     }

@@ -69,7 +69,7 @@ case class Guerrero(nombre: String,
     this.copy(items = this.items.filter(i => !i.eq(item)))
   }
 
-  def esparcirEsferas(): Guerrero = this.copy(items = items.filter {case EsferaDelDragon(_) => false } )
+  def esparcirEsferas(): Guerrero = this.copy(items = items.filter { case EsferaDelDragon(_) => false })
 
   def usarItem(item: Item, oponente: Guerrero): (Guerrero, Guerrero) = item.apply(this, oponente)
 
@@ -81,7 +81,8 @@ case class Guerrero(nombre: String,
       case (Ok, _) | (_, UsarItem(SemillaDelHermitanio)) => movimiento(this.copy(roundsQueSeDejoFajar = 0), oponente)
       case (_, _) => (this, oponente)
     }
-    else (this.copy(roundsQueSeDejoFajar = 0), oponente) // en el caso de que el movimiento no haga efecto, igual le descuento las veces que se dejo fajar.
+    else
+      (this.copy(roundsQueSeDejoFajar = 0), oponente)
   }
 
 
