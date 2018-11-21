@@ -689,7 +689,7 @@ class ProjectSpec extends FreeSpec with Matchers {
   }
 
   "Punto 3 - planDeAtaqueContra" - { // fixme
-    val yajirobe = Guerrero(nombre = "yajirobe", energia = 42, raza = Humano(), items = List(ArmaFilosa, SemillaDelHermitanio), movimientos = List(UsarItem(ArmaFilosa), UsarItem(SemillaDelHermitanio)))
+    val yajirobe = Guerrero(nombre = "yajirobe", energia = Humano().energiaMaxima, raza = Humano(), items = List(ArmaFilosa, SemillaDelHermitanio), movimientos = List(UsarItem(ArmaFilosa), UsarItem(SemillaDelHermitanio)))
     val cell = Guerrero(nombre = "cell", energia = 160, raza = Monstruo(DigestionCell), movimientos = List(AtacarCon(Kamehameha)))
     val majinBuu = Guerrero(nombre = "majinBuu", energia = 200, raza = Monstruo(DigestionMajinBuu), movimientos = List(UsarMagia(NoHacerNada, ConvertirEnChocolate), ComerseAlOponente, AtacarCon(MuchosGolpesNinja)))
     val goku = Guerrero(nombre = "goku", energia = 200, raza = Saiyajin(), movimientos = List(AtacarCon(Kamehameha)))
@@ -704,10 +704,10 @@ class ProjectSpec extends FreeSpec with Matchers {
   }
 
   "Punto 4 - pelearContra" - {
-    val goku = Guerrero(nombre = "goku", energia = 42, raza = Saiyajin(), movimientos = List(AtacarCon(Genkidama), AtacarCon(Kamehameha), AtacarCon(MuchosGolpesNinja)))
-    val vegeta = Guerrero(nombre = "vegeta", energia = 42, raza = Saiyajin(), movimientos = List(AtacarCon(Finalflash), AtacarCon(MuchosGolpesNinja)))
-    val yajirobe = Guerrero(nombre = "yajirobe", energia = 42, raza = Humano(), items = List(ArmaFilosa, SemillaDelHermitanio), movimientos = List(UsarItem(ArmaFilosa), UsarItem(SemillaDelHermitanio)))
-    val mrSatan = Guerrero(nombre = "mr satan", energia = 42, raza = Humano(), movimientos = List(UsarItem(ArmaDeFuego), AtacarCon(MuchosGolpesNinja)), items = List(ArmaDeFuego, Municion(1)))
+    val goku = Guerrero(nombre = "goku", energia = Saiyajin().energiaMaxima, raza = Saiyajin(), movimientos = List(AtacarCon(Genkidama), AtacarCon(Kamehameha), AtacarCon(MuchosGolpesNinja)))
+    val vegeta = Guerrero(nombre = "vegeta", energia = Saiyajin().energiaMaxima, raza = Saiyajin(), movimientos = List(AtacarCon(Finalflash), AtacarCon(MuchosGolpesNinja)))
+    val yajirobe = Guerrero(nombre = "yajirobe", energia = Humano().energiaMaxima, raza = Humano(), items = List(ArmaFilosa, SemillaDelHermitanio), movimientos = List(UsarItem(ArmaFilosa), UsarItem(SemillaDelHermitanio)))
+    val mrSatan = Guerrero(nombre = "mr satan", energia = Humano().energiaMaxima, raza = Humano(), movimientos = List(UsarItem(ArmaDeFuego), AtacarCon(MuchosGolpesNinja)), items = List(ArmaDeFuego, Municion(1)))
 
     //"si pasas un plan vacio no rompe" // TODO
 
