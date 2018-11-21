@@ -99,20 +99,21 @@ case class Guerrero(nombre: String,
   // Punto 2 -----------------------------------------------------------------------
   def pelearUnRound(movimientoElegido: Movimiento, oponente: Guerrero): ResultadoDeRound = {
     val (atacanteLuegoDelMovimiento, oponenteAfectado) = this.realizarMovimientoContra(movimientoElegido, oponente)
-    val contraataQueMasEfectivo = oponenteAfectado.movimientoMasEfectivoContra(atacanteLuegoDelMovimiento, LoDejaConMayorVentajaEnKi)
-    val (atacanteResultante, oponenteResultante) = oponenteAfectado.contraAtacar(atacanteLuegoDelMovimiento, contraataQueMasEfectivo).swap // swapeo al final porque en el contraataque se invirtieron los roles
+    val (oponenteResultante, atacanteResultante, contraataqueMasEfectivo) = oponenteAfectado.contraAtacar(atacanteLuegoDelMovimiento) // swapeo al final porque en el contraataque se invirtieron los roles
     ResultadoDeRound(movimientoInicialAtacante = movimientoElegido,
-      movimientoContraataqueOponente = contraataQueMasEfectivo,
+      movimientoContraataqueOponente = contraataqueMasEfectivo,
       estadoFinalAtacante = atacanteResultante,
       estadoFinalOponente = oponenteResultante)
   }
 
-  private def contraAtacar(oponente: Guerrero, contraataQueMasEfectivo: Option[Movimiento]): (Guerrero, Guerrero) = {
-    contraataQueMasEfectivo match {
+  private def contraAtacar(oponente: Guerrero): (Guerrero, Guerrero, Option[Movimiento]) = {
+    val contraataqueMasEfectivo = this.movimientoMasEfectivoContra(oponente, LoDejaConMayorVentajaEnKi)
+    val (atacanteResultante, oponenteResultante) = contraataqueMasEfectivo match {
       case Some(mov) => this.realizarMovimientoContra(mov, oponente)
       case None if movimientos.nonEmpty => this.realizarMovimientoContra(movimientos.head, oponente) // si no tiene uno mas efectivo, realiza el primero
       case _ => (this, oponente)
     }
+    (atacanteResultante, oponenteResultante, contraataqueMasEfectivo)
   }
 
   // Punto 3 -----------------------------------------------------------------------
