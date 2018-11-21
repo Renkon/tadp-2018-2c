@@ -28,7 +28,7 @@ case class Guerrero(nombre: String,
   def tieneTodasLasEsferasDelDragon(): Boolean = EsferasDelDragon.todasLasEsferas.forall(items.contains)
 
   def cantidadDeItems(): Int = items.size + {
-    if (this.municion().isDefined) this.municion().get.asInstanceOf[Municion].cantidadActual - 1 else 0
+    if (this.municion().isDefined) Try(this.municion().get.cantidadActual).get - 1 else 0
   } // el -1 es para que el objeto Municion(1) no cuente 2 veces (una por el objeto y otra por la cantidad de municion)
 
 
