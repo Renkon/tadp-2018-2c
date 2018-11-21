@@ -725,12 +725,11 @@ class ProjectSpec extends FreeSpec with Matchers {
       //round 1 : goku -> kamehameha (le gasta 80 a el y 160 a vegeta), vegeta -> finalflash (le gasta 70 a el y 140 a goku) => (goku 130, vegeta 120)
       //round 2 : goku-> genkidama (mata a vegeta, se habia dejado fajar 3 veces asi que le saca 1000), vegeta -> nada => (goku 130, vegeta 0)
 
-      // goku.pelearContra(vegeta, List(AtacarCon(Kamehameha), DejarseFajar, DejarseFajar, DejarseFajar, AtacarCon(Genkidama))) match {
-      //  case Ganador(guerrero) => (guerrero.nombre, guerrero.energia) shouldBe(goku.nombre, 130)
-      //   case _ => fail("el ganador deberia ser goku")
-      // }
+      goku.pelearContra(vegeta, List(AtacarCon(Kamehameha), DejarseFajar, DejarseFajar, DejarseFajar, AtacarCon(Genkidama))) match {
+        case Ganador(guerrero) => (guerrero.nombre, guerrero.energia) shouldBe(goku.nombre, 130)
+        case _ => fail("el ganador deberia ser goku")
+      }
 
-      // TODO : esto ya no funciona asi como se plantea, hayq eu arreglar este test, pero hay que revisar primero el punto 2
     }
 
     "mrSatan vs yajirobe: el combate no termina" in {
