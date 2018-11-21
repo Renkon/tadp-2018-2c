@@ -117,29 +117,13 @@ case object RevivirAKrilin extends EfectoMagico {
 }
 
 
-/* Ataques De distintos tipos*/
 
 sealed trait Ataque extends Movimiento
 
+
+/* Ataques De distintos tipos*/
+
 sealed trait Fisico extends Ataque
-
-sealed trait DeEnergia extends Ataque {
-  override def apply(atacante: Guerrero, oponente: Guerrero): (Guerrero, Guerrero) = {
-    if (puedeRealizarla(atacante))
-      if (oponente.raza.isInstanceOf[Androide])
-        this.realizarAtaque(atacante, oponente, consumeLaEnergia)
-      else this.realizarAtaque(atacante, oponente, laEnergiaLoDania)
-    else (atacante, oponente)
-  }
-
-  def laEnergiaLoDania(danio: Int, oponente: Guerrero): Guerrero = oponente.disminuirEnergia(danio)
-
-  def consumeLaEnergia(aumento: Int, oponente: Guerrero): Guerrero = oponente.aumentarEnergia(aumento)
-
-  def realizarAtaque(atacante: Guerrero, oponente: Guerrero, efectoEnElOponente: (Int, Guerrero) => Guerrero): (Guerrero, Guerrero)
-
-  def puedeRealizarla(guerrero: Guerrero): Boolean
-}
 
 case object MuchosGolpesNinja extends Fisico {
   override def apply(atacante: Guerrero, oponente: Guerrero): (Guerrero, Guerrero) = {
@@ -173,6 +157,31 @@ case object Explotar extends Fisico {
 
 
 /* Ataques de ondas */
+
+// fixme
+sealed trait DeEnergia extends Ataque {
+
+  override def apply(atacante: Guerrero, oponente: Guerrero): (Guerrero, Guerrero) = {
+
+    if (puedeRealizarla(atacante)) {
+      if (oponente.raza.isInstanceOf[Androide])
+        this.realizarAtaque(atacante, oponente, consumeLaEnergia)
+      else
+        this.realizarAtaque(atacante, oponente, laEnergiaLoDania)
+    }
+    else {
+      (atacante, oponente)
+    }
+  }
+
+  def laEnergiaLoDania(danio: Int, oponente: Guerrero): Guerrero = oponente.disminuirEnergia(danio)
+
+  def consumeLaEnergia(aumento: Int, oponente: Guerrero): Guerrero = oponente.aumentarEnergia(aumento)
+
+  def realizarAtaque(atacante: Guerrero, oponente: Guerrero, efectoEnElOponente: (Int, Guerrero) => Guerrero): (Guerrero, Guerrero)
+
+  def puedeRealizarla(guerrero: Guerrero): Boolean
+}
 
 abstract class Onda() extends DeEnergia {
   override def puedeRealizarla(atacante: Guerrero): Boolean = atacante.energia >= this.energiaDelAtaquePara(atacante) // si es igual queda muerto
@@ -219,5 +228,5 @@ case object Genkidama extends Onda {
     (nuevoAtacante.copy(roundsQueSeDejoFajar = 0), nuevoOponente)
   }
 
-  override def consumirEnergia(guerrero: Guerrero): Guerrero = guerrero // porque la energia es externa
+  override def consumirEnergia(guerrero: Guerrero): Guerrero = guerrero
 }
