@@ -117,9 +117,17 @@ case class Guerrero(nombre: String,
 
   // Punto 3 -----------------------------------------------------------------------
   def planDeAtaqueContra(oponente: Guerrero, criterioSeleccionDeMovimiento: CriterioSeleccionDeMovimiento, cantidadDeRounds: Int): Option[List[Movimiento]] = {
-    Some(List.fill(cantidadDeRounds - 1)(1).foldLeft(List(pelearUnRound(movimientoMasEfectivoContra(oponente, criterioSeleccionDeMovimiento).getOrElse(return None), oponente)))((listaDeResultados, _) => {
-      listaDeResultados :+ listaDeResultados.head.estadoFinalAtacante.pelearUnRound(listaDeResultados.head.estadoFinalAtacante.movimientoMasEfectivoContra(listaDeResultados.head.estadoFinalOponente, criterioSeleccionDeMovimiento).getOrElse(return None), listaDeResultados.head.estadoFinalOponente)
-    }).map(unResultado => unResultado.movimientoInicialAtacante))
+    Some(
+      List.fill(cantidadDeRounds - 1)(1).foldLeft(
+        List(pelearUnRound(movimientoMasEfectivoContra(oponente, criterioSeleccionDeMovimiento).getOrElse(return None), oponente))
+      )((resultados, _) => {
+        val atacanteNuevo = resultados.head.estadoFinalAtacante
+        val oponenteNuevo = resultados.head.estadoFinalOponente
+        resultados :+ atacanteNuevo.pelearUnRound(
+          atacanteNuevo.movimientoMasEfectivoContra(oponenteNuevo, criterioSeleccionDeMovimiento).getOrElse(return None),
+          oponenteNuevo)
+      }).map(resultado => resultado.movimientoInicialAtacante)
+    )
   }
 
   // Punto 4 -----------------------------------------------------------------------
