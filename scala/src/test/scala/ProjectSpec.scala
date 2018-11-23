@@ -410,7 +410,7 @@ class ProjectSpec extends FreeSpec with Matchers {
         gokuHan.energia shouldBe (goku.energia + paiKuHan.energia)
         gokuHan.energiaMaxima shouldBe (goku.energiaMaxima + paiKuHan.energiaMaxima)
         assert(gokuHan.raza.isInstanceOf[Fusionado])
-      } // FIXME
+      }
 
       "la fusion de goku y paikuhan al quedar inconsciente da como resultado a goku pero con la energia de la fusion" in {
         val (gokuHan, androideIgual) = FusionarseCon(paiKuHan)(goku, androide17)
@@ -434,12 +434,6 @@ class ProjectSpec extends FreeSpec with Matchers {
       val krilin = Guerrero(nombre = "krilin", energia = 25, raza = Humano())
       val pikolo = Guerrero(nombre = "pikolo", energia = 35, raza = Namekusein())
       val majinBuu = Guerrero(nombre = "cell", energia = 50, raza = Monstruo(DigestionMajinBuu), movimientos = List())
-
-      // FIXME Porque esto no anda?
-      type NoHacerNada = EfectoMagico
-      object NoHacerNada2 {
-        def apply(guerrero: Guerrero): Guerrero = guerrero
-      }
 
       "un guerrero sin las esferas del dragon no puede realizar magia" in {
         val (gokuIgual, gohanIgual) = UsarMagia(efectoSobreAtacante = NoHacerNada, efectoSobreOponente = ObtenerSemillaDelErmitanio)(goku, gohan)
@@ -689,7 +683,7 @@ class ProjectSpec extends FreeSpec with Matchers {
     }
   }
 
-  "Punto 3 - planDeAtaqueContra" - { // fixme
+  "Punto 3 - planDeAtaqueContra" - {
     val yajirobe = Guerrero(nombre = "yajirobe", energia = Humano().energiaMaxima, raza = Humano(), items = List(ArmaFilosa, SemillaDelHermitanio), movimientos = List(UsarItem(ArmaFilosa), UsarItem(SemillaDelHermitanio)))
     val cell = Guerrero(nombre = "cell", energia = 160, raza = Monstruo(DigestionCell), movimientos = List(AtacarCon(Kamehameha)))
     val majinBuu = Guerrero(nombre = "majinBuu", energia = 200, raza = Monstruo(DigestionMajinBuu), movimientos = List(UsarMagia(NoHacerNada, ConvertirEnChocolate), ComerseAlOponente, AtacarCon(MuchosGolpesNinja)))
