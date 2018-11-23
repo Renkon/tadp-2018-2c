@@ -1,6 +1,6 @@
 package dragonBall
 
-import scala.util.{Success, Try}
+import scala.util.Try
 
 
 case class Guerrero(nombre: String,
@@ -23,7 +23,7 @@ case class Guerrero(nombre: String,
 
   def tieneItem(item: Item): Boolean = items.contains(item)
 
-  def municion(): Option[Municion] = this.items.collect { case municion@Municion(_) => municion }.headOption
+  def municion(): Option[Municion] = this.items.collectFirst { case municion@Municion(_) => municion }
 
   def tieneTodasLasEsferasDelDragon(): Boolean = EsferasDelDragon.todasLasEsferas.forall(items.contains)
 
@@ -38,7 +38,7 @@ case class Guerrero(nombre: String,
   def aumentarEnergia(incremento: Int): Guerrero = {
     require(incremento >= 0)
 
-    val nuevoGuerrero = this.copy(energia = this.energiaMaxima.min(this.energia + incremento))
+    val nuevoGuerrero = this.copy(energia = this.energiaMaxima().min(this.energia + incremento))
 
     if (nuevoGuerrero.estado == Muerto && nuevoGuerrero.energia > 0)
       nuevoGuerrero.copy(estado = Ok)

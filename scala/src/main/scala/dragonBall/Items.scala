@@ -9,7 +9,7 @@ sealed trait Item {
 object SemillaDelHermitanio extends Item {
 
   def apply(atacante: Guerrero, oponente: Guerrero): (Guerrero, Guerrero) = {
-    (atacante.eliminarItem(this).aumentarEnergia(atacante.energiaMaxima), oponente)
+    (atacante.eliminarItem(this).aumentarEnergia(atacante.energiaMaxima()), oponente)
   }
 
 }
@@ -71,14 +71,14 @@ case class Municion(var cantidadActual: Int) extends Item {
   private def gastarUnaMunicion(items: List[Item]): List[Item] = {
     val listaSinMuniciones = items.filter(item => item != this)
 
-    if (this.esUltimaMunicion)
+    if (this.esUltimaMunicion())
       listaSinMuniciones
     else
       Municion(cantidadActual - 1) :: listaSinMuniciones
   }
 
   private def esUltimaMunicion(): Boolean = {
-    return cantidadActual == 1
+    cantidadActual == 1
   }
 }
 

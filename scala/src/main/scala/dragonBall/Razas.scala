@@ -28,7 +28,7 @@ case class Fusionado(guerreroOriginal: Guerrero, companieroDeFusion: Guerrero) e
 /* Inicio Saiyajin */
 case class Saiyajin(fase: Fase = Normal, tieneCola: Boolean = false) extends Raza with Fusionable {
 
-  override def energiaMaxima(): Int = 350 * fase.energiaBonusPorFase
+  override def energiaMaxima: Int = 350 * fase.energiaBonusPorFase
 
   def nivelDeFase(): Int = {
     this.fase match {

@@ -31,7 +31,7 @@ case class FusionarseCon(compañeroDeFusion: Guerrero) extends Movimiento {
 case class UsarMagia(efectoSobreAtacante: EfectoMagico, efectoSobreOponente: EfectoMagico) extends Movimiento {
   def apply(atacante: Guerrero, oponente: Guerrero): (Guerrero, Guerrero) = {
     atacante.raza match {
-      case (_: Namekusein | _: Monstruo) => (efectoSobreAtacante(atacante), efectoSobreOponente(oponente))
+      case _: Namekusein | _: Monstruo => (efectoSobreAtacante(atacante), efectoSobreOponente(oponente))
       case _ => if (atacante.tieneTodasLasEsferasDelDragon())
         (efectoSobreAtacante(atacante).esparcirEsferas(), efectoSobreOponente(oponente))
       else (atacante, oponente)

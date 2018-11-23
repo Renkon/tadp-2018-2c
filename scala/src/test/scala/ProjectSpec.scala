@@ -724,11 +724,11 @@ class ProjectSpec extends FreeSpec with Matchers {
     "goku vs vegeta: gana goku" in {
       //round 1 : goku -> kamehameha (le gasta 80 a el y 160 a vegeta), vegeta -> finalflash (le gasta 70 a el y 140 a goku) => (goku 130, vegeta 120)
       //round 2 : goku-> genkidama (mata a vegeta, se habia dejado fajar 3 veces asi que le saca 1000), vegeta -> nada => (goku 130, vegeta 0)
-      val gokuSagaMajinBoo = goku.copy(energia = Saiyajin().energiaMaxima(), movimientos = List(AtacarCon(Genkidama), AtacarCon(Kamehameha), AtacarCon(MuchosGolpesNinja), DejarseFajar))
+      val gokuSagaMajinBoo = goku.copy(energia = Saiyajin().energiaMaxima, movimientos = List(AtacarCon(Genkidama), AtacarCon(Kamehameha), AtacarCon(MuchosGolpesNinja), DejarseFajar))
       val vegetaBabidi = vegeta.copy(movimientos = List(AtacarCon(Finalflash), DejarseFajar, AtacarCon(MuchosGolpesNinja), AtacarCon(MuchosGolpesNinja), DejarseFajar, AtacarCon(Finalflash), AtacarCon(MuchosGolpesNinja)))
 
       gokuSagaMajinBoo.pelearContra(vegetaBabidi, List(AtacarCon(Kamehameha), DejarseFajar, DejarseFajar, DejarseFajar, DejarseFajar, AtacarCon(Genkidama))) match {
-        case Ganador(guerrero) => (guerrero.nombre) shouldBe (goku.nombre)
+        case Ganador(guerrero) => guerrero.nombre shouldBe goku.nombre
         case _ => fail("el ganador deberia ser goku")
       }
     }
@@ -739,10 +739,9 @@ class ProjectSpec extends FreeSpec with Matchers {
       //round 2 : satan -> muchos golpes ninja (lo afecta a el mismo, le saca 20), yajirobe -> arma filosa (le saca 3) => (mr satan 275, yajirobe 300)
 
       mrSatan.pelearContra(yajirobe, List(UsarItem(ArmaDeFuego), AtacarCon(MuchosGolpesNinja), AtacarCon(MuchosGolpesNinja))) match {
-        case SigueElCombate(atacante, oponente) => {
-          (atacante.nombre, atacante.energia) shouldBe(mrSatan.nombre, 275)
-          (oponente.nombre, oponente.energia) shouldBe(yajirobe.nombre, 300)
-        }
+        case SigueElCombate(atacante, oponente) =>
+          (atacante.nombre, atacante.energia) shouldBe (mrSatan.nombre, 275)
+          (oponente.nombre, oponente.energia) shouldBe (yajirobe.nombre, 300)
         case _ => fail("el combate deberia serguir")
       }
     }
