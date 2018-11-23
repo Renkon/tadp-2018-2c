@@ -641,6 +641,7 @@ class ProjectSpec extends FreeSpec with Matchers {
   }
 
   "Punto 2 - pelearRound" - {
+
     val gokuSSJ1 = Guerrero(nombre = "goku", energia = 100, raza = Saiyajin(fase = SuperSaiyan(1)), movimientos = List(AtacarCon(Genkidama), AtacarCon(Kamehameha), UsarItem(ArmaFilosa)), items = List(ArmaFilosa))
     val majinBuu = Guerrero(nombre = "majinBuu", energia = 200, raza = Monstruo(DigestionMajinBuu), movimientos = List(UsarMagia(NoHacerNada, ConvertirEnChocolate), ComerseAlOponente, AtacarCon(MuchosGolpesNinja)))
     val krilin = Guerrero(nombre = "krilin", energia = 85, raza = Humano(), movimientos = List(AtacarCon(Kienzan), CargarKi, UsarItem(ArmaRoma)), items = List(ArmaRoma))
@@ -749,3 +750,25 @@ class ProjectSpec extends FreeSpec with Matchers {
 
 }
 
+/* estos son algunos efectos mágicos usados en los tests */
+/* los mandamos acá porque no eran parte del dominio. son solo para pruebas */
+case object NoHacerNada extends EfectoMagico {
+  override def apply(guerrero: Guerrero): Guerrero = guerrero
+}
+
+case object ObtenerSemillaDelErmitanio extends EfectoMagico {
+  override def apply(guerrero: Guerrero): Guerrero = guerrero.copy(items = SemillaDelHermitanio :: guerrero.items)
+}
+
+case object Matar extends EfectoMagico {
+  override def apply(guerrero: Guerrero): Guerrero = guerrero.disminuirEnergia(guerrero.energia - guerrero.energia) // TODO se supone que le cambia el estado a Muerto
+}
+
+case object ConvertirEnChocolate extends EfectoMagico {
+  override def apply(guerrero: Guerrero): Guerrero = guerrero.quedarInconsciente()
+}
+
+case object RevivirAKrilin extends EfectoMagico {
+  override def apply(guerrero: Guerrero): Guerrero =
+    if (guerrero.nombre.contains("krilin") && guerrero.estado == Muerto) guerrero.aumentarEnergia(40) else guerrero
+}

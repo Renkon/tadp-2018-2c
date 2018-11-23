@@ -90,30 +90,8 @@ object ConvertirseEnSuperSaiyajin extends Movimiento {
 
 /* Efectos magicos */
 
-sealed trait EfectoMagico {
+trait EfectoMagico {
   def apply(guerrero: Guerrero): Guerrero
-}
-
-/* No se me ocurre como sacarlos de aca y declararlos en lso test.. onda si se me ocurre como peroo no puedo haerlos del tipo efectomagico*/
-case object NoHacerNada extends EfectoMagico {
-  override def apply(guerrero: Guerrero): Guerrero = guerrero
-}
-
-case object ObtenerSemillaDelErmitanio extends EfectoMagico {
-  override def apply(guerrero: Guerrero): Guerrero = guerrero.copy(items = SemillaDelHermitanio :: guerrero.items)
-}
-
-case object Matar extends EfectoMagico {
-  override def apply(guerrero: Guerrero): Guerrero = guerrero.disminuirEnergia(guerrero.energia - guerrero.energia) // TODO se supone que le cambia el estado a Muerto
-}
-
-case object ConvertirEnChocolate extends EfectoMagico {
-  override def apply(guerrero: Guerrero): Guerrero = guerrero.quedarInconsciente()
-}
-
-case object RevivirAKrilin extends EfectoMagico {
-  override def apply(guerrero: Guerrero): Guerrero =
-    if (guerrero.nombre.contains("krilin") && guerrero.estado == Muerto) guerrero.aumentarEnergia(40) else guerrero
 }
 
 
