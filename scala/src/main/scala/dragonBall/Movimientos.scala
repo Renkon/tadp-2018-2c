@@ -134,7 +134,6 @@ case object Explotar extends Fisico {
 
 /* Ataques de ondas */
 
-// fixme
 sealed trait DeEnergia extends Ataque {
 
   override def apply(atacante: Guerrero, oponente: Guerrero): (Guerrero, Guerrero) = {

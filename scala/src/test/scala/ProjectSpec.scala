@@ -704,8 +704,6 @@ class ProjectSpec extends FreeSpec with Matchers {
     val yajirobe = Guerrero(nombre = "yajirobe", energia = Humano().energiaMaxima, raza = Humano(), items = List(ArmaFilosa, SemillaDelHermitanio), movimientos = List(UsarItem(ArmaFilosa), UsarItem(SemillaDelHermitanio)))
     val mrSatan = Guerrero(nombre = "mr satan", energia = Humano().energiaMaxima, raza = Humano(), movimientos = List(UsarItem(ArmaDeFuego), AtacarCon(MuchosGolpesNinja)), items = List(ArmaDeFuego, Municion(1)))
 
-    //"si pasas un plan vacio no rompe" // TODO
-
     "goku vs vegeta: gana vegeta " in {
       // round1 : goku -> kamehameha (le saca 160 a vegeta y 80 a el), vegeta -> final flash (le saca 140 a goku y 70 a el) => (goku queda con 130, vegeta con 120)
       // round2 : goku -> muchos golpes ninja (le saca 20 a vegeta), vegeta -> final flash (le saca 70 a el )=> (goku queda con 0, vegeta con 30)
@@ -755,7 +753,7 @@ case object ObtenerSemillaDelErmitanio extends EfectoMagico {
 }
 
 case object Matar extends EfectoMagico {
-  override def apply(guerrero: Guerrero): Guerrero = guerrero.disminuirEnergia(guerrero.energia - guerrero.energia) // TODO se supone que le cambia el estado a Muerto
+  override def apply(guerrero: Guerrero): Guerrero = guerrero.disminuirEnergia(guerrero.energia - guerrero.energia)
 }
 
 case object ConvertirEnChocolate extends EfectoMagico {
