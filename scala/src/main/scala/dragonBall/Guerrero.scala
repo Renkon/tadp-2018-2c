@@ -121,8 +121,8 @@ case class Guerrero(nombre: String,
       List.fill(cantidadDeRounds - 1)(1).foldLeft(
         List(pelearUnRound(movimientoMasEfectivoContra(oponente, criterioSeleccionDeMovimiento).getOrElse(return None), oponente))
       )((resultados, _) => {
-        val atacanteNuevo = resultados.head.estadoFinalAtacante
-        val oponenteNuevo = resultados.head.estadoFinalOponente
+        val atacanteNuevo = resultados.last.estadoFinalAtacante
+        val oponenteNuevo = resultados.last.estadoFinalOponente
         resultados :+ atacanteNuevo.pelearUnRound(
           atacanteNuevo.movimientoMasEfectivoContra(oponenteNuevo, criterioSeleccionDeMovimiento).getOrElse(return None),
           oponenteNuevo)
