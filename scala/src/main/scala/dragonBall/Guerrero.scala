@@ -132,7 +132,7 @@ case class Guerrero(nombre: String,
 
   // Punto 4 -----------------------------------------------------------------------
   def pelearContra(oponente: Guerrero, planDeAtaque: List[Movimiento]): ResultadoDePelea = {
-    planDeAtaque.tail.foldLeft(ResultadoDePelea(pelearUnRound(planDeAtaque.head, oponente)))((resultadoDePelea, movimientoDelRound) => {
+    Try(planDeAtaque.tail).getOrElse(List()).foldLeft(Try(ResultadoDePelea(pelearUnRound(planDeAtaque.head, oponente))).getOrElse(new Ganador(oponente))) ((resultadoDePelea, movimientoDelRound) => {
       resultadoDePelea match {
         case huboGanador@Ganador(_) => huboGanador
         case SigueElCombate(atacanteProximoRound, oponenteProximoRound) =>

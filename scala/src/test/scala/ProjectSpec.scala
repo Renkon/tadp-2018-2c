@@ -705,10 +705,10 @@ class ProjectSpec extends FreeSpec with Matchers {
     val mrSatan = Guerrero(nombre = "mr satan", energia = Humano().energiaMaxima, raza = Humano(), movimientos = List(UsarItem(ArmaDeFuego), AtacarCon(MuchosGolpesNinja)), items = List(ArmaDeFuego, Municion(1)))
 
     "Si ocurre una pelea y no hay una lista de movimientos no falla" in {
-//      goku.pelearContra(vegeta, List()) match {
-   //     case Ganador(guerrero) => (guerrero.nombre, guerrero.energia) shouldBe(vegeta.nombre, 30)
-    //    case _ => fail("el ganador deberia ser vegeta")
-    //  }
+      goku.pelearContra(vegeta, List()) match {
+        case Ganador(guerrero) => (guerrero.nombre, guerrero.energia) shouldBe(vegeta.nombre, 350)
+        case _ => fail("el ganador deberia ser vegeta")
+      }
     }
 
 
@@ -717,7 +717,7 @@ class ProjectSpec extends FreeSpec with Matchers {
       // round2 : goku -> muchos golpes ninja (le saca 20 a vegeta), vegeta -> final flash (le saca 70 a el )=> (goku queda con 0, vegeta con 30)
 
       goku.pelearContra(vegeta, List(AtacarCon(Kamehameha), AtacarCon(MuchosGolpesNinja))) match {
-        case Ganador(guerrero) => (guerrero.nombre, guerrero.energia) shouldBe(vegeta.nombre, 30)
+        case Ganador(guerrero) => (guerrero.nombre, guerrero.energia) shouldBe(vegeta.nombre, 350)
         case _ => fail("el ganador deberia ser vegeta")
       }
     }
